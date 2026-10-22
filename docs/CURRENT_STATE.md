@@ -69,39 +69,51 @@ These are findings from static code inspection; they do not claim that every rou
 - No established application-wide IndexedDB persistence/outbox/sync-conflict implementation was confirmed during the reviewed file sample.
 - Scholarship URL parsing exists as an admin workflow; field-level provenance, reviewable source snapshots, and safe automatic change detection remain to be implemented/validated.
 
-## 7. Latest branch verification (2026-10-22)
+## 7. Latest verification record (2026-10-23)
 
-**Scope:** local branch `fix/production-readiness-and-app-id`, using Node.js 22.23.1 and pnpm 11.1.3. The branch is still uncommitted and has not been pushed, merged, or deployed. These are local results, not production-credential or live-deployment verification.
+**Scope:** local branch `fix/production-readiness-and-app-id`, Node.js 22.23.1, pnpm 11.1.3, Android/Termux on ARM64 with an F2FS filesystem. These results are local working-tree evidence. No changes have been committed, pushed, merged, or deployed.
+
+### Android Metro/Expo Router root cause and local fix
+
+- The original failure was not a missing Expo Router file. Node resolved `expo-router/entry` to `node_modules/expo-router/entry.js`, but Metro's file-map lookup considered it absent.
+- Root cause reproduced independently: on this Android/Termux F2FS environment, Node's `fs.readdir(..., { withFileTypes: true })` reported hard-linked regular files as `Dirent.isSymbolicLink() === true`, while `lstat` reported regular files and `readlink` returned `EINVAL`. This happened to ordinary probe files once their hard-link count was greater than one. Metro's crawler skipped those wrongly classified files in `node_modules`, so the Router entry and other packages disappeared from Metro's index.
+- Applied the targeted package-manager fix in `apps/mobile/pnpm-workspace.yaml`: `packageImportMethod: copy`. The main mobile dependencies were reinstalled from the updated lockfile with this setting. Re-checks of React, React Native, Expo Router, and Expo Notifications all show link count 1, regular-file `lstat`, and regular-file `Dirent`. The original Metro resolution error no longer reproduces.
+- Expo SDK alignment now passes: installed `@expo/cli@57.0.32`, `expo-notifications@57.0.24`, and `pnpm exec expo install --check` reports `Dependencies are up to date`.
+- **Diagnostic Android bundle/export:** `pnpm exec expo export --platform android --clear --no-bytecode` exited 0. Metro bundled 2,216 modules, emitted 77 assets, and produced a 4.4 MB Android JS bundle. This command explicitly disables Hermes bytecode and is only a bundling diagnostic, not a release artifact or a substitute for a native/EAS build.
+- **Regular Android export on this host:** `pnpm exec expo export --platform android --clear` now resolves and bundles all 2,216 modules, but exits 1 when the Hermes compiler receives `SIGILL`. This host is ARM64 (`aarch64`), while the installed `hermesc` binary is x86-64. This is a host/toolchain execution limit after Metro bundling, distinct from the fixed module-resolution root cause. The new GitHub CI workflow includes the regular export on an Ubuntu runner, but that remote job has not run because the branch has not been pushed.
+- Expo Doctor reported 20/20 checks passed and no issues. It did print a non-fatal warning that it could not fetch bundled native modules. Its `appConfigFieldsNotSyncedCheck` is explicitly disabled because the tracked Android project contains manual native configuration; this is not a claim that dynamic Expo config is automatically synchronized. Keep native config changes reviewed against `apps/mobile/android`.
 
 ### Checks currently passing
 
-- Web `pnpm lint`: PASS — ESLint reports no problems; the previous 28-error/10-warning result is superseded for this branch.
+- Web `pnpm lint`: PASS.
 - Web `pnpm typecheck`: PASS.
 - Web `pnpm test`: PASS — 18 test files, 375 tests.
-- Web production dependency audit (`pnpm audit --prod`): PASS — `No known vulnerabilities found` for the audited production dependency graph.
-- Mobile `pnpm lint`: PASS — no lint problems; the previous 7-error/3-warning result is superseded for this branch.
+- Web `pnpm build`: PASS — Next.js Webpack production build completed and generated all 56 static pages/routes using the configured local `.env.local` environment. This does not replace production-like auth, API, or user-journey smoke tests.
+- Web production dependency audit (`pnpm audit --prod --audit-level=moderate`): PASS — no known vulnerabilities found in the audited production dependency graph.
+- Mobile `pnpm lint`: PASS.
 - Mobile `pnpm typecheck`: PASS.
-- `pnpm exec expo install --check`: PASS — `Dependencies are up to date` against the installed Expo SDK 57 compatibility metadata.
-- `git diff --check`: PASS. Frozen-lockfile installs for root, web, and mobile package roots previously completed successfully.
+- Mobile `pnpm exec expo install --check`: PASS.
+- Mobile `pnpm doctor`: PASS — 20/20 checks passed; the non-fatal native-module-fetch warning is noted above.
+- Mobile Android bundling diagnostic with `--no-bytecode`: PASS — 2,216 modules and 77 assets; the normal Hermes bytecode step remains blocked on this ARM64 host as described above.
+- Mobile dependency install with `pnpm install --frozen-lockfile`: PASS after refreshing `apps/mobile/pnpm-lock.yaml`. The first offline reinstall lacked the new Notifications tarball, so the final successful frozen install ran online and fetched one package.
+- CI workflow and pnpm workspace YAML parse successfully; package JSON files parse; `git diff --check` passes for tracked changes.
 
-### Known blockers and limits
+### New CI gates
 
-- **Android export remains blocked.** `EXPO_PUBLIC_API_BASE=http://10.0.2.2:3000 pnpm exec expo export --platform android --clear` still fails in Metro while resolving `./node_modules/expo-router/entry`. The installed `expo-router/entry.js` exists and `require.resolve` can resolve it, but Metro still reports it missing. Simplifying `apps/mobile/metro.config.js` to Expo's default config plus NativeWind did not fix export. This is the principal unresolved build blocker.
-- **Web production build is not verified with a real database.** The latest `pnpm build` fails while collecting data for `/api/admin/guides/[id]/cover` because `DATABASE_URL` is not configured. An earlier Webpack build passed with a deliberately fake database URL and generated 56 static pages while logging expected database connection errors. That earlier result only proved part of compile/static generation; it did not verify database integration or production readiness.
-- **Release-age policy needs review.** The mobile pnpm configuration has `minimumReleaseAgeExclude` entries and comments referring to a 24-hour quarantine, but the `minimumReleaseAge` setting itself is absent. Those comments do not describe the effective policy accurately. Review and make the intended supply-chain policy explicit, then rerun install and Expo checks; do not assume the quarantine is active.
-- **Native app identity is not migration-verified.** Android namespace/application ID and iOS bundle identifier are locally set to `com.scholarhub.app`. Before publication, decide whether this is a new listing or an update to an existing app, then verify store ownership, signing, update compatibility, deep links, and OAuth redirects.
-- **Firebase/push configuration is not release-ready.** The old package-specific Android `google-services.json` was removed locally. A new matching Firebase config has not been supplied or tested. Do not claim push notifications are production-ready unless this feature is deferred or configuration is completed.
-- **EAS/native signing is unverified.** `apps/mobile/eas.json`, conditional Firebase-config handling, HTTPS API-base checks, and renamed `SCHOLARHUB_UPLOAD_*` properties exist locally. No remote EAS build, signed AAB, installation/update test, or real-device smoke test has run. A deployed HTTPS API URL and correctly configured build/signing credentials are still required.
-- No live deployment smoke test, credentials-backed auth test, real database migration/import, two-user authorization test, browser E2E suite, accessibility/performance gate, or signed Android device test has been completed in this phase.
+- Added `.github/workflows/ci.yml` for pull requests, pushes to `main`, and manual runs.
+- Web job runs frozen install, lint, TypeScript, unit tests, and production build. It uses the repository `DATABASE_URL` secret if configured; otherwise it uses an intentionally unreachable placeholder, which checks build/compile behaviour but does not validate database access.
+- Mobile job runs frozen install, lint, TypeScript, Expo SDK check, Expo Doctor, and a normal Android export on the hosted Ubuntu runner.
+- The workflow is locally syntax-checked but has **not** been executed by GitHub Actions. Do not report remote CI as green until the first run completes.
 
-### Local identity/configuration work recorded
+### Remaining blockers and limits
 
-- Expo display name/slug/scheme and deep-link scheme use ScholarHub; Android namespace/application ID and iOS bundle identifier are locally set to `com.scholarhub.app`.
-- The previous Firebase JSON for the old Android package was deleted from the local worktree; `app.config.js` only attaches a new matching file if one is supplied locally or through the configured environment mechanism.
-- `EXPO_PUBLIC_API_BASE` no longer uses a production localhost fallback; EAS preview/production profiles require a public HTTPS API URL.
-- EAS build configuration was added, but its actual remote/native build result is unknown.
+- A regular Android export/native build must be verified in a supported runner/EAS environment; the local no-bytecode export is not a shipping build. Review the first CI Android export result and run a signed EAS/internal build before release.
+- App identity `com.scholarhub.app` is not verified against an existing Play Store listing or signing/update path.
+- A new matching Firebase configuration and push delivery have not been tested. EAS signing, deployed HTTPS API origin, OAuth/deep links, real-device installation/update, and notification smoke tests remain pending.
+- No staging migration run, data import/seed, production database write, two-user authorization suite, or credentials-backed integration/E2E test was executed in this pass. The local production build succeeded, but this is not a complete release readiness claim.
+- Local changes remain uncommitted and unpushed. The CI file and local-only audit notes have not been published.
 
-**Conclusion:** local quality has substantially improved: web/mobile lint and typecheck, all 375 web tests, the Expo package check, and the production dependency audit pass. The repository is **not yet production/release-ready** because Android export remains blocked, the latest web build lacks `DATABASE_URL`, and native store identity/Firebase/signing/real-service smoke tests remain unverified.
+**Conclusion:** the original Android Metro resolver failure is fixed locally through package installation strategy, and the diagnostic bundle, Expo checks, web quality gates, and web production build pass. Full release readiness is still blocked on standard Hermes/native build verification outside this ARM64 host and on the separate store, signing, Firebase, staging-data, and real-device gates.
 
 ## 8. Sensitive and historical repository files
 

@@ -1,6 +1,6 @@
 # ScholarHub Production Roadmap (Draft)
 
-_Status: temporary planning draft — 2026-10-22. This is an editable proposal, not a locked specification, promise, or release date._
+_Status: temporary planning draft — 2026-10-23. This is an editable proposal, not a locked specification, promise, or release date._
 
 ## Purpose and target
 
@@ -33,11 +33,11 @@ The roadmap scope remains a **Proposed**, editable plan; individual task checkbo
 
 **Goal:** establish a reproducible baseline for both clients before adding more product complexity.
 
-- [ ] `P1.1` Pin/use the supported Node.js 22 range (`>=22 <23`) consistently for local work and CI.
-- [ ] `P1.2` Expo SDK 57 package alignment is locally complete (`expo install --check` passes), but review/correct the absent `minimumReleaseAge` setting versus quarantine comments before treating the dependency baseline as complete.
-- [ ] `P1.3` Fix and reproduce the Android Metro/Expo Router `expo-router/entry` bundle/export blocker. Simplifying Metro config did not resolve it.
+- [x] `P1.1` Pin/use the supported Node.js 22 range (`>=22 <23`) consistently for local work and CI via `.nvmrc` and the CI workflow.
+- [x] `P1.2` Expo SDK 57 alignment passes `expo install --check`; the mobile pnpm root has an explicit 24-hour `minimumReleaseAge` setting plus exact exceptions for the SDK-required CLI/Notifications patches.
+- [x] `P1.3` Fixed the reproduced Metro file-map failure by using pnpm copied package files on Android/Termux F2FS. Diagnostic export passes 2,216 modules/77 assets; normal local export still cannot execute this host's x86-64 Hermes compiler on ARM64 (`SIGILL`), so the standard export result on hosted Ubuntu CI is still required.
 - [x] `P1.4` Resolve the observed web/mobile lint errors in focused groups; current-branch lint passes for both apps.
-- [ ] `P1.5` Define/confirm CI checks for web lint/typecheck/tests/production build and mobile lint/typecheck/Expo export or native build. Ensure failures are visible and attributable.
+- [x] `P1.5` Added `.github/workflows/ci.yml` with web lint/typecheck/tests/build plus mobile lint/typecheck/Expo compatibility/Doctor/standard Android export. The workflow parses locally but its first GitHub-hosted run is pending.
 - [ ] `P1.6` Add/confirm essential smoke tests for public web routes, core API routes, and a mobile build connected to a test API.
 - [x] `P1.7` Document separate install/check commands because root, web, and mobile use separate pnpm roots and lockfiles.
 
@@ -112,23 +112,23 @@ These are intentionally unresolved until the related phase is reviewed:
 - Whether iOS is in the first release scope or deferred.
 - Which advanced catalogue/research/AI features justify implementation after the core applicant journey works.
 
-## Current verified baseline (updated 2026-10-22; not a release claim)
+## Current verified baseline (updated 2026-10-23; not a release claim)
 
-- `apps/web` is the Next.js application and also contains API route handlers; `apps/mobile` is the separate Expo/React Native client.
-- Existing code includes catalogue/admin functionality, profile/dashboard, bookmarks, AI mentor, roadmap, CV tooling, guides, and language support. Feature completeness and external-service behaviour still require per-journey verification.
-- Local branch `fix/production-readiness-and-app-id` passes web lint, web typecheck, all 375 web tests, web production dependency audit, mobile lint, mobile typecheck, `expo install --check`, and `git diff --check`. These changes remain uncommitted/unmerged.
-- Android export still fails to resolve `expo-router/entry`, even after simplifying Metro configuration. The latest web build fails because `DATABASE_URL` is not configured. An earlier Webpack build generated 56 static pages only with a fake database URL; that is not production or real-database verification.
-- Package versions match installed Expo SDK 57 compatibility metadata, but the mobile pnpm configuration currently lacks an active `minimumReleaseAge` setting even though comments refer to a 24-hour quarantine. Correct that inconsistency before treating the supply-chain posture as approved.
-- The local branch configures Android namespace/application ID and iOS bundle identifier as `com.scholarhub.app`; store/update compatibility is undecided/unverified. The former package-specific Firebase config was removed and new Firebase settings are not yet available. EAS/API/signing builds have not been validated against a real deployed HTTPS backend.
-- The Clerk-free visual preview fix was merged through PR #1, but the preview flag is for local review only and has not been used as a production configuration.
+- The web application and API handlers live in apps/web; apps/mobile is the separate Expo/React Native client.
+- Web lint/typecheck pass, all 375 web tests pass, the local production build completes and generates 56 routes with the configured .env.local environment, and the production dependency audit finds no known vulnerabilities. These checks do not replace auth/API/browser/device smoke tests; no migration, seed, or import was run during this pass.
+- Mobile lint/typecheck, Expo install compatibility, and Expo Doctor (20/20 checks) pass. Metro's missing expo-router/entry root cause was Node/F2FS Dirent misclassification of hard-linked regular package files. Setting packageImportMethod: copy and reinstalling resolves that file-metadata issue; the diagnostic Android export passes 2,216 modules and 77 assets.
+- The normal Android export still fails at Hermes bytecode with SIGILL on the local ARM64 host because the installed Hermes compiler is x86-64. The new hosted-Ubuntu CI workflow runs normal export, but its first GitHub run is still pending.
+- The mobile dependency baseline is aligned to Expo SDK 57: @expo/cli 57.0.32 and expo-notifications 57.0.24. The 24-hour minimumReleaseAge policy is explicit with exact patch exceptions, and the refreshed mobile lockfile passes a frozen install.
+- .github/workflows/ci.yml covers web lint/typecheck/tests/build and mobile lint/typecheck/Expo validation/Doctor/Android export. It is locally YAML-validated but not remotely verified.
+- Android and iOS identifiers remain locally configured as com.scholarhub.app; store/update compatibility is undecided and unverified. Matching Firebase/push, EAS/signing, a deployed HTTPS API, OAuth/deep links, and real-device tests remain outstanding.
+- The Clerk-free visual preview fix was merged through PR #1; its preview flag is for local review only and must not be used as production configuration.
 
 ### Current open release gates
 
-1. Diagnose/fix Metro's `expo-router/entry` resolution and successfully export/build Android.
-2. Configure a real staging database and pass the web production build plus runtime/API smoke tests.
-3. Review supply-chain release-age settings, then rerun install/checks.
-4. Decide app-store identity; supply matching Firebase config where required; configure and verify EAS signing/API URL/native builds on a real device.
-5. Finish auth/authorization, migration/import, user-journey, accessibility/performance, privacy/legal/operator, monitoring, and staged-rollout checks.
+1. Push/review the local branch when ready and inspect the first GitHub CI run, especially normal Android export on hosted Ubuntu; then complete EAS/native signed-build validation on a real device.
+2. Configure a dedicated staging database, reconcile migrations with backup/rollback, and run a reviewed dry-run of the actual scholarship source data before importing records.
+3. Decide the app-store identity; provide matching Firebase configuration where needed; verify signing, public HTTPS API URL, OAuth, and deep links.
+4. Finish auth/authorization, route-level E2E, accessibility/performance, privacy/legal/operator, monitoring, and staged-release checks.
 
 ## Change log for this draft
 

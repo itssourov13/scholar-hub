@@ -1,6 +1,6 @@
 # Handoff
 
-_Last updated: 2026-10-22_
+_Last updated: 2026-10-23_
 
 ## Current objective
 
@@ -14,9 +14,10 @@ Continue adapting the existing application into **ScholarHub**, a broader schola
 - Current web foundation: Next.js 16.4.2, React 19, TypeScript, Clerk, Neon/PostgreSQL/pgvector, R2, OpenRouter, optional Redis/NIM. Mobile: Expo SDK 57, React Native 0.86, Clerk Expo.
 - API handlers are in `apps/web/src/app/api`; zero-byte `apps/api`/`packages/db` scaffold files were removed from the fresh tree.
 - **Active local branch:** `fix/production-readiness-and-app-id`, based on `fa98e09`. Its work is uncommitted and has not been pushed or merged. Review the full diff before committing.
-- Latest passing checks: web lint, web typecheck, 375 web tests (18 files), production dependency audit (no known vulnerabilities found), mobile lint, mobile typecheck, `expo install --check`, and `git diff --check`.
-- Latest blockers: Android Expo export still cannot resolve `expo-router/entry`; the latest web build fails because `DATABASE_URL` is unset. An earlier Webpack build with a fake DB URL generated 56 pages but was not a real database test.
-- Mobile package versions pass Expo's compatibility check, but `apps/mobile/pnpm-workspace.yaml` lacks an active `minimumReleaseAge` value despite comments mentioning a 24-hour quarantine. Native identifiers have changed locally to `com.scholarhub.app` but store/update compatibility is unverified; new Firebase settings, a real HTTPS API origin, EAS/native signing, and device tests remain outstanding. See `docs/CURRENT_STATE.md` for evidence and detail.
+- Latest passing local checks: web lint/typecheck, 375 web tests (18 files), production build with the configured local environment (56 routes), production dependency audit (no known vulnerabilities), mobile lint/typecheck, Expo SDK check, and Expo Doctor (20/20).
+- Android Metro/Router resolution is fixed locally by setting `packageImportMethod: copy` for the mobile pnpm root. The normal Android export bundles 2,216 modules but fails at Hermes bytecode with `SIGILL` because this host is ARM64 and its installed compiler binary is x86-64; the diagnostic `--no-bytecode` export passes (2,216 modules, 77 assets). Hosted Ubuntu CI now checks the normal export, but GitHub Actions has not run yet.
+- Added `.github/workflows/ci.yml`; it has passed local YAML parsing, but remains unpushed/unrun remotely. The local web production build passed; no DB migration, seed/import, or production write took place.
+- Mobile identifiers remain locally set to `com.scholarhub.app`, but store/update compatibility, Firebase/push, EAS/signing, public HTTPS API, auth/deep links, and real-device tests remain outstanding. See `docs/CURRENT_STATE.md` for evidence and limitations.
 
 ## Most recent local preview fix
 
@@ -33,6 +34,7 @@ Continue adapting the existing application into **ScholarHub**, a broader schola
 - Replaced the generic web README and updated web-specific agent instructions.
 - Removed stale duplicate root project plans/migration notes and the legacy interview brief.
 - Updated primary product-name copy, site metadata/schema, PWA/native labels, Expo slug/scheme, Android deep-link scheme, shared package scope, and service-worker cache namespace/version. Removed the former APK/assetlinks, disabled former ad/pixel integrations, made public outbound links configurable, and marked legal policies as pre-release drafts. No database schema, production data, deployed environment, or production deployment was changed.
+- Follow-up (2026-10-23): root-caused and fixed the Android Metro file-map issue using copied package files, aligned Expo CLI/Notifications patches and the lockfile, added CI gates, and reran web/mobile checks. The diagnostic Android bundle passes; normal export still fails at Hermes SIGILL on this ARM64 host. The remote CI run remains pending.
 
 ## Read first
 
@@ -47,12 +49,12 @@ Continue adapting the existing application into **ScholarHub**, a broader schola
 
 ## Next steps
 
-1. Diagnose Metro's resolver/root behavior for `expo-router/entry`. Do not mask it by changing the app entry to an arbitrary path; make a targeted, evidence-backed fix and rerun Android export.
-2. Review and correct the mobile pnpm release-age policy/comments, then rerun install and Expo compatibility checks.
-3. Configure a real dedicated staging `DATABASE_URL`, apply migrations with an agreed safe process, and rerun the web production build plus API/browser smoke tests against staging services.
-4. Decide whether `com.scholarhub.app` is a new store listing or an update to the former app before release. Supply matching Firebase settings if push is in scope, verify OAuth/deep links, configure signing/EAS, and test a signed internal build on a real device.
-5. Add or confirm CI gates and focused E2E/authorization coverage, then audit core applicant journeys and actual scholarship data/import requirements.
-6. Finalise approved assets, operator/legal/privacy details, production domain/provider credentials, monitoring/rollback, historical source artifacts, and staged-release approval after the relevant checks pass.
+1. Push the reviewed local branch when ready and inspect the first `.github/workflows/ci.yml` run, especially the regular Android export on hosted Ubuntu. Do not claim remote CI is green before it completes.
+2. If the standard export passes on the supported runner, perform an EAS preview/native build, configure the deployed HTTPS API origin, and test a signed internal build on a real device.
+3. Decide whether `com.scholarhub.app` is a new store listing or an update to the former app before release. Supply matching Firebase settings if push is in scope, verify OAuth/deep links, and test update/signing compatibility.
+4. Configure a dedicated staging Neon `DATABASE_URL`, reconcile migrations with backup/rollback, review the actual scholarship source data, and run an approved dry-run import before writing any records.
+5. Add route/API E2E, two-user authorization, accessibility/performance, and deployment smoke tests; review core applicant journeys and their evidence/data requirements.
+6. Finalise approved assets, operator/legal/privacy details, production domain/provider credentials, monitoring/rollback, historical source artifacts, and staged-release approval after the appropriate gates pass.
 
 ## Operational commands
 

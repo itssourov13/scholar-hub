@@ -1,5 +1,7 @@
 # Keep this as an isolated pnpm root with a flat node_modules for Metro.
 nodeLinker: hoisted
+# Android/Termux F2FS reports hard-linked package files as symlinks to Node; copy avoids Metro skipping them.
+packageImportMethod: copy
 
 allowBuilds:
   '@clerk/shared': false
@@ -10,9 +12,13 @@ allowBuilds:
   esbuild: true
   unrs-resolver: true
 
+# Keep pnpm v11's 24-hour dependency quarantine explicit instead of relying on its default.
+minimumReleaseAge: 1440
+
 # Existing, intentional exceptions for earlier SDK 57 prerelease package patches.
 minimumReleaseAgeExclude:
   - '@expo/cli@57.0.9'
+  - '@expo/cli@57.0.32'
   - '@expo/metro-config@57.0.6'
   - '@expo/metro-runtime@57.0.6'
   - '@expo/prebuild-config@57.0.8'
@@ -30,8 +36,9 @@ minimumReleaseAgeExclude:
   - 'expo@57.0.31'
   - '@expo/ui@57.0.26'
   - 'expo-router@57.0.29'
+  - 'expo-notifications@57.0.24'
 
 # Keep the newest SDK-compatible versions that have passed the 24-hour quarantine.
 overrides:
-  '@expo/cli': 57.0.31
+  '@expo/cli': 57.0.32
   expo-modules-core: 57.0.23

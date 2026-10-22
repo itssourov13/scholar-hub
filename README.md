@@ -4,7 +4,7 @@
 
 The initial product focus is to help students discover undergraduate scholarships and university programmes, understand eligibility and funding, manage applications, organise documents, and track deadlines—with source evidence and useful offline capability.
 
-> **Current status (local working branch, 2026-10-22):** Web/mobile lint and typecheck pass; all 375 web tests pass; the web production dependency audit reports no known vulnerabilities; and Expo package compatibility check passes. However, Android export still fails at Metro's `expo-router/entry` resolution, and the latest web production build fails because `DATABASE_URL` is not configured. The local branch `fix/production-readiness-and-app-id` also sets Android/iOS identifiers to `com.scholarhub.app`, but store/update compatibility is not verified; the old package-specific Firebase file was removed and new Firebase/signing/EAS settings remain unverified. Legacy logo/icon/splash artwork, real service configuration, and legal/operator details remain pending. These local changes are uncommitted and not merged; do not treat this branch as release-ready.
+> **Current status (local working branch, 2026-10-23):** Web lint/typecheck, all 375 tests, the production build (56 routes, using the configured local environment), and production dependency audit pass. Mobile lint/typecheck, Expo package alignment, and Expo Doctor (20/20 checks) pass. The Metro expo-router/entry resolution root cause is fixed locally by using copied mobile dependencies; the diagnostic Android bundle passes with 2,216 modules and 77 assets. The regular local export then fails at Hermes bytecode generation with SIGILL because this ARM64 host has an x86-64 Hermes compiler. The new hosted-Ubuntu CI check has not run yet. Store identity, Firebase, EAS/signing, real-device, and staging-data checks remain unverified. These changes are local, uncommitted, and unpushed; do not treat them as release-ready.
 
 ## Product principles
 
@@ -63,7 +63,7 @@ The web app lives in `apps/web`. Run its commands from that directory. Its packa
 - `pnpm test` — Vitest suite
 - `pnpm build` — production build
 
-The mobile app lives in `apps/mobile`. Run its commands from that directory; it defines `start`, `android`, `ios`, `web`, `typecheck`, `lint`, and `doctor` scripts.
+The mobile app lives in `apps/mobile`. Run its commands from that directory; it defines `start`, `android`, `ios`, `web`, `typecheck`, `lint`, and `doctor` scripts. On Android/Termux F2FS, `packageImportMethod: copy` is intentional: it prevents a Node filesystem metadata issue that made Metro skip hard-linked package files.
 
 The root, web, and mobile directories are separate pnpm roots with separate lockfiles; there is no single root pnpm workspace. In this working tree, frozen-lockfile dependency installs completed for all three roots. From a fresh checkout, install each root independently before checks:
 
@@ -71,7 +71,7 @@ The root, web, and mobile directories are separate pnpm roots with separate lock
 - `pnpm install --frozen-lockfile` from `apps/web`.
 - `pnpm install --frozen-lockfile` from `apps/mobile`.
 
-See [Current State](docs/CURRENT_STATE.md) for the real typecheck/test/lint/build/export outcomes and the remaining blockers. Successful install or typecheck alone does not mean the product is production-ready.
+The CI workflow at `.github/workflows/ci.yml` runs web lint/typecheck/tests/build and mobile lint/typecheck/Expo checks/standard Android export on pull requests and pushes to `main`. Its first GitHub-hosted run is pending. See [Current State](docs/CURRENT_STATE.md) for actual local results and remaining blockers. Successful installation, a diagnostic `--no-bytecode` export, or typecheck alone does not mean a releasable native build is ready.
 
 ## Importing the supplied scholarship materials
 
@@ -79,4 +79,4 @@ The client-supplied archive and workbook are source inputs, not application asse
 
 ## Project status
 
-The ScholarHub documentation/brand foundation and Clerk-free local visual-preview fix are merged into main. The separate local readiness branch has substantially improved lint/typecheck/test/security-audit results, but remains blocked by Android export resolution and missing real database configuration; native store identity, Firebase, signing, and real-service smoke tests are also unverified. See [Current State](docs/CURRENT_STATE.md), [Task State](docs/TASK_STATE.md), and the intentionally editable [Production Roadmap (Draft)](docs/PRODUCTION_ROADMAP.md).
+The ScholarHub documentation/brand foundation and Clerk-free local visual-preview fix are merged into main. On the local readiness branch, web lint/typecheck, all 375 tests, web production build (56 routes), dependency audit, mobile lint/typecheck/Expo package check, and Expo Doctor all pass. The Android Metro resolution root cause is fixed locally; a diagnostic Android bundle passes, while normal local export reaches Hermes and then fails with SIGILL because this ARM64 host uses an x86-64 Hermes compiler. A CI workflow now checks normal export on hosted Ubuntu, but that GitHub run is pending. Store identity, Firebase, signing, staging-data and real-device smoke tests remain unverified. See [Current State](docs/CURRENT_STATE.md), [Task State](docs/TASK_STATE.md), and the intentionally editable [Production Roadmap (Draft)](docs/PRODUCTION_ROADMAP.md).

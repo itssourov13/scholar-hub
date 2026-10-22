@@ -82,7 +82,7 @@ The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the pla
 - [ ] Add two-user authorization/integration tests for every private-data domain.
 - [ ] Define sync outbox/idempotency/revision conflict handling before enabling cross-device sync.
 - [ ] Define private document storage and deletion/export behaviour before cloud upload is available.
-- [ ] Add accessibility and performance CI gates, route-level E2E tests, security checks, and deployment smoke tests.
+- [ ] Add accessibility/performance gates, route-level E2E tests, focused security checks, and deployment smoke tests; current CI covers lint, typecheck, unit tests, build, and Expo export only.
 - [ ] Create sanitized demo data, portfolio case study, setup guide, and release checklist.
 
 ## Acceptance criteria for the documentation and product-label reset
@@ -95,31 +95,41 @@ The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the pla
 - [x] Documentation distinguishes current implementation, planned work, and unverified behaviour.
 - [x] No database schema, production data, deployment, or environment credentials were changed. Product copy/metadata, app labels, footer links, consent/analytics source code, legal pages, and native/app configuration changed locally.
 
-## Latest verification record and remaining gates (2026-10-22)
+## Latest verification record and remaining gates (2026-10-23)
 
-### Passing on `fix/production-readiness-and-app-id`
-- [x] Web lint passes with no ESLint problems (the prior 28-error/10-warning result is superseded for this branch).
-- [x] Web typecheck passes.
-- [x] Web tests pass: 18 files, 375 tests.
-- [x] Web production dependency audit reports `No known vulnerabilities found`.
-- [x] Mobile lint passes with no lint problems (the prior 7-error/3-warning result is superseded for this branch).
-- [x] Mobile typecheck passes.
-- [x] `pnpm exec expo install --check` reports `Dependencies are up to date` for the installed SDK compatibility matrix.
-- [x] `git diff --check` passes; earlier JSON/YAML parsing, changed JavaScript syntax, frozen-lockfile install, and relative Markdown-link checks passed.
+### Passing locally
 
-### Still blocking or unverified
-- [ ] Resolve Android Metro export: bundling still fails to resolve `./node_modules/expo-router/entry` although the package's `entry.js` exists. Simplifying Metro config did not solve it.
-- [ ] Configure a real dedicated staging `DATABASE_URL`; rerun `pnpm build` and route/runtime smoke tests. Latest build fails at `/api/admin/guides/[id]/cover` for missing configuration; the earlier Webpack build using a fake URL was not a database integration test.
-- [ ] Review mobile release-age policy: `apps/mobile/pnpm-workspace.yaml` has `minimumReleaseAgeExclude` entries and 24-hour-quarantine comments but no active `minimumReleaseAge` value. Make the intended policy explicit and verify it.
-- [ ] Confirm whether `com.scholarhub.app` is a new app identity or an update to an existing listing; verify signing ownership and update path.
-- [ ] Supply new Firebase config matching `com.scholarhub.app` if push is in release scope; the previous package-specific JSON is removed locally.
-- [ ] Set the actual deployed HTTPS API origin for EAS preview/production, configure secrets/signing, and complete an EAS/native build, signed AAB installation/update test, and real-device smoke test.
-- [ ] Test Clerk auth/callbacks/OAuth and private API ownership against staging credentials with at least two users. This pass did not run production-like authorization tests.
-- [ ] Confirm CI gates; run browser E2E/accessibility/performance tests, migration/import validation, backup/rollback checks, and deployment smoke tests.
-- [ ] Finalise production domain, provider credentials, approved brand assets, legal/operator/privacy details, analytics/ads ownership, monitoring/support, and staged-release decisions.
-- [ ] Review historical Git artifacts before wider source release; rotate exposed credentials if evidence of exposure is found.
+- [x] Web lint and TypeScript checks.
+- [x] Web unit tests: 18 files, 375 tests.
+- [x] Web production build with the configured local `.env.local` environment; 56 static pages/routes generated.
+- [x] Web production dependency audit: `pnpm audit --prod --audit-level=moderate` reports no known vulnerabilities.
+- [x] Mobile lint and TypeScript checks.
+- [x] SDK package alignment: `pnpm exec expo install --check` reports dependencies are up to date; the installed CLI is `57.0.32` and Notifications is `57.0.24`.
+- [x] Expo Doctor: 20/20 checks passed and no issues detected; a non-fatal network warning prevented fetching bundled native-module metadata.
+- [x] Android Metro/Router resolution failure reproduced and root-caused to Node/F2FS Dirent metadata misreporting hard-linked regular package files as symbolic links. Adding `packageImportMethod: copy`, then doing a fresh mobile install, makes the relevant dependency files appear as regular files with link count 1.
+- [x] Diagnostic Android bundle/export: `pnpm exec expo export --platform android --clear --no-bytecode` exited 0 with 2,216 modules and 77 assets.
+- [x] Mobile frozen-lockfile install; the refreshed mobile lockfile now matches `expo-notifications@57.0.24` and `@expo/cli@57.0.32`.
+- [x] CI workflow/YAML and package JSON syntax checks; `git diff --check` passed.
 
-**State:** lint/test/typecheck/dependency-audit baseline is substantially improved; release readiness is still blocked by Android export and missing real database configuration, with native and operational verification pending. All branch changes remain local and uncommitted.
+### Still blocking or not yet verified
+
+- [ ] **Normal Android export/native build:** the standard local `expo export --platform android` successfully bundles 2,216 modules but fails at Hermes bytecode generation with `SIGILL`; the host is ARM64 while the installed Hermes compiler binary is x86-64. The new CI job includes standard export on hosted Ubuntu but has not been run by GitHub Actions yet. Review that first CI result, then complete EAS/native build validation.
+- [ ] Sign and install an internal Android build; verify upgrade/update path and real-device core journeys.
+- [ ] Confirm whether `com.scholarhub.app` is a new Play Store listing or an update to an existing listing; verify ownership and signing compatibility.
+- [ ] Supply/test Firebase config matching `com.scholarhub.app` if push remains in scope.
+- [ ] Configure a public HTTPS API origin for EAS preview/production, verify EAS secrets/signing and OAuth/deep links, and test push delivery if enabled.
+- [ ] Apply/reconcile migrations on a dedicated staging Neon database with backup/rollback; inspect and import the supplied scholarship catalogue through a reviewed dry run. No migration, seed, or import occurred during the current pass.
+- [ ] Complete credentials-backed auth, two-user authorization, route/API E2E, accessibility/performance, and deployment smoke tests.
+- [ ] Review historical Git artifacts before wider source release; rotate any exposed credentials if evidence of exposure is found.
+
+### CI status
+
+- [x] Added `.github/workflows/ci.yml` for PRs, pushes to `main`, and manual dispatch.
+- [x] Web job runs frozen install, lint, typecheck, unit tests, and build. Without the `DATABASE_URL` repository secret, the build uses an intentionally unreachable placeholder: compilation only, not DB integration.
+- [x] Mobile job runs frozen install, lint, typecheck, Expo SDK validation, Expo Doctor, and normal Android export on hosted Ubuntu.
+- [ ] GitHub-hosted CI result is pending; the workflow has not been pushed or run remotely.
+
+**State:** the Metro file-map/entry-resolution root cause is fixed locally and the diagnostic export passes; web quality gates and the configured local web production build pass. A normal Hermes/native build and all release/data/security gates remain unverified. The working tree remains local and uncommitted.
 
 ## Editable production roadmap
 

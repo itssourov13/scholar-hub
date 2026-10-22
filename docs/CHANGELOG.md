@@ -4,6 +4,15 @@ Meaningful product and engineering changes are recorded here. Dates use YYYY-MM-
 
 ## Unreleased
 
+### 2026-10-23 — Android Metro root-cause fix, dependency alignment, CI gates, and verification
+- Traced the Android Metro `expo-router/entry` resolution failure to Android/Termux F2FS/Node Dirent metadata: hard-linked regular files were returned as symlinks by `readdir`, so Metro's file map skipped package files. Configured `packageImportMethod: copy` for the mobile pnpm root and freshly reinstalled dependencies; inspected package files to confirm link count 1 and regular-file metadata.
+- Aligned `@expo/cli` to `57.0.32` and `expo-notifications` to `57.0.24`, updated `apps/mobile/pnpm-lock.yaml`, and confirmed `expo install --check` passes. Enabled the existing 24-hour `minimumReleaseAge` policy explicitly as already present in the working mobile pnpm config and added exact exceptions for those SDK-required patches.
+- Added `.github/workflows/ci.yml` for web lint/typecheck/tests/build and mobile lint/typecheck/Expo SDK check/Doctor/Android export. The workflow is locally YAML-validated but has not yet run on GitHub.
+- Verified web lint, typecheck, all 375 tests, production build (56 static pages/routes, using the configured local environment), and production dependency audit (no known vulnerabilities); mobile lint/typecheck, Expo SDK check, and Expo Doctor (20/20 checks) also pass.
+- Verified the Android JS/assets bundle on the main project with `expo export --platform android --clear --no-bytecode` (2,216 modules, 77 assets). Standard export bundles modules successfully but the local ARM64 host cannot execute the installed x86-64 Hermes compiler (`SIGILL`); hosted Ubuntu CI must confirm the normal bytecode export.
+- Updated current state, task state, handoff, roadmap, decisions, README, and the local-only `audit.md`. No schema migration, seed/import, commit, push, merge, or production deployment was performed.
+
+
 ### 2026-10-22 — Local production-readiness/app-ID progress and status refresh
 - Recorded latest local checks: web lint/typecheck pass, all 375 web tests pass, production dependency audit reports no known vulnerabilities, mobile lint/typecheck pass, Expo SDK package check passes, and `git diff --check` passes.
 - Updated Current State, Task State, Handoff, README, and the editable production roadmap to distinguish passing quality gates from remaining release blockers.

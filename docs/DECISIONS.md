@@ -74,6 +74,14 @@ Do not describe ScholarHub as fully rebranded, production-ready, fully offline, 
 
 **Reason:** Product and engineering claims must match verified behaviour.
 
+## ADR-011 — Copy mobile dependencies on Android/Termux F2FS
+
+**Status:** accepted for the current mobile workspace; verify the same checks in CI before release.
+
+The mobile pnpm root keeps `nodeLinker: hoisted` for Metro compatibility and sets `packageImportMethod: copy`. Testing on the ARM64 Android/Termux F2FS filesystem showed Node's directory-entry metadata can classify hard-linked regular files as symlinks (`Dirent.isSymbolicLink() === true`) while `lstat` reports regular files and `readlink` fails with `EINVAL`. Metro's file map skips those entries, causing an existing `expo-router/entry.js` to look missing.
+
+A clean install with copied files gives the affected package files a link count of one and regular-file metadata, allowing Metro to discover them. Do not replace this with manual entry-path hacks or remove the import method without repeating the file-metadata probe and Android export test. Copying may consume more install time/storage; the normal Hermes/native build must still be verified on a supported runner because this ARM64 host contains an x86-64 Hermes compiler.
+
 ## Change process
 
 For a new durable decision, add:
