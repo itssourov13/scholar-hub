@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 import { useT, useLang } from "@/lib/lang-context";
 import AppNavbar, { NavAction } from "@/components/layout/app-navbar";
 import SharedFooter from "@/components/layout/shared-footer";

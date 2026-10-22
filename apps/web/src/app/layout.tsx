@@ -253,6 +253,21 @@ export default function RootLayout({
             __html: `
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
+                  if (${process.env.SCHOLARHUB_LOCAL_PREVIEW === "1"}) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                      return Promise.all(registrations.map(function(registration) {
+                        return registration.unregister();
+                      }));
+                    });
+                    if ('caches' in window) {
+                      caches.keys().then(function(keys) {
+                        return Promise.all(keys.filter(function(key) {
+                          return key.startsWith('scholarhub-');
+                        }).map(function(key) { return caches.delete(key); }));
+                      });
+                    }
+                    return;
+                  }
                   navigator.serviceWorker.register('/sw.js');
                 });
               }

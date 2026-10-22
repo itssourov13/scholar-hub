@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 import { useLang, useT } from "@/lib/lang-context";
 import { homeHref, isHomePath } from "@/lib/i18n";
 import styles from "./mobile-tab-bar.module.css";

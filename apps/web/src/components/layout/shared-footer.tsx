@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 import { useT } from "@/lib/lang-context";
 import { openCookieSettings } from "@/lib/consent";
 import {

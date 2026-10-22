@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 import AppNavbar, { NavAction } from "@/components/layout/app-navbar";
 import SharedFooter from "@/components/layout/shared-footer";
 import styles from "./legal.module.css";

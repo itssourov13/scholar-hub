@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 import styles from "./admin.module.css";
 
 type Stats = { total: number; published: number; drafts: number; guides: number };

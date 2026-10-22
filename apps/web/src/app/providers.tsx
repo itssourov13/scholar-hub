@@ -1,10 +1,13 @@
 "use client";
 
-import { ClerkProvider } from "@clerk/nextjs";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { AuthProvider, PreviewAuthProvider } from "@/lib/auth";
-import { DialogProvider } from "@/components/ui/dialog-provider";
-import { LangProvider, type Lang } from "@/lib/lang-context";
+import type { Lang } from "@/lib/lang-context";
+
+// Keep Clerk in a separate chunk: the public local-preview pages must not load
+// Clerk's client bundle or try to resolve the placeholder .local frontend API.
+const ClerkProviders = dynamic(() => import("./clerk-providers"));
+const PreviewProviders = dynamic(() => import("./preview-providers"));
 
 export default function Providers({
   children,
@@ -13,32 +16,17 @@ export default function Providers({
 }: {
   children: React.ReactNode;
   defaultLang?: Lang;
-  /** Server-selected, local-build-only visual preview. Authentication is disabled. */
+  /** Enabled only for a local, unauthenticated visual preview build. */
   previewMode?: boolean;
 }) {
   const pathname = usePathname();
   const isAuthRoute = pathname?.startsWith("/auth/") ?? false;
 
-  // Auth routes must keep ClerkProvider during static generation because their
-  // forms use Clerk hooks. The preview proxy redirects these routes before
-  // serving them, while public routes stay entirely off Clerk's client API.
+  // Login pages need Clerk during build/runtime; the local-preview proxy redirects
+  // them to the public site. Keep regular provider behavior when preview is off.
   if (previewMode && !isAuthRoute) {
-    return (
-      <LangProvider defaultLang={defaultLang}>
-        <DialogProvider>
-          <PreviewAuthProvider>{children}</PreviewAuthProvider>
-        </DialogProvider>
-      </LangProvider>
-    );
+    return <PreviewProviders defaultLang={defaultLang}>{children}</PreviewProviders>;
   }
 
-  return (
-    <ClerkProvider>
-      <LangProvider defaultLang={defaultLang}>
-        <DialogProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </DialogProvider>
-      </LangProvider>
-    </ClerkProvider>
-  );
+  return <ClerkProviders defaultLang={defaultLang}>{children}</ClerkProviders>;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 import { useDialog } from "@/components/ui/dialog-provider";
 import { CompetitivenessGauge } from "./competitiveness-gauge";
 import styles from "./detail.module.css";

@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { LinkProps } from "next/link";
 import { useRouter } from "next/navigation";
 import { AnchorHTMLAttributes, MouseEvent, ReactNode } from "react";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 import { useDialog } from "@/components/ui/dialog-provider";
 
 type Props = LinkProps &

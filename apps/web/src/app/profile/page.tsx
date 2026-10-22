@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import AuthGuard from "@/components/auth/auth-guard";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 import { useT } from "@/lib/lang-context";
 import { useDialog } from "@/components/ui/dialog-provider";
 import AppNavbar from "@/components/layout/app-navbar";

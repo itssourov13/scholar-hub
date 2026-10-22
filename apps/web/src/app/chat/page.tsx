@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 import { useT, useLang } from "@/lib/lang-context";
 import { useDialog } from "@/components/ui/dialog-provider";
 import PrimaryNav from "@/components/layout/primary-nav";

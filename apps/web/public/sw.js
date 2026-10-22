@@ -11,7 +11,7 @@
  *  - Everything else → Network-first with cache fallback, capped
  */
 
-const CACHE_VERSION = "v5";
+const CACHE_VERSION = "v6";
 const CACHE_NAME = `scholarhub-${CACHE_VERSION}`;
 const OFFLINE_URL = "/offline.html";
 

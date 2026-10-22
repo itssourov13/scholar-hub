@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { userId, loading } = useAuth();

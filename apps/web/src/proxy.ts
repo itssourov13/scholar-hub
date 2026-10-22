@@ -1,6 +1,6 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import type { NextFetchEvent, NextRequest } from "next/server";
 
 const PLAY_STORE_URL = process.env.NEXT_PUBLIC_PLAY_STORE_URL;
 
@@ -27,22 +27,28 @@ function shouldRedirectAndroidToPlayStore(request: NextRequest): boolean {
   return true;
 }
 
-export default clerkMiddleware((_auth, request) => {
-  // Auth screens call Clerk client hooks; send them back to the public site in
-  // a local visual-preview build, where ClerkProvider is deliberately absent.
-  if (
-    process.env.SCHOLARHUB_LOCAL_PREVIEW === "1" &&
-    request.nextUrl.pathname.startsWith("/auth/")
-  ) {
-    const destination = new URL("/", request.url);
-    destination.searchParams.set("preview", "auth-disabled");
-    return NextResponse.redirect(destination, 307);
-  }
-
+const clerkProxy = clerkMiddleware((_auth, request) => {
   if (PLAY_STORE_URL && shouldRedirectAndroidToPlayStore(request)) {
     return NextResponse.redirect(PLAY_STORE_URL, 302);
   }
 });
+
+export default function proxy(request: NextRequest, event: NextFetchEvent) {
+  // Clerk middleware redirects real browser navigations to a handshake URL if
+  // a development-browser cookie is missing. The placeholder `.local` host
+  // cannot resolve on a phone. A local visual-preview build must bypass Clerk
+  // middleware entirely (not merely omit ClerkProvider on the client).
+  if (process.env.SCHOLARHUB_LOCAL_PREVIEW === "1") {
+    if (request.nextUrl.pathname.startsWith("/auth/")) {
+      const destination = new URL("/", request.url);
+      destination.searchParams.set("preview", "auth-disabled");
+      return NextResponse.redirect(destination, 307);
+    }
+    return NextResponse.next();
+  }
+
+  return clerkProxy(request, event);
+}
 
 export const config = {
   matcher: [

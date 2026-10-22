@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useMemo, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 import { useT, useLang } from "@/lib/lang-context";
 import type { TranslationKey } from "@/lib/translations";
 import AppNavbar, { NavAction } from "@/components/layout/app-navbar";
