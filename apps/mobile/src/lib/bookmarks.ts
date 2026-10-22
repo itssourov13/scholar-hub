@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useApi } from "@/lib/api";
 import { useSignedInQuery } from "@/lib/query";
@@ -23,7 +23,7 @@ export function useBookmarks() {
     staleTime: 30_000,
   });
 
-  const ids = data ?? new Set<string>();
+  const ids = useMemo(() => data ?? new Set<string>(), [data]);
 
   const mutation = useMutation({
     mutationFn: async ({ id, on }: { id: string; on: boolean }) => {

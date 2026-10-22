@@ -1,4 +1,4 @@
-package app.baireporbo.android
+package com.scholarhub.app
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

@@ -84,7 +84,11 @@ Treat these as source-folder categories, not necessarily the final app taxonomy.
 - Better notifications, document vault, encrypted storage options, and more languages.
 - University/programme and research-supervisor discovery, only after the scholarship core is stable and data governance is defined.
 
-## 7. Non-goals and guardrails
+## 7. Proposed delivery roadmap
+
+The current suggested delivery sequence is recorded in [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md). It is a temporary, editable plan for shipping both the web client and the mobile app against the shared backend. Tasks may be added, removed, split, combined, reordered, or deferred after review; this document does not assert that the proposed features are already implemented or that every item must ship in the first release.
+
+## 8. Non-goals and guardrails
 
 - No promise that every scholarship worldwide is covered.
 - No claim that AI estimates predict admission outcomes.

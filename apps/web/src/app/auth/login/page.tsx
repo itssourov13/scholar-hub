@@ -16,29 +16,30 @@ function LoginForm() {
   // `redirect` is set when a guard bounced the visitor off a protected page.
   const redirect = searchParams.get("redirect") ?? "/";
   const t = useT();
-  const { signIn, isLoaded, setActive } = useSignIn() as any;
+  const { signIn, isLoaded, setActive } = useSignIn();
+  type SignInResourceValue = NonNullable<typeof signIn>;
+  type ClientTrustStrategy = "email_code" | "phone_code";
 
   const [step, setStep] = useState<Step>("form");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [trustCode, setTrustCode] = useState("");
-  const [trustStrategy, setTrustStrategy] = useState<string | null>(null);
+  const [trustStrategy, setTrustStrategy] = useState<ClientTrustStrategy | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Handles Clerk's "Client Trust" second-factor challenge, which is triggered
   // for password sign-ins from a client/device Clerk hasn't seen verify before.
   // Without this, those sign-ins get stuck at a non-"complete" status forever.
-  const startClientTrustVerification = async (result: any) => {
-    const factors: { strategy?: string }[] = result.supportedSecondFactors ?? [];
-    const strategy =
-      factors.find((f) => f.strategy === "email_code")?.strategy ??
-      factors.find((f) => f.strategy === "email_link")?.strategy ??
-      factors.find((f) => f.strategy === "phone_code")?.strategy ??
+  const startClientTrustVerification = async (result: SignInResourceValue) => {
+    const factors = result.supportedSecondFactors ?? [];
+    const strategy: ClientTrustStrategy | null =
+      factors.some((factor) => factor.strategy === "email_code") ? "email_code" :
+      factors.some((factor) => factor.strategy === "phone_code") ? "phone_code" :
       null;
 
-    if (!strategy) {
-      setError("This device needs extra verification, but no verification method is available. Please contact support.");
+    if (!signIn || !strategy) {
+      setError("This device needs extra verification, but no supported email or phone code method is available. Please contact support.");
       return;
     }
 

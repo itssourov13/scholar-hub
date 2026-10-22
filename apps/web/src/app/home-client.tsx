@@ -31,6 +31,16 @@ export default function HomeClient() {
   const [closingSoon, setClosingSoon] = useState<ClosingScholarship[]>([]);
   const [quickTags, setQuickTags] = useState<string[]>([]);
   const [featuredGuides, setFeaturedGuides] = useState<Guide[]>([]);
+  const [currentTime, setCurrentTime] = useState<number | null>(null);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setCurrentTime(Date.now()));
+    const interval = window.setInterval(() => setCurrentTime(Date.now()), 60_000);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearInterval(interval);
+    };
+  }, []);
 
   useEffect(() => {
     fetch("/api/guides")
@@ -103,7 +113,8 @@ export default function HomeClient() {
 
   const formatDaysLeft = (deadline: string | null) => {
     if (!deadline) return t("label.open");
-    const diff = new Date(deadline).getTime() - Date.now();
+    if (currentTime === null) return "—";
+    const diff = new Date(deadline).getTime() - currentTime;
     if (isNaN(diff) || diff <= 0) return t("label.closed");
     const days = Math.ceil(diff / (24 * 60 * 60 * 1000));
     return `${days} ${t("label.daysLeft")}`;
@@ -119,7 +130,8 @@ export default function HomeClient() {
 
   const getUrgencyColor = (deadline: string | null): string => {
     if (!deadline) return "var(--teal-500)";
-    const days = Math.ceil((new Date(deadline).getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+    if (currentTime === null) return "var(--teal-500)";
+    const days = Math.ceil((new Date(deadline).getTime() - currentTime) / (24 * 60 * 60 * 1000));
     if (days <= 7) return "#e63946";
     if (days <= 14) return "#f4a261";
     return "#2ab673";

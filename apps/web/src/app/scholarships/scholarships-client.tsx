@@ -537,9 +537,19 @@ function ScholarshipsContent() {
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState("Deadline");
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
+  const [currentTime, setCurrentTime] = useState<number | null>(null);
   const [bookmarkingId, setBookmarkingId] = useState<string | null>(null);
   const [displayCount, setDisplayCount] = useState(0);
   const resultsRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setCurrentTime(Date.now()));
+    const interval = window.setInterval(() => setCurrentTime(Date.now()), 60_000);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearInterval(interval);
+    };
+  }, []);
 
   useEffect(() => {
     fetch("/api/scholarships")
@@ -560,7 +570,7 @@ function ScholarshipsContent() {
 
   useEffect(() => {
     if (!userId) {
-      setBookmarkedIds([]);
+      queueMicrotask(() => setBookmarkedIds([]));
       return;
     }
     fetch("/api/bookmarks")
@@ -594,7 +604,7 @@ function ScholarshipsContent() {
     });
 
     if (sortBy === "Deadline") {
-      const now = Date.now();
+      const now = currentTime ?? 0;
       const bucket = (d: string | null) => {
         if (!d) return 1;
         const parsed = parseDeadlineDate(d);
@@ -628,31 +638,31 @@ function ScholarshipsContent() {
   const filtered = useMemo(() => {
     return applyFiltersAndSort(scholarships);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scholarships, searchTerm, selectedCountries, selectedFunding, selectedLevels, sortBy]);
+  }, [scholarships, searchTerm, selectedCountries, selectedFunding, selectedLevels, sortBy, currentTime]);
 
   // Live = is_live true AND deadline not expired (or no parseable deadline)
   const filteredLive = useMemo(() => applyFiltersAndSort(
     scholarships.filter((s) => s.is_live !== false && !isExpired(s.deadline))
   ),
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  [scholarships, searchTerm, selectedCountries, selectedFunding, selectedLevels, sortBy]);
+  [scholarships, searchTerm, selectedCountries, selectedFunding, selectedLevels, sortBy, currentTime]);
 
   const filteredUpcoming = useMemo(() => applyFiltersAndSort(scholarships.filter((s) => s.is_live === false)),
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  [scholarships, searchTerm, selectedCountries, selectedFunding, selectedLevels, sortBy]);
+  [scholarships, searchTerm, selectedCountries, selectedFunding, selectedLevels, sortBy, currentTime]);
 
   // Recently closed = is_live true but deadline has passed (within ~90 days)
   const filteredRecentlyClosed = useMemo(() => applyFiltersAndSort(
     scholarships.filter((s) => {
       if (s.is_live === false) return false;
       const date = s.deadline ? parseDeadlineDate(s.deadline) : null;
-      if (!date) return false;
-      const msSince = Date.now() - date.getTime();
+      if (!date || currentTime === null) return false;
+      const msSince = currentTime - date.getTime();
       return msSince > 0 && msSince < 90 * 24 * 60 * 60 * 1000;
     })
   ),
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  [scholarships, searchTerm, selectedCountries, selectedFunding, selectedLevels, sortBy]);
+  [scholarships, searchTerm, selectedCountries, selectedFunding, selectedLevels, sortBy, currentTime]);
 
   const emptySuggestions = useMemo(() => {
     const picks = new Set<string>();

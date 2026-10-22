@@ -57,7 +57,7 @@ export default function ScholarshipDetailClient({ scholarship }: Props) {
   // Sync bookmark state for the mobile sticky bar
   useEffect(() => {
     if (!userId) {
-      setIsBookmarked(false);
+      queueMicrotask(() => setIsBookmarked(false));
       return;
     }
     fetch("/api/bookmarks")

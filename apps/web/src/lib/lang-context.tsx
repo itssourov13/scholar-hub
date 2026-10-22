@@ -41,22 +41,24 @@ export function LangProvider({
   const [lang, setLangState] = useState<Lang>(defaultLang);
 
   useEffect(() => {
+    let active = true;
+    let preferred: Lang | null = null;
     try {
       // 1) Explicit user preference always wins.
       const stored = localStorage.getItem("bp_lang") as Lang | null;
       if (stored === "bn" || stored === "en") {
-        setLangState(stored);
-        return;
-      }
-      // 2) No stored preference → infer from the browser locale. This replaces
-      //    the old server-side geo detection while keeping the app static:
-      //    Bangla-locale visitors (e.g. bn-BD) still get Bangla automatically.
-      if (typeof navigator !== "undefined" && navigator.language?.toLowerCase().startsWith("bn")) {
-        setLangState("bn");
+        preferred = stored;
+      } else if (typeof navigator !== "undefined" && navigator.language?.toLowerCase().startsWith("bn")) {
+        // 2) Without a preference, infer Bangla from the browser locale.
+        preferred = "bn";
       }
     } catch {
-      // ignore
+      // ignore blocked localStorage access
     }
+    queueMicrotask(() => {
+      if (active && preferred) setLangState(preferred);
+    });
+    return () => { active = false; };
   }, []);
 
   const setLang = useCallback((l: Lang) => {

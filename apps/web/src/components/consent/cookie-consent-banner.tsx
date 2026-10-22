@@ -33,11 +33,17 @@ export default function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (getStoredConsent() === null) setVisible(true);
+    let active = true;
+    queueMicrotask(() => {
+      if (active && getStoredConsent() === null) setVisible(true);
+    });
 
     const handleReopen = () => setVisible(true);
     window.addEventListener(OPEN_COOKIE_SETTINGS_EVENT, handleReopen);
-    return () => window.removeEventListener(OPEN_COOKIE_SETTINGS_EVENT, handleReopen);
+    return () => {
+      active = false;
+      window.removeEventListener(OPEN_COOKIE_SETTINGS_EVENT, handleReopen);
+    };
   }, []);
 
   const handleChoice = (choice: ConsentChoice) => {

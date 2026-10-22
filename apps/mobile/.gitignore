@@ -1,34 +1,15 @@
-# dependencies
-node_modules/
-
-# Expo
+# Expo generated and local files
 .expo/
 dist/
 web-build/
 expo-env.d.ts
+node_modules/
 
-# Native
-*.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
+# Private/release-specific Firebase app configuration (must match com.scholarhub.app)
+/android/app/google-services.json
+/android/keystore.properties
+/android/app/upload-keystore.jks
 
-# Metro
-.metro-health-check*
-
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-
-# macOS
-.DS_Store
-
-# local env
-.env*.local
-
-# release signing (NEVER commit — back these up privately)
-android/keystore.properties
-android/app/upload-keystore.jks
+# Android build outputs
+/android/.gradle/
+/android/app/build/

@@ -4,6 +4,21 @@ Meaningful product and engineering changes are recorded here. Dates use YYYY-MM-
 
 ## Unreleased
 
+### 2026-10-22 — Local production-readiness/app-ID progress and status refresh
+- Recorded latest local checks: web lint/typecheck pass, all 375 web tests pass, production dependency audit reports no known vulnerabilities, mobile lint/typecheck pass, Expo SDK package check passes, and `git diff --check` passes.
+- Updated Current State, Task State, Handoff, README, and the editable production roadmap to distinguish passing quality gates from remaining release blockers.
+- Recorded that Android Metro export still cannot resolve `expo-router/entry` and the latest web production build fails without a real `DATABASE_URL`; an earlier fake-database Webpack build is not production verification.
+- Recorded local Android/iOS identifier changes to `com.scholarhub.app`, removal of the old package-specific Firebase JSON, and unverified EAS/API/signing/store-compatibility work.
+- Flagged the mismatch between mobile pnpm comments about a 24-hour release-age quarantine and the currently absent `minimumReleaseAge` setting.
+- This entry describes local working-tree evidence only: branch changes remain uncommitted/unpushed/unmerged and no production deployment, database, or credentials were changed during this documentation-only refresh.
+
+
+### 2026-10-22 — Temporary editable production roadmap
+- Added `docs/PRODUCTION_ROADMAP.md` as a proposed, changeable plan for stabilising the web/mobile build pipeline, staging real scholarship data, completing core applicant journeys, strengthening security/offline handling, and staged web/Android release.
+- Explicitly documented that phases and tasks may be added, removed, reordered, split, combined, or deferred after review; the draft is not a locked specification or proof of completed functionality.
+- Linked the draft from the root README, project context, task state, and handoff.
+- Corrected stale documentation that still described PR #1 as unpushed; the preview fix is merged, but production deployment remains unverified.
+
 ### 2026-10-22 — Local preview Clerk handshake fix and real-browser verification
 - Root cause confirmed in Chromium network logs: Clerk middleware returned an HTTP 307 to `https://clerk.scholarhub.local/v1/client/handshake` when the local dev-browser handshake cookie was missing. A successful HTML/HTTP 200 response alone had not proved the browser could render the page.
 - Updated `apps/web/src/proxy.ts` so the explicitly enabled `SCHOLARHUB_LOCAL_PREVIEW=1` mode bypasses Clerk middleware and redirects `/auth/*` to the public homepage. The flag must remain unset outside a trusted local preview; this mode is not an authentication mode and must not be deployed.

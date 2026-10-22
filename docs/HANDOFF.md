@@ -9,23 +9,22 @@ Continue adapting the existing application into **ScholarHub**, a broader schola
 ## Exact repository context
 
 - Workspace: `/home/kali/gpt-workspace/BairePorbo`
-- Target branch: `main` on the fresh `origin` repository `https://github.com/itssourov13/scholar-hub.git` (local commit only; do not push unless asked).
-- Main implementation: `apps/web`
-- Native app: `apps/mobile`
-- Shared contracts: `packages/shared`
-- Current web foundation: Next.js 16, React 19, TypeScript, Clerk, Neon/PostgreSQL/pgvector, R2, OpenRouter, optional Redis/NIM.
-- Current mobile foundation: Expo SDK 57, React Native 0.86, Clerk Expo.
-- API handlers are in `apps/web/src/app/api`; the zero-byte `apps/api`/`packages/db` scaffold files were removed from the fresh tree.
-- Frozen-lockfile installs completed for root, web, and mobile. Web typecheck and 375 tests pass; mobile typecheck passes. Web/mobile lint still report existing issues. Webpack build passed with a fake DB URL, not production credentials. Default Turbopack build fails locally with `Invalid symlink`.
-- `expo install --check` reports 22 SDK 57 package mismatches. Android export fails to resolve `expo-router/entry`; a supported upgrade attempt hit pnpm minimum-release-age checks on newly published versions, and the partial upgrade was rolled back. See `docs/CURRENT_STATE.md` for exact results.
+- Repository: `https://github.com/itssourov13/scholar-hub.git`; PR #1 (Clerk-free local preview fix) is merged into `main` as of 2026-10-22. No production deployment has been verified.
+- Main implementation: `apps/web`. Native app: `apps/mobile`. Shared contracts: `packages/shared`.
+- Current web foundation: Next.js 16.4.2, React 19, TypeScript, Clerk, Neon/PostgreSQL/pgvector, R2, OpenRouter, optional Redis/NIM. Mobile: Expo SDK 57, React Native 0.86, Clerk Expo.
+- API handlers are in `apps/web/src/app/api`; zero-byte `apps/api`/`packages/db` scaffold files were removed from the fresh tree.
+- **Active local branch:** `fix/production-readiness-and-app-id`, based on `fa98e09`. Its work is uncommitted and has not been pushed or merged. Review the full diff before committing.
+- Latest passing checks: web lint, web typecheck, 375 web tests (18 files), production dependency audit (no known vulnerabilities found), mobile lint, mobile typecheck, `expo install --check`, and `git diff --check`.
+- Latest blockers: Android Expo export still cannot resolve `expo-router/entry`; the latest web build fails because `DATABASE_URL` is unset. An earlier Webpack build with a fake DB URL generated 56 pages but was not a real database test.
+- Mobile package versions pass Expo's compatibility check, but `apps/mobile/pnpm-workspace.yaml` lacks an active `minimumReleaseAge` value despite comments mentioning a 24-hour quarantine. Native identifiers have changed locally to `com.scholarhub.app` but store/update compatibility is unverified; new Firebase settings, a real HTTPS API origin, EAS/native signing, and device tests remain outstanding. See `docs/CURRENT_STATE.md` for evidence and detail.
 
 ## Most recent local preview fix
 
-- Active working branch: `fix/preview-clerk-chunk-cache`. Local commits: `88580cd` (initial Clerk-free preview provider) and `b098d75` (fix middleware handshake, separate Clerk-dependent chunks, clear stale service-worker/cache state). These commits are not pushed or deployed.
+- The Clerk-free preview change from `fix/preview-clerk-chunk-cache` was pushed and merged through PR #1 (the branch contained `88580cd`, `b098d75`, and its verification documentation). It fixes the local browser handshake issue; no production deployment was verified.
 - Reproduced the reported problem in a real Chromium headless browser. The homepage HTML returned successfully but Clerk middleware redirected the actual browser to `clerk.scholarhub.local`; the earlier fix had not addressed this server-side handshake. The current opt-in preview mode bypasses Clerk middleware locally and avoids loading the Clerk SDK in public-page bundles.
 - Confirmed page rendering and zero Clerk placeholder-host requests in the browser network log; typecheck passed, 375 web tests passed, and the Webpack build completed. That build deliberately used a dummy DB URL and emitted expected Neon errors. It does not confirm real scholarship data or production readiness.
 - Local preview server is currently stopped. Do not set `SCHOLARHUB_LOCAL_PREVIEW=1` for Vercel/production; preview auth routes intentionally return to the public homepage.
-- When the user asks to push, push `fix/preview-clerk-chunk-cache` so both preview commits are included. Do not push or merge without explicit instruction.
+- Keep `SCHOLARHUB_LOCAL_PREVIEW=1` limited to trusted local visual review. Never use it in Vercel/production.
 
 ## What changed in this phase
 
@@ -44,16 +43,16 @@ Continue adapting the existing application into **ScholarHub**, a broader schola
 5. `docs/DECISIONS.md`
 6. `docs/TASK_STATE.md`
 7. `docs/SECURITY_AND_PRIVACY.md`
+8. `docs/PRODUCTION_ROADMAP.md` — temporary editable plan; review and adjust before starting a phase.
 
 ## Next steps
 
-1. Resolve the Expo Router Android bundle blocker. Metro currently does not see the local `expo-router/entry.js` in its file map.
-2. Revisit the Expo SDK 57 patch alignment once package releases meet the configured minimum-release-age policy; do not broadly disable the supply-chain gate.
-3. Fix the existing web/mobile lint errors in a dedicated, targeted quality pass.
-4. Configure the actual `DATABASE_URL`, final `NEXT_PUBLIC_SITE_URL`, Clerk/AI/R2/Redis and other enabled provider values in the new deployment; rerun build and runtime smoke tests without dummy values.
-5. Review prior source/history privately before deciding whether any credentials require rotation; the new `main` root commit is intended not to carry old history.
-6. Finish logo/icon/splash assets, legal/operator details, domain/contact links, native identifiers, Firebase/OAuth/push, signing, and release configuration.
-7. Inspect the supplied scholarship ZIP/workbook from its actual available path; build a data dictionary and dry-run importer, then continue with evidence modeling and secure application/offline workflows.
+1. Diagnose Metro's resolver/root behavior for `expo-router/entry`. Do not mask it by changing the app entry to an arbitrary path; make a targeted, evidence-backed fix and rerun Android export.
+2. Review and correct the mobile pnpm release-age policy/comments, then rerun install and Expo compatibility checks.
+3. Configure a real dedicated staging `DATABASE_URL`, apply migrations with an agreed safe process, and rerun the web production build plus API/browser smoke tests against staging services.
+4. Decide whether `com.scholarhub.app` is a new store listing or an update to the former app before release. Supply matching Firebase settings if push is in scope, verify OAuth/deep links, configure signing/EAS, and test a signed internal build on a real device.
+5. Add or confirm CI gates and focused E2E/authorization coverage, then audit core applicant journeys and actual scholarship data/import requirements.
+6. Finalise approved assets, operator/legal/privacy details, production domain/provider credentials, monitoring/rollback, historical source artifacts, and staged-release approval after the relevant checks pass.
 
 ## Operational commands
 

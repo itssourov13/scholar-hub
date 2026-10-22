@@ -1,15 +1,7 @@
-# Marks apps/mobile as its own standalone pnpm root (mirroring apps/web), so
-# installs here stay isolated from the repo root and the web app.
-
-# Expo/Metro expects a flat, npm-style node_modules. pnpm's default isolated
-# layout hides transitive deps that Metro resolves directly (e.g. NativeWind's
-# react-native-css-interop). Hoisting avoids that class of bundling failures.
-# (pnpm v11 reads this from pnpm-workspace.yaml, not .npmrc.)
+# Keep this as an isolated pnpm root with a flat node_modules for Metro.
 nodeLinker: hoisted
 
 allowBuilds:
-  # Native/optional build scripts not needed for Metro bundling — declined so
-  # pnpm doesn't treat them as undecided (which returns a non-zero exit).
   '@clerk/shared': false
   browser-tabs-lock: false
   bufferutil: false
@@ -17,6 +9,8 @@ allowBuilds:
   utf-8-validate: false
   esbuild: true
   unrs-resolver: true
+
+# Existing, intentional exceptions for earlier SDK 57 prerelease package patches.
 minimumReleaseAgeExclude:
   - '@expo/cli@57.0.9'
   - '@expo/metro-config@57.0.6'
@@ -31,3 +25,13 @@ minimumReleaseAgeExclude:
   - expo@57.0.7
   - expo-application@57.0.2
   - expo-auth-session@57.0.4
+  # Exact exceptions for the SDK patch and its config plugin, required by Expo's compatibility map; all other releases retain the 24-hour quarantine.
+  - '@expo/config-plugins@57.0.11'
+  - 'expo@57.0.31'
+  - '@expo/ui@57.0.26'
+  - 'expo-router@57.0.29'
+
+# Keep the newest SDK-compatible versions that have passed the 24-hour quarantine.
+overrides:
+  '@expo/cli': 57.0.31
+  expo-modules-core: 57.0.23

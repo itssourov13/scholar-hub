@@ -173,7 +173,7 @@ export default function DashboardPage() {
       if (raw) {
         const parsed = JSON.parse(raw) as { at: number; matches: Scholarship[] };
         if (parsed.at && Date.now() - parsed.at < MATCH_CACHE_TTL_MS) {
-          setMatches(parsed.matches);
+          queueMicrotask(() => setMatches(parsed.matches));
           return;
         }
       }
@@ -182,7 +182,7 @@ export default function DashboardPage() {
     }
 
     let cancelled = false;
-    setMatchesLoading(true);
+    queueMicrotask(() => { if (!cancelled) setMatchesLoading(true); });
     fetch("/api/profile/match")
       .then(async (res) => {
         const json = (await res.json()) as { matches?: Scholarship[]; error?: string };

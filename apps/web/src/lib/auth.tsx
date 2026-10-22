@@ -11,21 +11,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [roleLoading, setRoleLoading] = useState(true);
 
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isLoaded || !user) return;
 
-    if (!user) {
-      setRole(null);
-      setRoleLoading(false);
-      return;
-    }
-
+    let active = true;
     fetch("/api/profile")
       .then((r) => r.json())
       .then((d) => {
-        setRole((d?.profile?.role as Role) ?? "student");
+        if (active) setRole((d?.profile?.role as Role) ?? "student");
       })
-      .catch(() => setRole("student"))
-      .finally(() => setRoleLoading(false));
+      .catch(() => {
+        if (active) setRole("student");
+      })
+      .finally(() => {
+        if (active) setRoleLoading(false);
+      });
+
+    return () => { active = false; };
   }, [isLoaded, user]);
 
   const signOut = async () => {
@@ -36,9 +37,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         userId: user?.id ?? null,
-        role,
+        role: user ? role : null,
         loading: !isLoaded,
-        roleLoading,
+        roleLoading: !isLoaded || (Boolean(user) && roleLoading),
         signOut,
       }}
     >

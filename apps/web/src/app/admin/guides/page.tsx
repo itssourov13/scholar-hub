@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import styles from "../admin.module.css";
 
@@ -21,15 +21,14 @@ export default function AdminGuidesPage() {
   const [loading, setLoading] = useState(true);
   const [actionId, setActionId] = useState<string | null>(null);
 
-  const load = () => {
-    setLoading(true);
+  const load = useCallback(() => {
     fetch("/api/admin/guides")
       .then((r) => r.json())
       .then(({ guides = [] }) => setGuides(guides))
       .finally(() => setLoading(false));
-  };
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   const publish = async (id: string) => {
     setActionId(id);

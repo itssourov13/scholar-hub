@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import styles from "../../admin.module.css";
@@ -79,7 +81,6 @@ export default function NewScholarshipPage() {
   // Step 3 state
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
-  const [_copied, _setCopied] = useState(false); // kept for future use
 
   // Duplicate check state
   const [similarMatches, setSimilarMatches] = useState<SimilarMatch[]>([]);
@@ -607,7 +608,7 @@ export default function NewScholarshipPage() {
           <p className={styles.sub}>Upload the thumbnail you generated, then publish.</p>
           <div className={styles.uploadArea}>
             {thumbnailPreview
-              ? <img src={thumbnailPreview} alt="Thumbnail preview" className={styles.thumbPreview} />
+              ? <Image src={thumbnailPreview} alt="Thumbnail preview" width={1200} height={630} unoptimized className={styles.thumbPreview} />
               : <div className={styles.uploadPlaceholder}><span>🖼</span><span>No image selected</span></div>}
             <label className={styles.uploadLabel}>
               Choose image

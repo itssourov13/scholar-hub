@@ -4,7 +4,7 @@
 
 The initial product focus is to help students discover undergraduate scholarships and university programmes, understand eligibility and funding, manage applications, organise documents, and track deadlines—with source evidence and useful offline capability.
 
-> **Current status:** Core web/mobile copy and metadata, PWA labels, Expo display name/slug/scheme, shared TypeScript package scope, and the service-worker cache namespace now use ScholarHub. The legacy APK and assetlinks file were removed; old Play Store/Telegram/support/social destinations are unset or configuration-driven, and the previous AdSense/Meta tracking integrations were disabled. Legacy logo/icon/splash artwork, Android/iOS application IDs, Firebase configuration, upload signing settings, and deployment credentials still need a planned migration. Legal policy pages are explicitly marked as pre-release drafts. Do not deploy this branch as a released ScholarHub product yet.
+> **Current status (local working branch, 2026-10-22):** Web/mobile lint and typecheck pass; all 375 web tests pass; the web production dependency audit reports no known vulnerabilities; and Expo package compatibility check passes. However, Android export still fails at Metro's `expo-router/entry` resolution, and the latest web production build fails because `DATABASE_URL` is not configured. The local branch `fix/production-readiness-and-app-id` also sets Android/iOS identifiers to `com.scholarhub.app`, but store/update compatibility is not verified; the old package-specific Firebase file was removed and new Firebase/signing/EAS settings remain unverified. Legacy logo/icon/splash artwork, real service configuration, and legal/operator details remain pending. These local changes are uncommitted and not merged; do not treat this branch as release-ready.
 
 ## Product principles
 
@@ -42,6 +42,7 @@ See [Current State](docs/CURRENT_STATE.md) for what was observed in the reposito
 - [Architecture](docs/ARCHITECTURE.md) — existing architecture and target evolution.
 - [Decisions](docs/DECISIONS.md) — durable architecture and product decisions.
 - [Task state](docs/TASK_STATE.md) — current phase, priorities, and acceptance criteria.
+- [Production roadmap (draft)](docs/PRODUCTION_ROADMAP.md) — temporary, editable proposal for staging and web/mobile release; phases can be changed.
 - [Changelog](docs/CHANGELOG.md) — meaningful project changes.
 - [Handoff](docs/HANDOFF.md) — exact next steps for a future session.
 - [Security and privacy](docs/SECURITY_AND_PRIVACY.md) — personal data, imports, storage, and public-release risks.
@@ -78,4 +79,4 @@ The client-supplied archive and workbook are source inputs, not application asse
 
 ## Project status
 
-The immediate priority is to establish a reliable documentation baseline, verify the current build/test setup, map the existing code to the ScholarHub requirements, and then deliver focused, testable increments. Full brand replacement, import tooling, expanded application tracking, source verification, and stronger offline/sync behaviour remain explicit work items.
+The ScholarHub documentation/brand foundation and Clerk-free local visual-preview fix are merged into main. The separate local readiness branch has substantially improved lint/typecheck/test/security-audit results, but remains blocked by Android export resolution and missing real database configuration; native store identity, Firebase, signing, and real-service smoke tests are also unverified. See [Current State](docs/CURRENT_STATE.md), [Task State](docs/TASK_STATE.md), and the intentionally editable [Production Roadmap (Draft)](docs/PRODUCTION_ROADMAP.md).

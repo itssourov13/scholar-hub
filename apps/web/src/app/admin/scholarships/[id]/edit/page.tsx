@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import styles from "../../../admin.module.css";
@@ -278,9 +280,9 @@ export default function EditScholarshipPage({ params }: { params: Promise<{ id: 
           <p className={styles.sub}>Thumbnail</p>
           <div className={styles.uploadArea}>
             {thumbnailPreview ? (
-              <img src={thumbnailPreview} alt="New thumbnail preview" className={styles.thumbPreview} />
+              <Image src={thumbnailPreview} alt="New thumbnail preview" width={1200} height={630} unoptimized className={styles.thumbPreview} />
             ) : originalThumbnail ? (
-              <img src={originalThumbnail} alt="Current thumbnail" className={styles.thumbPreview} />
+              <Image src={originalThumbnail} alt="Current thumbnail" width={1200} height={630} unoptimized className={styles.thumbPreview} />
             ) : (
               <div className={styles.uploadPlaceholder}><span>🖼</span><span>No image</span></div>
             )}

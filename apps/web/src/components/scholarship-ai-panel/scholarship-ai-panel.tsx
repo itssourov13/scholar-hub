@@ -16,6 +16,7 @@ export default function ScholarshipAiPanel({
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const assistantContentRef = useRef("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const suggestedQuestions = [
@@ -62,7 +63,7 @@ export default function ScholarshipAiPanel({
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let assistantContent = "";
+      assistantContentRef.current = "";
       
       setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
@@ -81,16 +82,19 @@ export default function ScholarshipAiPanel({
             try {
               const data = JSON.parse(dataStr);
               if (data.token) {
-                assistantContent += data.token;
+                assistantContentRef.current += data.token;
+                const content = assistantContentRef.current;
                 setMessages((prev) => {
-                  const newMsgs = [...prev];
-                  newMsgs[newMsgs.length - 1].content = assistantContent;
-                  return newMsgs;
+                  if (prev.length === 0) return prev;
+                  const next = [...prev];
+                  const lastIndex = next.length - 1;
+                  next[lastIndex] = { ...next[lastIndex], content };
+                  return next;
                 });
               } else if (data.error) {
                 console.error("Chat error:", data.error);
               }
-            } catch (e) {
+            } catch {
               // ignore parse errors
             }
           }
@@ -138,7 +142,7 @@ export default function ScholarshipAiPanel({
               {messages.length === 0 ? (
                 <div className={styles.welcome}>
                   <p>
-                    Hi! I'm ready to help you explore the <strong>{scholarshipTitle}</strong> scholarship.
+                    Hi! I&apos;m ready to help you explore the <strong>{scholarshipTitle}</strong> scholarship.
                     Here are some things students usually ask about:
                   </p>
                   <div className={styles.chipRow}>

@@ -158,7 +158,7 @@ const THINK_STAGES: { key: TranslationKey; ms: number }[] = [
 function Thinking() {
   const t = useT();
   const [idx, setIdx] = useState(0);
-  const fade = useRef(new Animated.Value(1)).current;
+  const [fade] = useState(() => new Animated.Value(1));
 
   useEffect(() => {
     const hold = THINK_STAGES[idx].ms;
@@ -237,7 +237,9 @@ export default function Chat() {
   // Deep links (e.g. notification taps) open the chat with ?sessionId=.
   useEffect(() => {
     const incoming = params.sessionId ?? null;
-    if (incoming && incoming !== sessionId) loadSession(incoming);
+    if (!incoming || incoming === sessionId) return;
+    const frame = requestAnimationFrame(() => { void loadSession(incoming); });
+    return () => cancelAnimationFrame(frame);
   }, [params.sessionId, sessionId, loadSession]);
 
   // The history screen hands its pick over via the mailbox (see chat-handoff),

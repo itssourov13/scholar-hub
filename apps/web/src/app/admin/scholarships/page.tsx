@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
+
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDialog } from "@/components/ui/dialog-provider";
 import styles from "../admin.module.css";
 
@@ -43,15 +45,14 @@ export default function AdminScholarshipsPage() {
   const [copied, setCopied] = useState(false);
   const dialog = useDialog();
 
-  const load = () => {
-    setLoading(true);
+  const load = useCallback(() => {
     fetch("/api/admin/scholarships")
       .then((r) => r.json())
       .then(({ scholarships }) => setItems(scholarships ?? []))
       .finally(() => setLoading(false));
-  };
+  }, []);
 
-  useEffect(load, []);
+  useEffect(() => { void load(); }, [load]);
 
   const publish = async (id: string) => {
     await fetch(`/api/admin/scholarships/${id}`, {
@@ -247,7 +248,7 @@ export default function AdminScholarshipsPage() {
             <div key={s.id} className={styles.tableRow}>
               <span className={styles.titleCell}>
                 {s.thumbnail_url && (
-                  <img src={s.thumbnail_url} alt="" className={styles.rowThumb} />
+                  <Image src={s.thumbnail_url} alt="" width={56} height={36} unoptimized className={styles.rowThumb} />
                 )}
                 {s.is_flagship && (
                   <span title="Flagship" style={{ marginRight: 4, fontSize: 14 }}>⭐</span>
