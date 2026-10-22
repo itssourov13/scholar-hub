@@ -28,6 +28,17 @@ function shouldRedirectAndroidToPlayStore(request: NextRequest): boolean {
 }
 
 export default clerkMiddleware((_auth, request) => {
+  // Auth screens call Clerk client hooks; send them back to the public site in
+  // a local visual-preview build, where ClerkProvider is deliberately absent.
+  if (
+    process.env.SCHOLARHUB_LOCAL_PREVIEW === "1" &&
+    request.nextUrl.pathname.startsWith("/auth/")
+  ) {
+    const destination = new URL("/", request.url);
+    destination.searchParams.set("preview", "auth-disabled");
+    return NextResponse.redirect(destination, 307);
+  }
+
   if (PLAY_STORE_URL && shouldRedirectAndroidToPlayStore(request)) {
     return NextResponse.redirect(PLAY_STORE_URL, 302);
   }

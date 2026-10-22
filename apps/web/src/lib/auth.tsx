@@ -63,6 +63,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Guest-only auth context for an explicitly enabled local visual preview.
+ * This never authenticates a user or grants API access; server-side API
+ * handlers continue to enforce their own Clerk authentication checks.
+ */
+export function PreviewAuthProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <AuthContext.Provider
+      value={{
+        userId: null,
+        role: null,
+        loading: false,
+        roleLoading: false,
+        signOut: async () => {},
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");

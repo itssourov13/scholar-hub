@@ -231,7 +231,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <Providers>
+        <Providers previewMode={process.env.SCHOLARHUB_LOCAL_PREVIEW === "1"}>
           {children}
           <MobileTabBar />
           <CookieConsentBanner />
