@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 import { useT } from "@/lib/lang-context";
 import AppNavbar from "@/components/layout/app-navbar";
 

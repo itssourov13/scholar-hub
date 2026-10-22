@@ -19,6 +19,14 @@ Continue adapting the existing application into **ScholarHub**, a broader schola
 - Frozen-lockfile installs completed for root, web, and mobile. Web typecheck and 375 tests pass; mobile typecheck passes. Web/mobile lint still report existing issues. Webpack build passed with a fake DB URL, not production credentials. Default Turbopack build fails locally with `Invalid symlink`.
 - `expo install --check` reports 22 SDK 57 package mismatches. Android export fails to resolve `expo-router/entry`; a supported upgrade attempt hit pnpm minimum-release-age checks on newly published versions, and the partial upgrade was rolled back. See `docs/CURRENT_STATE.md` for exact results.
 
+## Most recent local preview fix
+
+- Active working branch: `fix/preview-clerk-chunk-cache`. Local commits: `88580cd` (initial Clerk-free preview provider) and `b098d75` (fix middleware handshake, separate Clerk-dependent chunks, clear stale service-worker/cache state). These commits are not pushed or deployed.
+- Reproduced the reported problem in a real Chromium headless browser. The homepage HTML returned successfully but Clerk middleware redirected the actual browser to `clerk.scholarhub.local`; the earlier fix had not addressed this server-side handshake. The current opt-in preview mode bypasses Clerk middleware locally and avoids loading the Clerk SDK in public-page bundles.
+- Confirmed page rendering and zero Clerk placeholder-host requests in the browser network log; typecheck passed, 375 web tests passed, and the Webpack build completed. That build deliberately used a dummy DB URL and emitted expected Neon errors. It does not confirm real scholarship data or production readiness.
+- Local preview server is currently stopped. Do not set `SCHOLARHUB_LOCAL_PREVIEW=1` for Vercel/production; preview auth routes intentionally return to the public homepage.
+- When the user asks to push, push `fix/preview-clerk-chunk-cache` so both preview commits are included. Do not push or merge without explicit instruction.
+
 ## What changed in this phase
 
 - Recreated the missing root README for ScholarHub.

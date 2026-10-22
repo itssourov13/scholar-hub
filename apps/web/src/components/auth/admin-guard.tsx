@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
   const { userId, role, loading, roleLoading } = useAuth();

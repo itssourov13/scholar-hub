@@ -95,3 +95,14 @@ Before publishing this repository or its history to a wider audience:
 2. Remove sensitive files from the release and, where required, clean them from Git history.
 3. Rotate any exposed credentials.
 4. Keep client-provided scholarship/personal ZIP data out of the repository.
+
+
+## 9. Local visual preview and Clerk handshake fix (2026-10-22)
+
+- The browser-visible failure was traced to a Clerk middleware response: Chromium received `307 Temporary Redirect` to `https://clerk.scholarhub.local/v1/client/handshake` when the Clerk dev-browser handshake cookie was missing. The placeholder `.local` hostname does not resolve on a normal phone/browser.
+- The dedicated local visual mode is enabled with `SCHOLARHUB_LOCAL_PREVIEW=1`. In that mode the custom proxy bypasses Clerk middleware for local preview requests, sends `/auth/*` routes to `/?preview=auth-disabled`, and serves public pages through a provider tree that does not load the Clerk client. Clerk-dependent providers and auth hooks are split into separate modules; shared UI imports the context-only `@/lib/auth-context` module.
+- In preview mode the browser-side code unregisters previous service workers and clears old `scholarhub-*` caches. The service-worker cache version is now `v6` for a normal app visit.
+- Real-browser verification (headless Chromium, 412×915 viewport; also repeated with an Android user agent): the page title and homepage content rendered, the browser did not show a DNS error, and the network log recorded zero requests/redirects to `clerk.scholarhub.local`. HTTP 200 is only a secondary check; it was not accepted as the sole pass criterion.
+- `pnpm typecheck` passed; `pnpm test` passed (18 files, 375 tests); `pnpm build` with Webpack passed and generated 56 static pages. The build used a deliberately fake `DATABASE_URL` and logged expected Neon connection errors. No actual database content, production Clerk credentials, or live deployment was verified.
+- The preview server was stopped after the user asked to turn it off. The changes are local and committed on branch `fix/preview-clerk-chunk-cache` (`b098d75`, following `88580cd`); they have not been pushed or deployed.
+- Safety: `SCHOLARHUB_LOCAL_PREVIEW` is only for local visual review. Keep it unset in Vercel/production and use real Clerk/database/service configuration there. Login/sign-up are intentionally unavailable in preview mode. A fake local `DATABASE_URL` allows UI/build checks only; it cannot populate the app with real records.
