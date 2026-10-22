@@ -1,0 +1,183 @@
+/* ── Design Tokens ─────────────────────────────────────────── */
+:root {
+  /* Ink (text) */
+  --ink-900: #1b1b1b;
+  --ink-800: #2a2a2a;
+  --ink-700: #3d3d3d;
+  --ink-500: #5e5e5e;
+  --ink-400: #9aa8b8;
+  --ink-300: #b8c4d0;
+
+  /* Surface / Neutral */
+  --sand-50:  #faf9f7;
+  --sand-100: #f4f1ed;
+  --sand-200: #e8e3db;
+  --sand-300: #d4cfc7;
+
+  /* Brand: Teal */
+  --teal-100: #e0f5f4;
+  --teal-200: #b0e5e3;
+  --teal-500: #0f8f8d;
+  --teal-600: #0c7b79;
+  --teal-700: #0a6d6b;
+  --teal-800: #074e4d;
+
+  /* Brand: Coral */
+  --coral-100: #fdeee9;
+  --coral-400: #f08a68;
+  --coral-500: #e06e48;
+  --coral-700: #b14a2a;
+
+  /* Semantic */
+  --sky-200: #dfe7f5;
+  --card: #ffffff;
+  --bg-body: #f8f8f7;
+  --bg-surface: #ffffff;
+  --bg-muted: var(--sand-100);
+  --border-default: var(--sand-200);
+  --border-strong: var(--sand-300);
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(15, 34, 52, 0.05);
+  --shadow-md: 0 8px 24px rgba(15, 34, 52, 0.08);
+  --shadow-lg: 0 24px 48px rgba(15, 34, 52, 0.12);
+  --shadow-xl: 0 24px 70px rgba(15, 34, 52, 0.16);
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* Z-index scale */
+  --z-base: 0;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-banner: 30;
+  --z-overlay: 40;
+  --z-modal-backdrop: 50;
+  --z-modal: 60;
+  --z-tab-bar: 80;
+  --z-toast: 90;
+  --z-tooltip: 100;
+
+  /* Focus ring */
+  --focus-ring: 0 0 0 2px var(--teal-500);
+  --focus-ring-offset: 0 0 0 4px rgba(15, 143, 141, 0.2);
+}
+
+/* ── Base Reset ───────────────────────────────────────────── */
+html {
+  /* min-height (not height): a fixed height here combined with the
+     overflow-x: hidden below forces html to become its own internally
+     scrolling box (overflow-y computes to auto per spec whenever
+     overflow-x isn't "visible"), which renders a second scrollbar
+     alongside the normal document scrollbar in some browsers. */
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  color: var(--ink-900);
+  background: var(--bg-body);
+  font-family: var(--font-body), var(--font-bengali), "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reserve space at the bottom so the mobile tab bar doesn't cover content.
+   Pages with their own full-height layout (chat) override this to 0. */
+@media (max-width: 720px) {
+  body {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+
+  /* The chat page is its own full-viewport layout and handles bottom
+     spacing internally — kill body padding-bottom on that route. */
+  body:has([data-fullscreen="true"]) {
+    padding-bottom: 0;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* ── Global Focus Indicators ──────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--teal-500);
+  outline-offset: 2px;
+}
+
+/* Inputs get an inset ring instead of offset outline */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--teal-500);
+  box-shadow: var(--focus-ring), var(--focus-ring-offset);
+}
+
+/* ── Reduced Motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── CV Builder print isolation ────────────────────────────
+   When any element opts into printing via [data-cv-print="true"]
+   (the CV Builder preview), hide everything else and print only
+   the CV, positioned at the top-left of the page. */
+@media print {
+  body:has([data-cv-print="true"]) * {
+    visibility: hidden;
+  }
+  body:has([data-cv-print="true"]) [data-cv-print="true"],
+  body:has([data-cv-print="true"]) [data-cv-print="true"] * {
+    visibility: visible;
+  }
+  [data-cv-print="true"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  @page {
+    margin: 14mm;
+  }
+}
+

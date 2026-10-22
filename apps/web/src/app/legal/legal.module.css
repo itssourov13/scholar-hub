@@ -1,0 +1,247 @@
+.page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding: 28px 8vw 80px;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.page::before,
+.page::after {
+  content: "";
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  z-index: 0;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.page::before {
+  top: -150px;
+  right: -100px;
+  background: radial-gradient(circle, rgba(15, 143, 141, 0.5), rgba(15, 143, 141, 0));
+}
+
+.page::after {
+  bottom: -200px;
+  left: -140px;
+  background: radial-gradient(circle, rgba(240, 138, 104, 0.5), rgba(240, 138, 104, 0));
+}
+
+.main {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
+  gap: 48px;
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ── Hero ── */
+.hero {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 720px;
+}
+
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--teal-700);
+}
+
+.hero h1 {
+  font-family: var(--font-display), var(--font-bengali), sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: -0.8px;
+  line-height: 1.05;
+  color: var(--ink-900);
+  margin: 6px 0;
+}
+
+.lastUpdated {
+  font-size: 13px;
+  color: var(--ink-500);
+}
+
+.disclaimer {
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: rgba(15, 143, 141, 0.05);
+  border: 1px solid rgba(15, 143, 141, 0.15);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-700);
+}
+
+.disclaimer strong {
+  color: var(--ink-900);
+}
+
+/* ── Sticky table of contents ── */
+.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--sand-200);
+  border-radius: 16px;
+  font-size: 13px;
+}
+
+.tocTitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--ink-500);
+  margin-bottom: 4px;
+}
+
+.tocLink {
+  color: var(--ink-700);
+  text-decoration: none;
+  padding: 4px 0;
+  transition: color 0.2s ease;
+  line-height: 1.4;
+}
+
+.tocLink:hover {
+  color: var(--teal-700);
+}
+
+/* ── Article ── */
+.article {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  max-width: 720px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scroll-margin-top: 24px;
+}
+
+.section h2 {
+  font-family: var(--font-display), var(--font-bengali), sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink-900);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.section h3 {
+  font-family: var(--font-display), var(--font-bengali), sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink-900);
+  margin-top: 6px;
+}
+
+.section p {
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--ink-700);
+}
+
+.section ul {
+  margin: 4px 0 0 20px;
+  padding: 0;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--ink-700);
+}
+
+.section li {
+  margin: 4px 0;
+}
+
+.section a {
+  color: var(--teal-700);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.section a:hover {
+  color: var(--teal-500);
+}
+
+.section code {
+  font-family: "Fira Code", "Cascadia Code", monospace;
+  font-size: 13px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: rgba(15, 143, 141, 0.08);
+  color: var(--teal-700);
+  border: 1px solid rgba(15, 143, 141, 0.18);
+}
+
+.contactCard {
+  margin-top: 12px;
+  padding: 18px 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(15, 143, 141, 0.06),
+    rgba(240, 138, 104, 0.05)
+  );
+  border: 1px solid var(--sand-200);
+  border-radius: 14px;
+}
+
+.contactCard p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-700);
+}
+
+.contactCard a {
+  font-weight: 700;
+  color: var(--teal-700);
+  text-decoration: none;
+}
+
+.contactCard a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 980px) {
+  .main {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .toc {
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 22px 6vw 64px;
+  }
+
+  .toc {
+    display: none;
+  }
+}

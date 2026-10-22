@@ -1,0 +1,58 @@
+{
+  "name": "ScholarHub",
+  "short_name": "ScholarHub",
+  "description": "Discover scholarship opportunities and plan your study-abroad applications with ScholarHub.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3efe7",
+  "theme_color": "#0f8f8d",
+  "lang": "en",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "ScholarHub scholarship search"
+    }
+  ],
+  "categories": ["education"],
+  "shortcuts": [
+    {
+      "name": "Browse Scholarships",
+      "short_name": "Scholarships",
+      "description": "Browse all scholarships",
+      "url": "/scholarships",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "AI Mentor",
+      "short_name": "Mentor",
+      "description": "Chat with the AI mentor",
+      "url": "/chat",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

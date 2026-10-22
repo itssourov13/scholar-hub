@@ -1,0 +1,44 @@
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { sql } from "@/utils/db";
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ sessionId: string }> }
+) {
+  const { userId } = await auth();
+  const anonKey = req.headers.get("x-anon-key");
+  const { sessionId } = await params;
+
+  if (!userId && !anonKey) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const sessionRows = await sql`
+    SELECT user_id, anon_key FROM chat_sessions WHERE id = ${sessionId} LIMIT 1
+  `;
+  const session = sessionRows[0];
+
+  if (!session) {
+    return NextResponse.json({ error: "Session not found" }, { status: 404 });
+  }
+
+  if (session.user_id) {
+    if (!userId || userId !== session.user_id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+  } else {
+    if (session.anon_key !== anonKey) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+  }
+
+  const messages = await sql`
+    SELECT id, role, content, created_at
+    FROM chat_messages
+    WHERE session_id = ${sessionId}
+    ORDER BY created_at ASC
+  `;
+
+  return NextResponse.json({ messages });
+}

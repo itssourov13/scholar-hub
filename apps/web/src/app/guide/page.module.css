@@ -1,0 +1,436 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 8vw 64px;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* Break out of the 8vw horizontal padding for full-bleed sections */
+  margin-left: -8vw;
+  margin-right: -8vw;
+  width: calc(100% + 16vw);
+}
+
+/* ── Header ── */
+.header {
+  background: linear-gradient(135deg, #0f2633 0%, #0a4a48 60%, #0f8f8d 100%);
+  color: #fff;
+  padding: 2.5rem 2rem 2rem;
+  text-align: center;
+}
+
+.title {
+  font-family: var(--font-display), var(--font-bengali), sans-serif;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  color: #fff;
+}
+
+.subtitle {
+  font-size: 1.0625rem;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 100%;
+  margin: 0 auto;
+  line-height: 1.65;
+  white-space: nowrap;
+}
+
+/* ── Grid Section ── */
+.gridSection {
+  /* Page changes scroll back here — leave room for the sticky navbar. */
+  scroll-margin-top: 80px;
+  padding: 3.5rem 2rem 2rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  flex: 1;
+}
+
+/* ── Search + category filter ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.searchWrap {
+  position: relative;
+  flex: 1 1 260px;
+  max-width: 360px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-500);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px 0 38px;
+  border: 1.5px solid var(--sand-200);
+  border-radius: 12px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--ink-900);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.searchInput::placeholder {
+  color: var(--ink-400);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--teal-500);
+  box-shadow: 0 0 0 3px rgba(15, 143, 141, 0.14);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 36px;
+  padding: 0 0.85rem;
+  border: 1.5px solid var(--sand-200);
+  border-radius: 100px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-700);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.chip:hover {
+  border-color: var(--teal-500);
+  color: var(--teal-700);
+}
+
+.chipActive,
+.chipActive:hover {
+  background: var(--teal-800);
+  border-color: var(--teal-800);
+  color: #fff;
+}
+
+.chipCount {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.65;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 3rem 1.5rem;
+  border: 1.5px dashed var(--sand-200);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--ink-500);
+  text-align: center;
+}
+
+.clearButton {
+  padding: 0.55rem 1.1rem;
+  border: none;
+  border-radius: 10px;
+  background: var(--teal-800);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Guide Card ── */
+.card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1.5px solid rgba(15, 143, 141, 0.1);
+  box-shadow: 0 2px 12px rgba(15, 34, 52, 0.06);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  gap: 0.75rem;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(15, 34, 52, 0.14);
+  border-color: rgba(15, 143, 141, 0.35);
+}
+
+/* ── Card thumbnail ── */
+.cardThumb {
+  /* Break out of the card's 1.5rem padding so the image is full-bleed at the top */
+  margin: -1.5rem -1.5rem 0.25rem;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 15px 15px 0 0;
+  background: var(--sand-100);
+}
+
+.cardThumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.card:hover .cardThumbImg {
+  transform: scale(1.04);
+}
+
+.cardThumbFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardThumbFallback span {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.categoryBadge {
+  font-size: 0.725rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.65rem;
+  border-radius: 100px;
+}
+
+.categoryBadge[data-color="teal"] {
+  background: #e0f5f4;
+  color: #0a6d6b;
+}
+
+.categoryBadge[data-color="coral"] {
+  background: #fdeee9;
+  color: #c05a38;
+}
+
+.categoryBadge[data-color="sky"] {
+  background: #dfe7f5;
+  color: #2d5fa6;
+}
+
+.categoryBadge[data-color="sand"] {
+  background: #f7f3ee;
+  color: #7a5e3a;
+}
+
+.categoryBadge[data-color="purple"] {
+  background: #f0eaf8;
+  color: #6633cc;
+}
+
+.faqCount {
+  font-size: 0.75rem;
+  color: var(--ink-500);
+  white-space: nowrap;
+}
+
+.cardTitle {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--ink-900);
+}
+
+.cardExcerpt {
+  font-size: 0.875rem;
+  color: var(--ink-500);
+  line-height: 1.6;
+  flex: 1;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--sand-200);
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.tag {
+  font-size: 0.7rem;
+  background: var(--sand-100);
+  color: var(--ink-500);
+  padding: 0.2rem 0.55rem;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+
+.readMore {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--teal-500);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.card:hover .readMore {
+  color: var(--teal-700);
+}
+
+/* ── CTA Banner ── */
+/* One-line bar: question + title on the left, button on the right — a nudge
+   to the mentor, not a second hero. */
+.ctaBanner {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 2rem 1.5rem;
+}
+
+.ctaInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  padding: 0.6rem 0.75rem 0.6rem 1.1rem;
+  background: var(--sand-100);
+  border: 1px solid var(--sand-200);
+  border-radius: 12px;
+}
+
+.ctaCopy {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.1rem 0.6rem;
+  min-width: 0;
+}
+
+.ctaKicker {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--teal-700);
+}
+
+.ctaTitle {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--ink-900);
+  line-height: 1.35;
+}
+
+.ctaButton {
+  display: inline-block;
+  flex-shrink: 0;
+  background: var(--teal-500);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  padding: 0.45rem 1rem;
+  border-radius: 100px;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.15s;
+  text-decoration: none;
+}
+
+.ctaButton:hover {
+  background: var(--teal-700);
+  transform: translateY(-1px);
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .header {
+    display: none;
+  }
+
+  .gridSection {
+    padding: 2rem 1.25rem 1.5rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .searchWrap {
+    max-width: none;
+    flex-basis: 100%;
+  }
+  .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -1.25rem;
+    padding: 0 1.25rem;
+    max-width: calc(100% + 2.5rem);
+  }
+
+  .ctaBanner {
+    padding: 0 1.25rem 1.25rem;
+  }
+  .ctaInner {
+    padding: 0.6rem 0.75rem 0.6rem 0.9rem;
+  }
+  /* Phone: the button already says "talk to the mentor" — keep just the
+     short question beside it so the bar stays one line. */
+  .ctaTitle {
+    display: none;
+  }
+}

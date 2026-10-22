@@ -1,0 +1,201 @@
+/* ── Duplicate / similarity warning panel ──────────────────────────────── */
+
+.dupPanel {
+  border-radius: 14px;
+  padding: 18px 20px;
+  background: #fffbeb;
+  border: 1.5px solid #fbbf24;
+}
+
+.dupPanel[data-severity="exact"] {
+  background: #fff1f1;
+  border-color: #f87171;
+}
+
+.dupPanel[data-severity="likely"] {
+  background: #fffbeb;
+  border-color: #fbbf24;
+}
+
+.dupPanel[data-severity="possible"] {
+  background: #f0faf9;
+  border-color: #5eead4;
+}
+
+.dupChecking {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--ink-500, #6b7c8d);
+}
+
+.dupHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.dupIcon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.dupTitle {
+  font-size: 14px;
+  color: var(--ink-900, #0f2234);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.dupSubtitle {
+  font-size: 12.5px;
+  color: var(--ink-500, #6b7c8d);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.dupDismiss {
+  margin-left: auto;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-400, #8fa0b0);
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: background 0.15s, color 0.15s;
+}
+.dupDismiss:hover {
+  background: rgba(0,0,0,0.06);
+  color: var(--ink-700, #2d4259);
+}
+
+.dupList {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dupItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 10px;
+  padding: 10px 14px;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.dupItemInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.dupItemBadge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.dupItemBadge[data-type="exact_url"] {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+.dupItemBadge[data-type="likely"] {
+  background: #fef3c7;
+  color: #92400e;
+}
+.dupItemBadge[data-type="possible"] {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.dupItemTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-800, #1a3048);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dupItemCountry {
+  font-size: 12px;
+  color: var(--ink-500, #6b7c8d);
+  white-space: nowrap;
+}
+
+.dupItemStatus {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 20px;
+}
+.dupItemStatus[data-status="published"] {
+  background: #dcfce7;
+  color: #166534;
+}
+.dupItemStatus[data-status="draft"] {
+  background: #f1f5f9;
+  color: #475569;
+}
+.dupItemStatus[data-status="archived"] {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+.dupViewBtn {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--teal-600, #0d7a79);
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(15, 143, 141, 0.08);
+  border: 1px solid rgba(15, 143, 141, 0.2);
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.dupViewBtn:hover {
+  background: rgba(15, 143, 141, 0.15);
+}
+
+.dupFooter {
+  font-size: 12.5px;
+  color: var(--ink-500, #6b7c8d);
+  margin: 0;
+}
+
+.dupProceedLink {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--teal-600, #0d7a79);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.dupProceedLink:hover {
+  color: var(--teal-700, #0a6b6a);
+}

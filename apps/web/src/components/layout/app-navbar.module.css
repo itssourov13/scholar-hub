@@ -1,0 +1,182 @@
+.nav {
+  position: relative;
+  z-index: var(--z-tooltip);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display), var(--font-bengali), sans-serif;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+}
+
+.brandLogo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.navLinks {
+  /* Frosted-glass pill — centered in the grid auto column */
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.30);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  padding: 5px 6px;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07);
+  transform: translateZ(0);
+  will-change: backdrop-filter;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.actionButton {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  background: var(--ink-900);
+  color: #ffffff;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.actionButton:hover {
+  transform: translateY(-1px);
+  background: #111111;
+}
+
+.ghostButton {
+  border: none;
+  background: transparent;
+  color: var(--ink-900);
+  padding: 10px 18px;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.ghostButton:hover {
+  opacity: 0.7;
+}
+
+.mobileToggle {
+  display: none;
+  border: 1px solid var(--sand-200);
+  background: #ffffff;
+  color: var(--ink-900);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.mobileBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 34, 52, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: none;
+  z-index: 90;
+}
+
+.mobilePanel {
+  position: fixed;
+  top: 72px;
+  left: 16px;
+  right: 16px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid var(--sand-200);
+  box-shadow: 0 18px 40px rgba(15, 34, 52, 0.16);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 100;
+}
+
+.mobilePanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ink-500);
+}
+
+.mobileClose {
+  border: none;
+  background: transparent;
+  color: var(--ink-700);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.mobileActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (max-width: 720px) {
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .navLinks {
+    display: none;
+  }
+
+  .actions {
+    display: none;
+  }
+
+  /* The mobile tab bar replaces the hamburger menu on small screens */
+  .mobileToggle {
+    display: none;
+  }
+}
+
+/* Show the hamburger on tablets where the tab bar isn't shown but desktop
+   nav is still hidden */
+@media (min-width: 721px) and (max-width: 980px) {
+  .nav {
+    display: flex;
+  }
+
+  .navLinks {
+    display: none;
+  }
+
+  .actions {
+    display: none;
+  }
+
+  .mobileToggle {
+    display: inline-flex;
+    margin-left: auto;
+  }
+}

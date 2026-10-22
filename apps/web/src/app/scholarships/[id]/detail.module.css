@@ -1,0 +1,1115 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 32px 8vw 64px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brandMark {
+  width: 32px;
+  height: 32px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--teal-500), var(--coral-400));
+  box-shadow: 0 8px 20px rgba(15, 143, 141, 0.3);
+}
+
+.brandName {
+  font-family: var(--font-display), var(--font-bengali), sans-serif;
+  font-size: 20px;
+  letter-spacing: -0.4px;
+}
+
+.brandTag {
+  font-size: 12px;
+  color: var(--ink-500);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.headerActions {
+  display: flex;
+  gap: 12px;
+}
+
+.primaryButton {
+  background: var(--teal-500);
+  color: #ffffff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(15, 143, 141, 0.2);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.primaryButton:hover {
+  background: var(--teal-700);
+  transform: translateY(-1px);
+}
+
+.secondaryButton {
+  background: var(--ink-900);
+  color: #ffffff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.ghostButton {
+  background: transparent;
+  border: 1px solid var(--sand-200);
+  color: var(--ink-900);
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.linkButton {
+  border: none;
+  background: transparent;
+  color: var(--ink-700);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.hero {
+  display: grid;
+  /* Top row: image (60%) + quick-facts panel (40%).
+     Bottom row: title block spans the full hero width so the H1 always
+     gets the most room available instead of being squeezed into one
+     column and wrapping early. */
+  grid-template-columns: 3fr 2fr;
+  grid-template-areas:
+    "media panel"
+    "content content";
+  gap: 24px;
+  align-items: start;
+}
+
+.heroMedia {
+  grid-area: media;
+}
+
+.heroContent {
+  grid-area: content;
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 11px;
+  color: var(--teal-700);
+  font-weight: 700;
+}
+
+.kicker::after {
+  content: "";
+  width: 28px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--teal-500), var(--coral-400));
+}
+
+.hero h1 {
+  font-family: var(--font-display), var(--font-bengali), sans-serif;
+  font-size: clamp(2.3rem, 4vw, 3.2rem);
+  line-height: 1.08;
+  letter-spacing: -0.5px;
+  margin: 14px 0 12px;
+}
+
+.subtitle {
+  color: var(--ink-700);
+  max-width: 520px;
+  font-size: 14.5px;
+}
+
+.deadlineBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.deadlineBadge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.deadlineUrgent {
+  background: rgba(220, 53, 69, 0.12);
+  color: #c0392b;
+}
+
+.deadlineSoon {
+  background: rgba(245, 158, 11, 0.14);
+  color: #b45309;
+}
+
+.deadlineNormal {
+  background: rgba(15, 143, 141, 0.12);
+  color: var(--teal-700);
+}
+
+.deadlineClosed,
+.deadlineNone {
+  background: var(--sand-100);
+  color: var(--ink-500);
+}
+
+.heroPanel {
+  grid-area: panel;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 20px;
+  border-top: 3px solid var(--teal-500);
+  padding: 20px;
+  box-shadow: var(--shadow-lg);
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.heroPanel h3 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+  color: var(--ink-500);
+  margin-bottom: 10px;
+}
+
+/* ── Competitiveness gauge — shared signature element ──
+   Reused in the Quick facts sidebar and the Competitiveness tab. */
+.gauge {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gaugeCompact {
+  gap: 6px;
+}
+
+.gaugeHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.gaugeLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 700;
+  color: var(--ink-500);
+}
+
+.gaugeValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-700);
+}
+
+.gaugeTrack {
+  display: flex;
+  gap: 4px;
+}
+
+.gaugeSegment {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--sand-200);
+  transition: background 0.2s ease;
+}
+
+.gaugeCompact .gaugeTrack {
+  gap: 3px;
+}
+
+.gaugeCompact .gaugeSegment {
+  height: 6px;
+}
+
+.gaugeScale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--ink-400);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.gaugeScaleActive {
+  color: var(--ink-900);
+  font-weight: 700;
+}
+
+.gaugeToneLow.gaugeValue {
+  color: var(--teal-700);
+}
+
+.gaugeToneMedium.gaugeValue {
+  color: #b45309;
+}
+
+.gaugeToneHigh.gaugeValue {
+  color: #c0392b;
+}
+
+.gaugeToneLow.gaugeSegment {
+  background: var(--teal-500);
+}
+
+.gaugeToneMedium.gaugeSegment {
+  background: #f59e0b;
+}
+
+.gaugeToneHigh.gaugeSegment {
+  background: #dc3545;
+}
+
+.heroPanelFooter {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* ── Section rhythm primitives ──────────────────────────────────────────
+   Shared across the editorial sections below instead of re-wrapping each
+   one in its own bordered/shadowed card. A hairline rule + generous
+   padding-top does the separating work; weight comes from type, not chrome. */
+.sectionRule {
+  border-top: 1px solid var(--sand-200);
+  padding-top: 36px;
+}
+
+.eyebrow {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--teal-700);
+  margin-bottom: 10px;
+}
+
+.sectionHeading {
+  font-family: var(--font-display), var(--font-bengali), serif;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--ink-900);
+  margin: 0;
+}
+
+.sectionLede {
+  font-size: 13.5px;
+  color: var(--ink-500);
+  margin: 6px 0 0;
+  max-width: 60ch;
+}
+
+/* ── AI summary — reads as an article intro, not a tool output ── */
+.summarySection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.docsGuideHeader h2,
+.panelHeader h2 {
+  font-family: var(--font-display), var(--font-bengali), serif;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--ink-900);
+}
+
+.summaryHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.summaryHeaderText {
+  min-width: 0;
+}
+
+/* Underline segmented control (Linear-style) instead of pill buttons on
+   a white card — reads as a view switch, not decoration. */
+.tabRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  border-bottom: 1px solid var(--sand-200);
+  flex-shrink: 0;
+}
+
+.tabButton,
+.tabActive {
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0 10px;
+  font-size: 13px;
+  color: var(--ink-500);
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+
+.tabActive {
+  color: var(--teal-700);
+  font-weight: 600;
+  border-bottom-color: var(--teal-500);
+}
+
+.markdownBody {
+  font-size: 15px;
+  color: var(--ink-700);
+  line-height: 1.7;
+  max-width: 72ch;
+}
+
+.markdownBody > * + * {
+  margin-top: 0.55em;
+}
+
+.markdownBody table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--sand-200);
+  border-radius: 8px;
+  overflow: hidden;
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.markdownBody thead {
+  background: rgba(15, 143, 141, 0.08);
+}
+
+.markdownBody th,
+.markdownBody td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--sand-200);
+  font-size: 12px;
+  color: var(--ink-900);
+}
+
+.markdownBody tr:last-child td {
+  border-bottom: none;
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tagRow span {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--sand-100);
+  font-size: 11px;
+  color: var(--ink-700);
+}
+
+/* ── Eligibility checklist + Application timeline ──
+   No boxed panels: a shared hairline divider carries both, and a single
+   vertical rule between the two columns is the only "border" doing work —
+   it separates without adding another rounded rectangle. */
+.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px;
+  align-items: start;
+}
+
+.panel {
+  min-width: 0;
+}
+
+.panelTips {
+  padding-left: 48px;
+  border-left: 1px solid var(--sand-200);
+}
+
+.panelHeader {
+  margin-bottom: 20px;
+}
+
+/* Checklist — plain content, checkmark does the "requirement met" signalling
+   instead of a card border. */
+.requirementsList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-size: 14px;
+  color: var(--ink-700);
+}
+
+.requirementsList li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  line-height: 1.6;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--sand-100);
+}
+
+.requirementsList li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.checkIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--teal-500);
+  color: var(--teal-700);
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Application tips — vertical timeline: a connecting spine ties the steps
+   together so the section reads as a sequence, not a stack of cards. */
+.actionList {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.actionList::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: var(--sand-200);
+}
+
+.actionItem {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.actionNumber {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: var(--sand-50, #faf9f7);
+  border: 1.5px solid var(--coral-400);
+  color: var(--coral-700);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+
+.actionItem p {
+  font-size: 14px;
+  color: var(--ink-700);
+  line-height: 1.6;
+  margin: 0;
+  padding-top: 3px;
+}
+
+/* ── Required Documents — categorized documentation, not two equal cards.
+   Core docs get the primary column and full typographic weight; the
+   "sometimes required" list is demoted to a narrower side note so the
+   hierarchy matches how often a student actually needs each one. ── */
+.docsGuide {
+  display: block;
+}
+
+.docsGuideHeader {
+  margin-bottom: 24px;
+}
+
+.docsGuideHeader h2 {
+  margin: 0 0 6px;
+}
+
+.docsGuideHeader p {
+  font-size: 13.5px;
+  color: var(--ink-500);
+  margin: 0;
+  max-width: 60ch;
+}
+
+.docsColumns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+.docsCard {
+  min-width: 0;
+}
+
+.docsCardAdditional {
+  padding-left: 32px;
+  border-left: 1px solid var(--sand-200);
+}
+
+.docsCard h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-900);
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.docsCardCore h3 {
+  font-size: 14px;
+}
+
+.docsList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--ink-700);
+}
+
+.docsCardAdditional .docsList {
+  font-size: 13px;
+  gap: 10px;
+}
+
+.docsList li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.55;
+}
+
+.docsDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ink-300);
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+
+/* Shared minimal callout — a colored left rule carries the meaning, not a
+   filled rounded box. Used for the "pro tip" and the AI disclaimer alike. */
+.docsTip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 2px 0 2px 12px;
+  border-left: 2px solid var(--coral-400);
+  color: var(--coral-700);
+}
+
+.docsTip p {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-700);
+  margin: 0;
+}
+
+.docsTip strong {
+  font-weight: 700;
+  color: var(--coral-700);
+}
+
+@media (max-width: 640px) {
+  .docsColumns {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .docsCardAdditional {
+    padding-left: 16px;
+    padding-top: 20px;
+    border-left: none;
+    border-top: 1px solid var(--sand-200);
+  }
+
+  .docsGuideHeader h2 {
+    font-size: 15px;
+  }
+}
+
+.aiDisclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 2px 0 2px 14px;
+  border-left: 2px solid #d97706;
+  color: #92400e;
+}
+
+.aiDisclaimer svg {
+  color: #d97706;
+}
+
+.aiDisclaimer p {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-500);
+}
+
+.aiDisclaimer strong {
+  font-weight: 600;
+  color: #92400e;
+}
+
+@media (max-width: 1100px) {
+  .hero {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "media"
+      "content"
+      "panel";
+  }
+
+  .columns {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .panelTips {
+    padding-left: 0;
+    padding-top: 32px;
+    border-left: none;
+    border-top: 1px solid var(--sand-200);
+  }
+}
+
+@media (max-width: 820px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .headerActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Mobile-only back link — hidden on desktop where the hero panel has it */
+.mobileBackLink {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .mobileBackLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 14px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--teal-700);
+    text-decoration: none;
+  }
+
+  .mobileBackLink:hover {
+    text-decoration: underline;
+  }
+}
+.mobileStickyBar {
+  display: none;
+}
+
+.heroImage {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 640px) {
+  .page {
+    /* 14px top, 50px base bottom + 64px sticky bar + 64px tab bar + safe-area */
+    padding: 14px 5vw calc(50px + 64px + 64px + env(safe-area-inset-bottom));
+  }
+
+  /* ── Hero compression ── */
+  .heroImage {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 14px;
+    margin-bottom: 14px;
+  }
+
+  /* Single column, top-aligned, no large default gap.
+     Panel is hidden on mobile (sticky bar takes over), so the areas
+     collapse to just media + content. */
+  .hero {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "media"
+      "content";
+    align-items: stretch;
+    gap: 0;
+  }
+
+  /* Drop the kicker — marketing fluff that costs space */
+  .hero .kicker {
+    display: none;
+  }
+
+  /* Smaller, tighter title */
+  .hero h1 {
+    font-size: 1.4rem;
+    line-height: 1.25;
+    letter-spacing: -0.3px;
+    margin: 0 0 6px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    margin: 2px 0 0;
+  }
+
+  .deadlineBadge {
+    margin-top: 10px;
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  /* Hide the entire hero side panel on mobile — everything in it
+     (back link, apply button, save, official page, tags) is either
+     duplicated below or replaced by the sticky bottom action bar. */
+  .heroPanel {
+    display: none;
+  }
+
+  .summaryHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    /* Allow children to shrink below their intrinsic content width so the
+       tabRow inside can scroll horizontally instead of overflowing. */
+    min-width: 0;
+  }
+
+  /* ── Tab row: horizontal scroll instead of wrap ── */
+  .tabRow {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 4px 0;
+    min-width: 0;
+  }
+
+  .tabRow::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tabRow > button {
+    flex-shrink: 0;
+  }
+
+  .heroActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* ── Sticky action bar ── */
+  .mobileStickyBar {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    /* Stack just above the global mobile tab bar (64px) + safe-area */
+    bottom: calc(64px + env(safe-area-inset-bottom));
+    z-index: 80;
+    padding: 10px 12px;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--sand-200);
+    box-shadow: 0 -8px 24px -8px rgba(15, 34, 52, 0.08);
+  }
+
+  .mobileStickyBookmark {
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid var(--sand-200);
+    color: var(--ink-700);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  }
+
+  .mobileStickyBookmark:active {
+    transform: scale(0.94);
+  }
+
+  .mobileStickyBookmark:disabled {
+    cursor: default;
+  }
+
+  .mobileStickyBookmarkActive {
+    background: rgba(15, 143, 141, 0.12);
+    border-color: rgba(15, 143, 141, 0.28);
+    color: var(--teal-700);
+  }
+
+  .mobileStickyApply {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 46px;
+    border: none;
+    border-radius: 14px;
+    background: var(--teal-500);
+    color: #ffffff;
+    font-size: 14.5px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 8px 20px rgba(15, 143, 141, 0.3);
+    transition: background 0.2s ease, transform 0.15s ease;
+  }
+
+  .mobileStickyApply:active {
+    transform: scale(0.98);
+  }
+
+  .mobileStickyApply:hover {
+    background: var(--teal-700);
+  }
+}
+
+/* ── SEO: breadcrumb ─────────────────────────────────────────────────────── */
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-500, #6b6660);
+}
+
+.breadcrumb a {
+  color: var(--teal-700, #0b6d6b);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb span[aria-hidden="true"] {
+  color: var(--ink-300, #b8b2aa);
+}
+
+.breadcrumbCurrent {
+  color: var(--ink-700, #3a352f);
+  font-weight: 600;
+}
+
+/* ── SEO: official outbound link — a slim side note, not a boxed CTA.
+   The Apply button already lives in the hero panel and the mobile sticky
+   bar; repeating it here as a second filled card was pure redundancy. ── */
+.officialLinkCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--sand-200);
+}
+
+.officialLinkCard p {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--ink-500);
+  max-width: 58ch;
+  min-width: 0;
+}
+
+.officialLinkBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--teal-700);
+  text-decoration: none;
+  max-width: 100%;
+}
+
+.officialLinkBtn:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .officialLinkCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ── SEO: FAQ ─────────────────────────────────────────────────────────────── */
+.faqSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faqItem {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  padding: 16px 18px;
+  background: #fff;
+}
+
+.faqItem h3 {
+  margin: 0 0 6px;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--ink-800, #2a251f);
+}
+
+.faqItem p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-600, #4a453f);
+}
+
+/* ── SEO: related scholarships ───────────────────────────────────────────── */
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.relatedCardLink {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  background: #fff;
+  text-decoration: none;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.relatedCardLink:hover {
+  border-color: rgba(15, 143, 141, 0.4);
+  transform: translateY(-2px);
+}
+
+.relatedCardCountry {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--teal-700, #0b6d6b);
+}
+
+.relatedCardTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-800, #2a251f);
+  line-height: 1.35;
+}
+
+.relatedCardMeta {
+  font-size: 12.5px;
+  color: var(--ink-500, #6b6660);
+}

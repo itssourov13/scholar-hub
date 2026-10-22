@@ -1,0 +1,34 @@
+# Local environment files — keep only sanitized examples
+.env
+.env.*
+!.env.example
+
+# User data exports — never commit
+*.csv
+users.csv
+user_data.csv
+
+# Firebase service account keys — these can send push as the app. NEVER commit.
+# The value lives in the FCM_SERVICE_ACCOUNT env var; the file is only the source.
+*firebase-adminsdk*.json
+service-account*.json
+
+# Node modules from migration scripts
+node_modules/
+package-lock.json
+
+# Local AI/tool configs, editor caches, and build artifacts — not used by Vercel
+.agents/
+.claude/
+.codex/
+.commandcode/
+.kiro/
+.next/
+.pnpm-store/
+.puku/
+
+# Local database exports may contain personal records and chat history; never commit.
+apps/web/supabase_data.sql
+
+# Local Android debug signing keystore — never commit keys.
+apps/mobile/android/app/debug.keystore

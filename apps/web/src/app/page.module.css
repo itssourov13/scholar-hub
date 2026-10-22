@@ -1,0 +1,1174 @@
+.page {
+  position: relative;
+  /* Own stacking context so the ambient background layers (z-index:-1)
+     stay contained behind the page content but above the body. */
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  padding: 16px 8vw 64px;
+  min-height: 100vh;
+  /* overflow: hidden removed — it breaks backdrop-filter on child elements */
+  overflow: clip;
+  /* Layered warm→teal aurora mesh. Color is pushed to the right and edges so
+     the dark hero copy on the left stays crisp and readable. Kept as a soft
+     tint rather than a saturated wash. */
+  background:
+    radial-gradient(ellipse 58% 56% at 100% -8%, rgba(240, 138, 104, 0.26) 0%, transparent 60%),
+    radial-gradient(ellipse 44% 38% at 72% 2%,   rgba(246, 196, 102, 0.13) 0%, transparent 58%),
+    radial-gradient(ellipse 52% 58% at -8% 12%,  rgba(15, 143, 141, 0.16)  0%, transparent 62%),
+    radial-gradient(ellipse 76% 54% at 88% 110%, rgba(15, 143, 141, 0.10)  0%, transparent 64%),
+    linear-gradient(165deg, #fdfdfc 0%, var(--bg-body) 44%, #f1f4f2 100%);
+}
+
+/* Dotted grid texture — a tactile, modern surface. Strongest across the top
+   third of the page, fading downward so it never fights the content. */
+.page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(15, 143, 141, 0.15) 1.1px, transparent 1.5px);
+  background-size: 26px 26px;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.55) 38%, transparent 78%);
+  mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.55) 38%, transparent 78%);
+}
+
+/* Ambient aurora glow that drifts slowly for a living, premium feel. */
+.page::after {
+  content: "";
+  position: absolute;
+  inset: -25% -12% auto -12%;
+  height: 95%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 40% 64% at 14% 28%, rgba(15, 143, 141, 0.14) 0%, transparent 72%),
+    radial-gradient(ellipse 46% 70% at 88% 18%, rgba(240, 138, 104, 0.16) 0%, transparent 72%);
+  filter: blur(28px);
+  animation: auroraDrift 22s ease-in-out infinite alternate;
+}
+
+@keyframes auroraDrift {
+  0%   { transform: translate3d(-3%, -1%, 0) scale(1);    opacity: 0.85; }
+  50%  { transform: translate3d(3%, 2.5%, 0) scale(1.08); opacity: 1; }
+  100% { transform: translate3d(4%, -2%, 0)  scale(1.04); opacity: 0.8; }
+}
+
+.main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 96px;
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 11px;
+  color: var(--teal-700);
+  font-weight: 700;
+}
+
+/* ── Hero ── */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 56px;
+  align-items: center;
+}
+
+.heroLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: floatIn 0.8s ease forwards;
+}
+
+.heroLeft h1 {
+  font-family: var(--font-display), var(--font-bengali), sans-serif;
+  font-size: clamp(2.2rem, 4.3vw, 3.4rem);
+  line-height: 1.05;
+  letter-spacing: -1px;
+  color: var(--ink-900);
+  margin: 4px 0 6px;
+}
+
+.lede {
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink-700);
+  max-width: 520px;
+}
+
+/* Search */
+.searchForm {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 6px 6px 6px 22px;
+  box-shadow: 0 12px 32px rgba(15, 143, 141, 0.14);
+  border: 1px solid var(--sand-200);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  margin-top: 10px;
+}
+
+.searchForm:focus-within {
+  box-shadow: 0 18px 44px rgba(15, 143, 141, 0.24);
+  border-color: var(--teal-500);
+  transform: translateY(-1px);
+}
+
+/* On desktop, the inner wrap is invisible — just a flex passthrough */
+.searchInputWrap {
+  display: contents;
+}
+
+.searchIcon {
+  color: var(--ink-500);
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  color: var(--ink-900);
+  outline: none;
+  padding: 8px 0;
+}
+
+.searchInput:focus,
+.searchInput:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.searchInput::placeholder {
+  color: var(--ink-500);
+}
+
+.searchButton {
+  background: var(--teal-500);
+  color: #ffffff;
+  border: none;
+  padding: 11px 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.searchButton:hover {
+  background: var(--teal-700);
+}
+
+/* Browse-all CTA — visible escape hatch under the search */
+.heroBrowseRow {
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.browseAllCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px 9px 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--sand-200);
+  color: var(--ink-900);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.browseAllCta:hover {
+  border-color: var(--teal-500);
+  background: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(15, 143, 141, 0.12);
+}
+
+.browseAllLabel {
+  color: var(--ink-900);
+}
+
+.browseAllCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--teal-500), var(--coral-400));
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.browseAllArrow {
+  color: var(--teal-700);
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+
+.browseAllCta:hover .browseAllArrow {
+  transform: translateX(2px);
+}
+
+.quickTags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 12.5px;
+}
+
+.quickTags span {
+  color: var(--ink-500);
+  margin-right: 2px;
+}
+
+.quickTags a {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--sand-200);
+  color: var(--ink-700);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.quickTags a:hover {
+  background: #ffffff;
+  border-color: var(--teal-500);
+  color: var(--teal-700);
+}
+
+.heroAlternative {
+  margin-top: 6px;
+  font-size: 13.5px;
+  color: var(--ink-500);
+}
+
+.heroAlternative a {
+  color: var(--teal-700);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.heroAlternative a:hover {
+  color: var(--teal-500);
+  text-decoration: underline;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--sand-200);
+}
+
+.statValue {
+  display: block;
+  font-family: var(--font-display), var(--font-bengali), sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.5px;
+  color: var(--ink-900);
+}
+
+.statLabel {
+  font-size: 11.5px;
+  color: var(--ink-500);
+  letter-spacing: 0.2px;
+}
+
+/* ── Hero product preview (illustration on the right) ── */
+.previewWrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: floatIn 1.05s ease forwards;
+}
+
+/* Static base + animated overlay stacked pixel-perfectly (shared viewBox). */
+.heroStack {
+  position: relative;
+  z-index: 1;
+  width: 119%;
+  max-width: 682px;
+  /* The SVGs bleed off their frame edge by design, so no mask is needed —
+     just a soft contact shadow so it feels grounded rather than pasted flat. */
+  filter: drop-shadow(0 26px 44px rgba(15, 34, 52, 0.14));
+}
+
+.heroBase {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.heroAnim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+@keyframes livePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(109, 192, 147, 0.7); }
+  70%      { box-shadow: 0 0 0 6px rgba(109, 192, 147, 0); }
+}
+
+@keyframes floatIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Workflow row (single-line tight) ── */
+.workflowRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 22px 28px;
+  background: linear-gradient(135deg, rgba(15, 143, 141, 0.05), rgba(240, 138, 104, 0.05));
+  border: 1px solid var(--sand-200);
+  border-radius: 999px;
+  font-size: 14px;
+}
+
+.workflowItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-700);
+}
+
+.workflowItem strong {
+  color: var(--ink-900);
+}
+
+.workflowDot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--teal-500);
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.workflowArrow {
+  color: var(--ink-500);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+/* ── Mentor showcase ── */
+.mentorShowcase {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 64px;
+  align-items: center;
+}
+
+.mentorCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mentorCopy h2 {
+  font-family: var(--font-display), var(--font-bengali), sans-serif;
+  font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  color: var(--ink-900);
+}
+
+.sectionSubtext {
+  font-size: 15.5px;
+  color: var(--ink-700);
+  line-height: 1.65;
+  max-width: 520px;
+}
+
+.mentorCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 11px 22px;
+  background: var(--teal-500);
+  color: #ffffff;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  width: fit-content;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.mentorCta:hover {
+  background: var(--teal-700);
+  transform: translateY(-1px);
+}
+
+.mentorMock {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 28px;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--sand-200);
+  box-shadow: var(--shadow-lg);
+  /* reserve space above and below so annotations clear the card content */
+  margin-top: 96px;
+  margin-bottom: 96px;
+  margin-right: 12px;
+}
+
+.mentorMockBubbleUser {
+  align-self: flex-end;
+  max-width: 70%;
+  background: rgba(15, 143, 141, 0.12);
+  border: 1px solid rgba(15, 143, 141, 0.18);
+  border-radius: 16px 16px 4px 16px;
+  padding: 11px 14px;
+  font-size: 14px;
+  color: var(--ink-900);
+}
+
+.mentorMockBubbleAi {
+  align-self: flex-start;
+  max-width: 90%;
+  background: #fafafa;
+  border: 1px solid var(--sand-200);
+  border-radius: 16px 16px 16px 4px;
+  padding: 14px 16px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-900);
+}
+
+.mentorMockBubbleAi p {
+  margin: 0 0 8px;
+}
+
+.mentorMockBubbleAi p:last-child {
+  margin-bottom: 0;
+}
+
+.mentorMockBubbleAi ul {
+  margin: 4px 0 0 18px;
+  padding: 0;
+  font-size: 13px;
+  color: var(--ink-700);
+}
+
+.mentorMockBubbleAi li {
+  margin: 2px 0;
+}
+
+.mentorMockKey {
+  font-weight: 600;
+  margin-top: 10px;
+  color: var(--ink-900);
+}
+
+.mentorMockTip {
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--ink-500);
+  line-height: 1.5;
+}
+
+.mentorMockAnnotation {
+  position: absolute;
+  background: var(--ink-900);
+  color: #ffffff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  max-width: 220px;
+  box-shadow: 0 12px 24px rgba(15, 34, 52, 0.25);
+}
+
+.mentorMockAnnotation::before {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--ink-900);
+  transform: rotate(45deg);
+}
+
+.mentorMockAnnotation[data-position="top-right"] {
+  /* sits above the card — clear of all card content */
+  top: -92px;
+  right: 0;
+}
+
+.mentorMockAnnotation[data-position="top-right"]::before {
+  /* tail points downward into the card */
+  bottom: -4px;
+  left: 24px;
+}
+
+.mentorMockAnnotation[data-position="bottom-left"] {
+  /* sits below the card — clear of all card content */
+  bottom: -92px;
+  left: 0;
+}
+
+.mentorMockAnnotation[data-position="bottom-left"]::before {
+  /* tail points upward into the card */
+  top: -4px;
+  right: 28px;
+}
+
+.mentorMockTag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.mentorMockAnnotation p {
+  margin: 0;
+}
+
+/* ── Closing soon (live data) ── */
+.closingSection {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.closingHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.closingHeader h2 {
+  font-family: var(--font-display), var(--font-bengali), sans-serif;
+  font-size: clamp(1.7rem, 3vw, 2.3rem);
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  color: var(--ink-900);
+  margin-top: 6px;
+}
+
+.closingMore {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--teal-700);
+  text-decoration: none;
+}
+
+.closingMore:hover {
+  text-decoration: underline;
+}
+
+.liveDot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e63946;
+  box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.6);
+  animation: livePulse 1.4s ease-in-out infinite;
+}
+
+.closingGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* Card: no top padding — thumbnail bleeds to the edges */
+.closingCard {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid var(--sand-200);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 34, 52, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.closingCard:hover {
+  transform: translateY(-4px);
+  border-color: var(--teal-400, #2ab5b3);
+  box-shadow: 0 16px 36px rgba(15, 143, 141, 0.18);
+}
+
+/* ── Thumbnail zone ── */
+.closingThumb {
+  position: relative;
+  height: 148px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.closingThumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.closingCard:hover .closingThumbImg {
+  transform: scale(1.04);
+}
+
+/* Gradient fallback when no thumbnail */
+.closingThumbFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closingThumbInitials {
+  font-family: var(--font-display), sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.22);
+  letter-spacing: 2px;
+  user-select: none;
+}
+
+/* Bottom gradient so badge is always legible over any image */
+.closingThumbOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 40%,
+    rgba(10, 20, 30, 0.72) 100%
+  );
+}
+
+/* Badge: overlaid on the thumbnail bottom-left */
+.closingBadge {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ── Card body (below thumbnail) ── */
+.closingCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px 12px;
+  flex: 1;
+}
+
+.closingCardBody h3 {
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--ink-900);
+  font-weight: 700;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.closingMeta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: var(--ink-500);
+  margin: 0;
+  flex-wrap: wrap;
+}
+
+/* ── Urgency strip at the very bottom of the card ── */
+.closingUrgencyBar {
+  height: 3px;
+  flex-shrink: 0;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.closingCard:hover .closingUrgencyBar {
+  opacity: 1;
+}
+
+.closingEmpty {
+  padding: 28px;
+  background: #ffffff;
+  border: 1px dashed var(--sand-200);
+  border-radius: 16px;
+  font-size: 14px;
+  color: var(--ink-500);
+  text-align: center;
+}
+
+.closingEmpty a {
+  color: var(--teal-700);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.closingEmpty a:hover {
+  text-decoration: underline;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .closingGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .hero,
+  .mentorShowcase {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .mentorMockAnnotation[data-position="top-right"] {
+    top: -92px;
+    right: 0;
+  }
+
+  .mentorMockAnnotation[data-position="bottom-left"] {
+    bottom: -92px;
+    left: 0;
+  }
+}
+
+@media (max-width: 820px) {
+  /* On mobile: input pill on top, full-width button below */
+  .searchForm {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  .searchForm:focus-within {
+    box-shadow: none;
+    border-color: transparent;
+  }
+
+  /* Input gets its own pill */
+  .searchInputWrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    border: 1.5px solid var(--sand-200);
+    border-radius: 999px;
+    padding: 12px 18px;
+    box-shadow: 0 4px 20px rgba(15, 143, 141, 0.1);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .searchForm:focus-within .searchInputWrap {
+    border-color: var(--teal-500);
+    box-shadow: 0 6px 24px rgba(15, 143, 141, 0.18);
+  }
+
+  .searchIcon {
+    margin-right: 0;
+    flex-shrink: 0;
+    color: var(--ink-500);
+  }
+
+  .searchInput {
+    font-size: 16px; /* 16px prevents iOS zoom on focus */
+    padding: 0;
+    background: transparent;
+  }
+
+  /* Full-width teal button below the input */
+  .searchButton {
+    width: 100%;
+    padding: 14px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    box-shadow: 0 8px 24px rgba(15, 143, 141, 0.28);
+  }
+
+  .workflowRow {
+    border-radius: 24px;
+    padding: 20px;
+    gap: 12px;
+  }
+
+  .workflowArrow {
+    transform: rotate(90deg);
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 16px 5vw 56px;
+    gap: 28px;
+  }
+
+  /* Hero text tighter on small screens */
+  .heroLeft h1 {
+    font-size: clamp(1.45rem, 6.2vw, 1.95rem);
+    letter-spacing: -0.4px;
+    line-height: 1.1;
+    margin: 4px 0 6px;
+  }
+
+  /* Mobile: drop the kicker — it's marketing fluff that costs vertical space
+     on a viewport that needs to fit the search above the fold. */
+  .heroLeft .kicker {
+    display: none;
+  }
+
+  /* Tighter description on mobile, capped to 2 lines */
+  .lede {
+    font-size: 14px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Hide the secondary "Talk to AI Mentor" link — the bottom tab bar
+     and Browse CTA already give them clear primary actions. */
+  .heroAlternative {
+    display: none;
+  }
+
+  /* Hide the in-hero product preview on small phones — it crowds and the
+     real product is one tap away via the Mentor tab. */
+  .previewWrap {
+    display: none;
+  }
+
+  /* Stats: 2-column with the third (24/7 fluff) hidden — even count fits cleanly */
+  .stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding-top: 14px;
+    margin-top: 14px;
+  }
+
+  .statTertiary {
+    display: none;
+  }
+
+  .statValue {
+    font-size: 18px;
+  }
+
+  /* Search: slightly smaller padding on very small phones */
+  .searchForm {
+    gap: 8px;
+  }
+
+  .searchInputWrap {
+    padding: 11px 16px;
+  }
+
+  .searchInput {
+    font-size: 16px;
+  }
+
+  .searchButton {
+    padding: 13px;
+    font-size: 14px;
+  }
+
+  /* Browse-all CTA: full width, clean alignment */
+  .heroBrowseRow {
+    width: 100%;
+  }
+
+  .browseAllCta {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 10px 14px 10px 16px;
+  }
+
+  .browseAllLabel {
+    font-size: 13px;
+    flex: 1;
+  }
+
+  .browseAllCount {
+    font-size: 11px;
+    padding: 2px 7px;
+  }
+
+  /* Popular tags: tighter so all 4 fit on two lines cleanly */
+  .quickTags {
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .quickTags a {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  /* Hide the 4th tag and beyond on mobile — keeps the row clean */
+  .quickTags a:nth-child(n+5) {
+    display: none;
+  }
+
+  /* Workflow: collapse to a single thin row, no wrapping arrows */
+  .workflowRow {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    font-size: 12.5px;
+  }
+
+  .workflowItem {
+    gap: 6px;
+  }
+
+  .workflowItem strong + span {
+    display: none;  /* hide the descriptive text — keep just numbers + verbs */
+  }
+
+  .workflowDot {
+    width: 20px;
+    height: 20px;
+    font-size: 10.5px;
+  }
+
+  .workflowArrow {
+    transform: none;
+    font-size: 13px;
+  }
+
+  /* Closing soon: single-column stack of cards on mobile */
+  .closingGrid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Mobile section order: hero → closing-soon → workflow */
+  .hero { order: 1; }
+  .closingSection { order: 2; }
+  .workflowRow { order: 3; }
+
+  .mentorShowcase {
+    display: none;
+  }
+
+  .guideTeaser {
+    order: 5;
+  }
+}
+
+/* ── Guide Teaser Section (homepage) ── */
+.guideTeaser {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 48px 40px;
+  background: linear-gradient(135deg, #0f2633 0%, #0a4a48 60%, #0f8f8d 100%);
+  border-radius: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.guideTeaser::before {
+  content: "";
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(93, 232, 222, 0.12), transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.guideTeaserHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.guideTeaserHeader .kicker {
+  color: #5de8de;
+}
+
+.guideTeaserHeader h2 {
+  font-family: var(--font-display), var(--font-bengali), sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  color: #fff;
+  margin-top: 6px;
+}
+
+.guideTeaserHeader .sectionSubtext {
+  color: rgba(255, 255, 255, 0.75);
+  max-width: 460px;
+}
+
+.guideTeaserSeeAll {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 600;
+  color: #5de8de;
+  border: 1px solid rgba(93, 232, 222, 0.4);
+  padding: 8px 18px;
+  border-radius: 100px;
+  transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.guideTeaserSeeAll:hover {
+  background: rgba(93, 232, 222, 0.12);
+  color: #fff;
+}
+
+.guideTeaserGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.guideTeaserCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  text-decoration: none;
+  color: #fff;
+  backdrop-filter: blur(6px);
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+
+.guideTeaserCard:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(93, 232, 222, 0.4);
+  transform: translateY(-2px);
+}
+
+.guideTeaserCategory {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #5de8de;
+}
+
+.guideTeaserTitle {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #fff;
+  margin: 0;
+}
+
+.guideTeaserExcerpt {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.55;
+  flex: 1;
+}
+
+.guideTeaserCount {
+  font-size: 12px;
+  font-weight: 600;
+  color: #5de8de;
+  margin-top: 4px;
+}
+
+@media (max-width: 720px) {
+  .guideTeaser {
+    padding: 28px 20px;
+    border-radius: 20px;
+  }
+
+  .guideTeaserGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .guideTeaserHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

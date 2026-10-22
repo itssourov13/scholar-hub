@@ -1,0 +1,50 @@
+.nav {
+  display: flex;
+  gap: 2px;
+  font-size: 13px;
+  color: var(--ink-700);
+}
+
+.vertical {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.nav a {
+  padding: 6px 14px;
+  border-radius: 999px;
+  transition: color 0.15s ease;
+  white-space: nowrap;
+}
+
+.nav a:hover {
+  background: radial-gradient(ellipse at center, rgba(15, 143, 141, 0.12) 0%, transparent 75%);
+  color: var(--teal-600);
+}
+
+.nav a:active {
+  background: radial-gradient(ellipse at center, rgba(15, 143, 141, 0.18) 0%, transparent 75%);
+}
+
+.vertical a {
+  width: 100%;
+}
+
+.active {
+  background: radial-gradient(ellipse at center, rgba(15, 143, 141, 0.22) 0%, transparent 75%);
+  color: var(--teal-600);
+  font-weight: 500;
+}
+
+@media (max-width: 720px) {
+  .nav {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .nav a {
+    width: 100%;
+    text-align: left;
+  }
+}

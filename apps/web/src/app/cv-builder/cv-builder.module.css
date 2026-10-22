@@ -1,0 +1,1049 @@
+.page {
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg-body);
+  padding: 16px 8vw 80px;
+  /* overflow-x: hidden (not clip) forces overflow-y to compute as "auto"
+     per spec, turning .page into a real scroll container. The ::before/
+     ::after blobs below poke outside the box via negative offsets, so
+     that "auto" overflow becomes genuine content — giving .page its own
+     internal scrollbar alongside the document's, i.e. a double scrollbar.
+     clip avoids both problems. */
+  overflow: clip;
+}
+
+/* Soft brand blobs that bleed off the page corners, mirroring the
+   dashboard treatment. Kept low-opacity so they don't compete with
+   foreground content. */
+.page::before,
+.page::after {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(8px);
+}
+.page::before {
+  top: -200px;
+  right: -180px;
+  background: radial-gradient(circle, rgba(240, 138, 104, 0.35), transparent 70%);
+}
+.page::after {
+  bottom: -240px;
+  left: -160px;
+  background: radial-gradient(circle, rgba(15, 143, 141, 0.32), transparent 70%);
+}
+
+.main {
+  position: relative;
+  z-index: 1;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
+}
+
+/* ── Hero ───────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 32px;
+  padding: 44px 40px 40px;
+  border-radius: 28px;
+  background:
+    radial-gradient(
+      1100px 360px at 0% 0%,
+      rgba(15, 143, 141, 0.18),
+      transparent 70%
+    ),
+    radial-gradient(
+      900px 380px at 100% 100%,
+      rgba(240, 138, 104, 0.22),
+      transparent 70%
+    ),
+    linear-gradient(135deg, #ffffff, #faf9f7 70%);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.hero::before {
+  width: 320px;
+  height: 320px;
+  right: -120px;
+  top: -120px;
+  background: radial-gradient(
+    circle,
+    rgba(15, 143, 141, 0.22),
+    rgba(15, 143, 141, 0)
+  );
+}
+.hero::after {
+  width: 260px;
+  height: 260px;
+  left: -90px;
+  bottom: -110px;
+  background: radial-gradient(
+    circle,
+    rgba(240, 138, 104, 0.22),
+    rgba(240, 138, 104, 0)
+  );
+}
+
+.heroCopy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--teal-700);
+  background: var(--teal-100);
+  border: 1px solid var(--teal-200);
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+}
+.kicker svg {
+  width: 12px;
+  height: 12px;
+}
+
+.hero h1 {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(30px, 4.6vw, 48px);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  margin: 4px 0 0;
+  color: var(--ink-900);
+}
+.heroAccent {
+  background: linear-gradient(120deg, var(--teal-600) 0%, var(--coral-500) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-style: italic;
+}
+
+.subtitle {
+  max-width: 540px;
+  color: var(--ink-500);
+  font-size: 16px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.heroBadges {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-size: 13px;
+  color: var(--ink-700);
+  font-weight: 500;
+}
+.heroBadges li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.heroBadgeDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.heroBadgeDot[data-color="teal"] {
+  background: var(--teal-500);
+  box-shadow: 0 0 0 4px rgba(15, 143, 141, 0.18);
+}
+.heroBadgeDot[data-color="coral"] {
+  background: var(--coral-500);
+  box-shadow: 0 0 0 4px rgba(240, 138, 104, 0.2);
+}
+.heroBadgeDot[data-color="sand"] {
+  background: var(--sand-300);
+  box-shadow: 0 0 0 4px var(--sand-100);
+}
+
+.heroVisual {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 1200px;
+}
+
+/* Real CV thumbnail in the hero.
+   We scale the inner CVPreview down to ~40% so a normal A4-shaped page
+   fits a 360×460 hero frame, then layer a second offset card behind it for
+   a "stack of papers" feel. The whole stage floats gently. */
+.heroCvStage {
+  position: relative;
+  width: min(360px, 100%);
+  aspect-ratio: 360 / 460;
+  animation: heroCvFloat 7s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+@keyframes heroCvFloat {
+  0%, 100% { transform: translateY(0) rotateY(-3deg); }
+  50%      { transform: translateY(-10px) rotateY(3deg); }
+}
+
+.heroCvBack,
+.heroCvFrame {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--border-default);
+  box-shadow: 0 18px 32px rgba(15, 34, 52, 0.14);
+}
+.heroCvBack {
+  transform: translate(14px, 18px) rotate(4deg);
+  opacity: 0.85;
+  z-index: 0;
+  box-shadow: 0 12px 22px rgba(15, 34, 52, 0.10);
+}
+.heroCvFrame {
+  z-index: 1;
+}
+
+.heroCvBackInner,
+.heroCvScale {
+  /* CVPreview's compact canvas is 820px wide. Render at 250% then scale to
+     0.4 → it fills the 360px frame exactly and is responsive. */
+  display: block;
+  width: 250%;
+  transform: scale(0.4);
+  transform-origin: top left;
+}
+.heroCvBackInner {
+  /* Back card shows the CV slightly offset so we only see the edge peeking
+     out — clip most of the rendered page to keep the stack look clean. */
+  height: 92%;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroCvStage { animation: none; transform: rotateY(-3deg); }
+}
+
+/* ── Choice cards ──────────────────────────────────────── */
+.choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.choiceCard {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border-default);
+  border-radius: 22px;
+  padding: 28px 26px 26px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.choiceCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.choiceCard[data-variant="analyze"]::before {
+  background: radial-gradient(
+    420px 260px at 100% 0%,
+    rgba(240, 138, 104, 0.18),
+    transparent 70%
+  );
+}
+.choiceCard[data-variant="build"]::before {
+  background: radial-gradient(
+    420px 260px at 100% 0%,
+    rgba(15, 143, 141, 0.18),
+    transparent 70%
+  );
+}
+.choiceCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+.choiceCard:hover::before {
+  opacity: 1;
+}
+.choiceCard[data-variant="analyze"]:hover {
+  border-color: var(--coral-400);
+}
+.choiceCard[data-variant="build"]:hover {
+  border-color: var(--teal-500);
+}
+
+.choiceIconWrap {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--teal-100), #ffffff);
+  border: 1px solid var(--teal-200);
+  color: var(--teal-700);
+  margin-bottom: 6px;
+  z-index: 1;
+}
+.choiceIconWrap svg {
+  width: 26px;
+  height: 26px;
+}
+.choiceCard[data-variant="analyze"] .choiceIconWrap {
+  background: linear-gradient(135deg, var(--coral-100), #ffffff);
+  border-color: #f4cdbf;
+  color: var(--coral-700);
+}
+
+.choiceCard h2 {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 22px;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--ink-900);
+}
+
+.choiceCard p {
+  margin: 0;
+  color: var(--ink-500);
+  flex-grow: 1;
+  line-height: 1.55;
+}
+
+.choiceBadge {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+}
+.choiceBadge[data-variant="analyze"] {
+  background: var(--coral-100);
+  color: var(--coral-700);
+}
+.choiceBadge[data-variant="build"] {
+  background: var(--teal-100);
+  color: var(--teal-700);
+}
+
+.choiceLink {
+  margin-top: 12px;
+  font-weight: 600;
+  color: var(--coral-700);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+.choiceCard[data-variant="build"] .choiceLink {
+  color: var(--teal-700);
+}
+
+/* ── Buttons ───────────────────────────────────────────── */
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  align-self: flex-start;
+  margin-top: 8px;
+  background: linear-gradient(135deg, var(--teal-500) 0%, var(--teal-700) 100%);
+  color: #fff;
+  border: none;
+  padding: 12px 22px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 6px 14px rgba(12, 123, 121, 0.28);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.primaryBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(12, 123, 121, 0.32);
+}
+.primaryBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+}
+
+.secondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  align-self: flex-start;
+  margin-top: 8px;
+  background: #ffffff;
+  color: var(--ink-900);
+  border: 1px solid var(--border-strong);
+  padding: 12px 22px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.secondaryBtn:hover {
+  border-color: var(--coral-400);
+  color: var(--coral-700);
+  background: var(--coral-100);
+}
+
+/* ── Template picker (modal) ──────────────────────────────
+   Mirrors the site's dialog pattern (dialog-provider.module.css): a
+   blurred backdrop behind a scale/fade-in panel, teal as the primary
+   accent — rather than a plain inline section pushed into the page. */
+.templatePickerBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 34, 52, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: pickerFadeIn 0.2s ease-out forwards;
+}
+.templatePicker {
+  position: relative;
+  background: linear-gradient(180deg, #ffffff 0%, var(--sand-50) 100%);
+  border-radius: 24px;
+  padding: 28px;
+  width: 100%;
+  max-width: 900px;
+  max-height: min(760px, 90vh);
+  overflow-y: auto;
+  box-shadow: 0 30px 60px rgba(15, 34, 52, 0.25);
+  animation: pickerScaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.templatePickerHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.templatePicker h3 {
+  margin: 0 0 4px;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 24px;
+  color: var(--ink-900);
+}
+.templatePickerHint {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-500);
+}
+.pickerClose {
+  background: transparent;
+  border: 1px solid var(--border-default);
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  font-size: 14px;
+  color: var(--ink-500);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.pickerClose:hover {
+  background: var(--sand-100);
+  border-color: var(--border-strong);
+  color: var(--ink-900);
+}
+
+.templateGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.templateCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid var(--border-default);
+  border-radius: 16px;
+  padding: 14px;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.templateCard:hover {
+  border-color: var(--teal-500);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(15, 34, 52, 0.1);
+}
+
+.templateBadge {
+  position: absolute;
+  top: -10px;
+  left: 14px;
+  z-index: 1;
+  background: var(--coral-500);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 10px rgba(224, 110, 72, 0.35);
+}
+
+.templateBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 6px;
+}
+.templateCard strong {
+  font-size: 15px;
+  color: var(--ink-900);
+}
+.templateDesc {
+  font-size: 13px;
+  color: var(--ink-500);
+  line-height: 1.45;
+}
+
+.templateChoose {
+  margin-top: auto;
+  align-self: flex-start;
+  background: var(--teal-600, var(--teal-500));
+  color: #fff;
+  border: none;
+  padding: 9px 18px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 12px rgba(15, 143, 141, 0.2);
+}
+.templateChoose:hover {
+  background: var(--teal-700);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(15, 143, 141, 0.3);
+}
+.templateChoose:disabled {
+  opacity: 0.6;
+  cursor: default;
+  transform: none;
+}
+
+/* Scaled live preview of the demo CV. The inner element is laid out at 250%
+   width then scaled to 0.4, so it renders at exactly the frame width and is
+   responsive. A colored top rail hints at each template's accent before you
+   even read the thumbnail, and a bottom fade softens the hard content crop. */
+.previewFrame {
+  position: relative;
+  display: block;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid var(--border-default);
+  border-top: 3px solid var(--ink-900);
+  background: #ffffff;
+  pointer-events: none;
+  box-shadow: 0 6px 14px rgba(15, 34, 52, 0.06);
+}
+.previewFrame[data-template="modern"],
+.previewFrame[data-template="photo"] {
+  border-top-color: var(--teal-500);
+}
+.previewFrame[data-template="europass"] {
+  border-top-color: #1d3a6b;
+}
+.previewScale {
+  display: block;
+  width: 250%;
+  transform: scale(0.4);
+  transform-origin: top left;
+}
+.previewFade {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 56px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.95) 100%);
+}
+
+@keyframes pickerFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pickerScaleIn {
+  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Features strip ────────────────────────────────────── */
+.features {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  padding: 22px;
+  background: var(--card);
+  border: 1px solid var(--border-default);
+  border-radius: 22px;
+  box-shadow: var(--shadow-sm);
+}
+.featureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.featureIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--border-default);
+}
+.featureIcon svg {
+  width: 20px;
+  height: 20px;
+}
+.featureIcon[data-color="teal"] {
+  background: var(--teal-100);
+  color: var(--teal-700);
+  border-color: var(--teal-200);
+}
+.featureIcon[data-color="coral"] {
+  background: var(--coral-100);
+  color: var(--coral-700);
+  border-color: #f4cdbf;
+}
+.featureIcon[data-color="sand"] {
+  background: var(--sand-100);
+  color: var(--ink-700);
+}
+.featureItem strong {
+  display: block;
+  font-size: 14.5px;
+  color: var(--ink-900);
+  margin-bottom: 2px;
+}
+.featureItem p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-500);
+  line-height: 1.45;
+}
+
+/* ── How it works ──────────────────────────────────────── */
+.howItWorks {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.sectionTitle {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(22px, 2.6vw, 28px);
+  margin: 0;
+  color: var(--ink-900);
+  letter-spacing: -0.01em;
+}
+.stepList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  counter-reset: cvstep;
+}
+.step {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border-default);
+  border-radius: 18px;
+  padding: 22px 22px 22px 70px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.step:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.stepNumber {
+  position: absolute;
+  left: 22px;
+  top: 22px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--teal-500), var(--teal-700));
+  box-shadow: 0 6px 14px rgba(12, 123, 121, 0.28);
+}
+.step h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  color: var(--ink-900);
+}
+.step p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-500);
+  line-height: 1.5;
+}
+
+/* ── Saved CVs ─────────────────────────────────────────── */
+.savedSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.savedHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.savedCount {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-500);
+  background: var(--sand-100);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+}
+
+.savedGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.savedCard {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border-default);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.savedCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--teal-500);
+}
+
+.savedCardLink {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+}
+
+.savedPreview {
+  display: block;
+  height: 200px;
+  overflow: hidden;
+  background: var(--sand-50);
+  border-bottom: 1px solid var(--border-default);
+  pointer-events: none;
+  position: relative;
+}
+.savedPreview::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 60%, rgba(15, 34, 52, 0.06) 100%);
+  pointer-events: none;
+}
+.savedPreviewScale {
+  display: block;
+  width: 250%;
+  transform: scale(0.4);
+  transform-origin: top left;
+}
+
+.savedCardBody {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+}
+.savedCardTitle {
+  font-size: 15px;
+  color: var(--ink-900);
+  font-weight: 600;
+  /* Truncate long titles */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.savedCardMeta {
+  font-size: 12px;
+  color: var(--ink-500);
+}
+.savedCardCta {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--teal-700);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.savedCardDelete {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--border-default);
+  color: var(--coral-700);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.15s ease,
+    color 0.15s ease, border-color 0.15s ease;
+  z-index: 2;
+}
+.savedCardDelete svg {
+  width: 16px;
+  height: 16px;
+}
+.savedCard:hover .savedCardDelete,
+.savedCard:focus-within .savedCardDelete {
+  opacity: 1;
+  transform: translateY(0);
+}
+.savedCardDelete:hover {
+  background: var(--coral-100);
+  border-color: var(--coral-400);
+  color: var(--coral-700);
+}
+
+.savedCardSkeleton {
+  height: 246px;
+  background: linear-gradient(
+    90deg,
+    var(--sand-100) 0%,
+    #efece6 40%,
+    var(--sand-100) 80%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border: 1px solid var(--border-default);
+  border-radius: 18px;
+}
+.savedCardSkeleton::before,
+.savedCardSkeleton::after {
+  content: "";
+}
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .savedCardSkeleton { animation: none; }
+}
+
+.savedEmpty {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  background: var(--card);
+  border: 1px dashed var(--border-strong);
+  border-radius: 18px;
+  color: var(--ink-500);
+}
+.savedEmpty strong {
+  display: block;
+  font-size: 16px;
+  color: var(--ink-900);
+  margin-bottom: 2px;
+}
+.savedEmpty p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-500);
+  line-height: 1.45;
+}
+.savedEmptyIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--teal-100);
+  color: var(--teal-700);
+  border: 1px solid var(--teal-200);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.savedEmptyIcon svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* ── Footer ────────────────────────────────────────────── */
+.pageFooter {
+  text-align: center;
+  font-size: 14px;
+  color: var(--ink-500);
+  margin-top: 4px;
+}
+.pageFooter a {
+  color: var(--teal-700);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 960px) {
+  .features {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 36px 28px 32px;
+  }
+  .heroVisual {
+    order: -1;
+  }
+  .heroIllustration {
+    max-width: 220px;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 12px 5vw 64px;
+  }
+  .main {
+    gap: 32px;
+  }
+  .hero {
+    padding: 28px 22px 26px;
+    border-radius: 22px;
+  }
+  .hero h1 {
+    font-size: 30px;
+  }
+  .choices {
+    grid-template-columns: 1fr;
+  }
+  .templatePickerBackdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+  .templatePicker {
+    max-width: none;
+    max-height: 88vh;
+    border-radius: 22px 22px 0 0;
+  }
+  .templateGrid {
+    grid-template-columns: 1fr;
+  }
+  .previewFrame {
+    height: 220px;
+  }
+  .features {
+    grid-template-columns: 1fr;
+  }
+  .stepList {
+    grid-template-columns: 1fr;
+  }
+  .step {
+    padding: 20px 20px 20px 64px;
+  }
+  .savedHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .savedCardDelete {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

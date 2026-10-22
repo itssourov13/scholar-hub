@@ -1,0 +1,25 @@
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-bengali), var(--font-body), sans-serif;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1.5px solid var(--sand-200);
+  background: transparent;
+  color: var(--ink-500);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+  letter-spacing: 0;
+  line-height: 1.4;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.toggle:hover {
+  border-color: var(--teal-500);
+  color: var(--teal-700);
+  background: rgba(15, 143, 141, 0.06);
+}

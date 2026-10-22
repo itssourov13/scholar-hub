@@ -1,0 +1,142 @@
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 34, 52, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.dialog {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 32px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 40px rgba(15, 34, 52, 0.15);
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.iconDestructive {
+  color: var(--coral-400, #f07060);
+  background: rgba(240, 112, 96, 0.1);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.title {
+  font-family: var(--font-display), var(--font-bengali), sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink-900, #0f2234);
+  margin: 0;
+}
+
+.description {
+  font-size: 15px;
+  color: var(--ink-500, #6b7c8d);
+  line-height: 1.5;
+  margin: 0 0 24px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancelButton {
+  background: transparent;
+  color: var(--ink-500, #6b7c8d);
+  border: 1px solid var(--sand-200, #e8e3db);
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background: var(--sand-100, #f6f5f3);
+  color: var(--ink-900, #0f2234);
+}
+
+.primaryButton {
+  background: var(--teal-500, #0f8f8d);
+  color: #ffffff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(15, 143, 141, 0.2);
+}
+
+.primaryButton:hover {
+  background: var(--teal-700, #0a6b6a);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(15, 143, 141, 0.3);
+}
+
+.destructiveButton {
+  background: var(--coral-400, #f07060);
+  color: #ffffff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(240, 112, 96, 0.2);
+}
+
+.destructiveButton:hover {
+  background: #e55c4d;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(240, 112, 96, 0.3);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .actions {
+    flex-direction: column-reverse;
+  }
+  .actions button {
+    width: 100%;
+  }
+}

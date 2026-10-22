@@ -1,0 +1,374 @@
+/* ── CV page (A4-ish canvas) ─────────────────────────────────────────────── */
+.page {
+  --cv-accent: var(--teal-700);
+  --cv-ink: #1a1a1a;
+  --cv-muted: #555;
+  --cv-rule: #cfcfcf;
+
+  width: 100%;
+  max-width: 820px;
+  margin: 0 auto;
+  background: #fff;
+  color: var(--cv-ink);
+  box-shadow: var(--shadow-md);
+  border-radius: 6px;
+  padding: 48px 52px;
+  box-sizing: border-box;
+  line-height: 1.35;
+  font-size: 13px;
+}
+
+/* Compact = thumbnail preview (fills its scaled wrapper, no chrome) */
+.compact {
+  max-width: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Printable = the real editor preview. It keeps its true, print-accurate
+   width (fonts/margins tuned for an actual page) and CVPreview measures
+   the available column width in JS, then sets an inline `zoom` (see
+   PAGE_WIDTH in cv-preview.tsx) to shrink the whole page uniformly —
+   fonts, spacing, everything — so the full page fits without a
+   horizontal scrollbar, however narrow the editor column is. */
+.printable {
+  width: 820px;
+  max-width: 820px;
+}
+
+/* ── Classic (serif, centered header) ────────────────────────────────────── */
+.classic {
+  font-family: "Fraunces", Georgia, "Times New Roman", serif;
+}
+.classic .cvHeader {
+  text-align: center;
+  border-bottom: 2px solid var(--cv-ink);
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+}
+.classic .name {
+  font-size: 25px;
+  letter-spacing: 0.02em;
+}
+.classic .sectionTitle {
+  text-align: left;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 12.5px;
+  border-bottom: 1px solid var(--cv-rule);
+}
+
+/* ── Modern (sans, left header, teal accent) ─────────────────────────────── */
+.modern {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+}
+.modern .cvHeader {
+  text-align: left;
+  border-left: 5px solid var(--cv-accent);
+  padding-left: 16px;
+  margin-bottom: 18px;
+}
+.modern .name {
+  font-size: 25px;
+  color: var(--cv-accent);
+}
+.modern .sectionTitle {
+  color: var(--cv-accent);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--teal-200);
+}
+
+/* ── Europass (EU standard format, restrained navy accent, left date column) */
+.europass {
+  --cv-accent: #1d3a6b;
+  font-family: "Manrope", Arial, "Segoe UI", sans-serif;
+  font-size: 12.5px;
+}
+.europass .cvHeader {
+  text-align: left;
+  border-bottom: 2px solid var(--cv-accent);
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+}
+.europass .name {
+  font-size: 23px;
+  color: var(--cv-ink);
+  letter-spacing: 0.01em;
+}
+.europass .headline {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--cv-accent);
+}
+.europass .sectionTitle {
+  margin: 0 0 7px;
+  padding-bottom: 3px;
+  color: var(--cv-accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--cv-rule);
+}
+/* Date range reads as a fixed left-hand column, like the official EU form. */
+.europass .entryHead {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+.europass .entryMeta {
+  order: -1;
+  flex: 0 0 108px;
+  padding-right: 12px;
+  margin-right: 12px;
+  border-right: 1px solid var(--cv-rule);
+  font-weight: 500;
+  color: var(--cv-muted);
+  white-space: normal;
+}
+.europass .entryTitle {
+  flex: 1 1 auto;
+  color: var(--cv-ink);
+}
+.europass .entrySub {
+  margin-left: 132px;
+}
+
+/* ── Photo (clean modern layout with a headshot in the header) ───────────── */
+.photo {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+}
+/* Photo sits to the right, name/contact fill the left — a confident,
+   document-like header rather than a tinted web card. */
+.photo .cvHeader {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  text-align: left;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  border-bottom: 2px solid var(--cv-accent);
+}
+.photo .avatar {
+  width: 96px;
+  height: 96px;
+  box-shadow: 0 0 0 1px var(--cv-rule);
+}
+.photo .name {
+  font-size: 25px;
+  letter-spacing: -0.01em;
+  color: var(--cv-ink);
+}
+.photo .headline {
+  color: var(--cv-accent);
+  font-weight: 600;
+  font-style: normal;
+}
+.photo .sectionTitle {
+  color: var(--cv-accent);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--teal-200);
+}
+
+/* ── Header photo / avatar (shared) ──────────────────────────────────────── */
+.avatar {
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--cv-rule);
+  display: block;
+}
+.avatarPlaceholder {
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+}
+.headerText {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+/* Any template gains a side-by-side header once a photo is present. */
+.cvHeader:has(.avatar) {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  text-align: left;
+}
+
+/* ── Shared header ───────────────────────────────────────────────────────── */
+.name {
+  margin: 0 0 4px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.headline {
+  margin: 0 0 6px;
+  font-size: 13.5px;
+  color: var(--cv-muted);
+  font-style: italic;
+}
+.contactLine {
+  margin: 2px 0;
+  font-size: 11.5px;
+  color: var(--cv-muted);
+}
+.contactLine a {
+  color: var(--cv-accent);
+  text-decoration: none;
+}
+
+/* ── Sections ────────────────────────────────────────────────────────────── */
+.section {
+  margin-bottom: 13px;
+  break-inside: avoid;
+}
+.sectionTitle {
+  margin: 0 0 6px;
+  padding-bottom: 2px;
+  font-weight: 700;
+}
+.paragraph {
+  margin: 0;
+  color: var(--cv-ink);
+}
+
+/* ── Entries ─────────────────────────────────────────────────────────────── */
+.entryList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.entry {
+  break-inside: avoid;
+}
+.entryHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.entryTitle {
+  font-weight: 600;
+}
+.entryOrg {
+  font-weight: 500;
+}
+.entryMeta {
+  color: var(--cv-muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.entrySub {
+  margin-top: 1px;
+}
+.entryLocation {
+  display: block;
+  color: var(--cv-muted);
+  font-size: 11.5px;
+}
+.entryDesc {
+  margin: 3px 0 0;
+  white-space: pre-line;
+}
+.entryLink {
+  display: block;
+  color: var(--cv-accent);
+  font-size: 11.5px;
+  text-decoration: none;
+  word-break: break-all;
+}
+
+/* ── Lists ───────────────────────────────────────────────────────────────── */
+.bulletList {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bulletList li {
+  padding-left: 2px;
+}
+
+/* ── Skills ──────────────────────────────────────────────────────────────── */
+.skillList {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.skillRow {
+  display: flex;
+  gap: 8px;
+}
+.skillCategory {
+  font-weight: 600;
+  flex-shrink: 0;
+  margin: 0;
+}
+.skillItems {
+  margin: 0;
+}
+
+/* ── References ──────────────────────────────────────────────────────────── */
+.refGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.refItem {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+}
+.refEmail {
+  color: var(--cv-accent);
+}
+
+/* ── Print ───────────────────────────────────────────────────────────────── */
+@media print {
+  .printable {
+    box-shadow: none;
+    border-radius: 0;
+    max-width: none;
+    width: 100%;
+    zoom: 1;
+    padding: 0;
+    font-size: 10.5pt;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 28px 22px;
+    font-size: 12.5px;
+  }
+  .refGrid {
+    grid-template-columns: 1fr;
+  }
+  .europass .entryHead {
+    flex-direction: column;
+  }
+  .europass .entryMeta {
+    flex: 0 0 auto;
+    padding-right: 0;
+    margin-right: 0;
+    border-right: none;
+    margin-bottom: 2px;
+  }
+  .europass .entrySub {
+    margin-left: 0;
+  }
+  .cvHeader:has(.avatar),
+  .photo .cvHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+}

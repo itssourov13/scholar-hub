@@ -1,0 +1,152 @@
+.footer {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding-top: 48px;
+  border-top: 1px solid var(--sand-200);
+  margin-top: 32px;
+}
+
+.footerInner {
+  display: flex;
+  justify-content: space-between;
+  gap: 48px;
+  align-items: flex-start;
+}
+
+.footerBrand {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 240px;
+}
+
+.footerLogo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footerLogo strong {
+  font-size: 16px;
+  letter-spacing: -0.4px;
+  color: var(--ink-900);
+}
+
+.footerBrandLogo {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.footerTagline {
+  font-size: 13px;
+  color: var(--ink-500);
+  line-height: 1.6;
+}
+
+.footerCopyright {
+  font-size: 11px;
+  color: var(--ink-400, #9aa8b8);
+  margin-top: 4px;
+}
+
+.footerCookieSettings {
+  align-self: flex-start;
+  padding: 0;
+  margin-top: 2px;
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: var(--ink-400, #9aa8b8);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.footerCookieSettings:hover {
+  color: var(--teal-700);
+}
+
+.footerPlayBadge {
+  display: inline-block;
+  margin-top: 8px;
+  line-height: 0;
+  transition: opacity 0.2s ease;
+}
+
+.footerPlayBadge:hover {
+  opacity: 0.85;
+}
+
+.footerPlayBadgeImg {
+  width: 135px;
+  height: auto;
+}
+
+.footerColumns {
+  display: flex;
+  gap: 48px;
+}
+
+.footerCol {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 130px;
+}
+
+.footerCol h4 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  color: var(--ink-900);
+  margin-bottom: 4px;
+}
+
+.footerCol a {
+  font-size: 13px;
+  color: var(--ink-500);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footerCol a:hover,
+.footerEmail:hover {
+  color: var(--teal-700);
+}
+
+.footerEmail {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--ink-500);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footerSupportNote {
+  font-size: 11px;
+  color: var(--ink-400, #9aa8b8);
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+@media (max-width: 720px) {
+  .footerInner {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .footerBrand {
+    max-width: 100%;
+  }
+
+  .footerColumns {
+    flex-wrap: wrap;
+    gap: 28px;
+  }
+}

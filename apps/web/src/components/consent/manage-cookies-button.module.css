@@ -1,0 +1,19 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  background: none;
+  border: none;
+  font: inherit;
+  font-weight: 700;
+  font-size: inherit;
+  color: var(--teal-700);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.button:hover {
+  color: var(--teal-500);
+}

@@ -1,0 +1,66 @@
+{
+  "expo": {
+    "name": "ScholarHub",
+    "slug": "scholarhub",
+    "version": "1.1.0",
+    "orientation": "portrait",
+    "scheme": "scholarhub",
+    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.baireporbo.ios"
+    },
+    "android": {
+      "package": "app.baireporbo.android",
+      "versionCode": 9,
+      "googleServicesFile": "./android/app/google-services.json",
+      "permissions": ["android.permission.POST_NOTIFICATIONS"],
+      "blockedPermissions": ["android.permission.SYSTEM_ALERT_WINDOW"],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      "expo-localization",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#f8f8f7"
+        }
+      ],
+      "expo-background-task",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "ScholarHub uses your photos so the mentor can read screenshots of offer letters and application portals."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#0f8f8d",
+          "defaultChannel": "content"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiBase": "http://localhost:3000"
+    }
+  }
+}

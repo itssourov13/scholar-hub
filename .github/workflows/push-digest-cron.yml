@@ -1,0 +1,55 @@
+name: Daily push digest
+
+# Replaces the Vercel cron that ran this job before the move to Railway.
+# Railway Hobby has no built-in scheduler for an already-running web service,
+# so the schedule lives here and the job is just an authenticated HTTP call.
+
+on:
+  schedule:
+    # 03:00 UTC = 09:00 Asia/Dhaka, matching the old vercel.json schedule.
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: push-digest
+  cancel-in-progress: false
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Trigger push-digest
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          # Explicitly configured for the target deployment; never call the old production service by default.
+          TARGET_URL: ${{ vars.CRON_TARGET_URL }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${TARGET_URL}" ]; then
+            echo "::error::CRON_TARGET_URL repository variable is not set; refusing to call any default endpoint."
+            exit 1
+          fi
+
+          if [ -z "${CRON_SECRET}" ]; then
+            echo "::error::CRON_SECRET repository secret is not set."
+            exit 1
+          fi
+
+          code=$(curl -sS -o response.json -w '%{http_code}' \
+            --retry 3 --retry-delay 30 --retry-all-errors \
+            --max-time 120 \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            "${TARGET_URL}/api/cron/push-digest")
+
+          echo "HTTP ${code}"
+          cat response.json || true
+          echo
+
+          if [ "${code}" != "200" ]; then
+            echo "::error::push-digest returned HTTP ${code}"
+            exit 1
+          fi

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "746147447494",
+    "project_id": "baireporbo-3049b",
+    "storage_bucket": "baireporbo-3049b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:746147447494:android:e88d391b9c0249a7a64dc7",
+        "android_client_info": {
+          "package_name": "app.baireporbo.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQaYyrBddm0q20ntkHV7i8vPmmqQNqPZ0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
