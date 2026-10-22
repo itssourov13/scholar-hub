@@ -23,6 +23,17 @@ The documentation/brand work is being prepared as a fresh root commit on `main` 
 - [x] Removed obsolete duplicate root plans/migration notes and the old interview brief after consolidating their relevant product/technical context.
 - [x] Documented that legacy visual assets/native integration identifiers, build/test baseline, import tooling, and public-release cleanup are still pending.
 
+## Completed: local visual-preview handshake fix (2026-10-22)
+
+- [x] Reproduced the `clerk.scholarhub.local` failure in Chromium network logs and identified Clerk middleware's dev-browser handshake redirect as the cause; HTTP 200 alone was insufficient verification.
+- [x] Added a strictly opt-in `SCHOLARHUB_LOCAL_PREVIEW=1` branch in the proxy, redirected preview auth pages to the public homepage, and split Clerk-dependent modules from the shared auth context so public preview JS does not load the placeholder Clerk SDK host.
+- [x] Added preview-only cleanup of old service-worker registrations and `scholarhub-*` caches; bumped the regular cache version to `v6`.
+- [x] Verified the rendered page with Chromium at 412×915 and with an Android user agent; zero placeholder Clerk handshake/DNS events were recorded.
+- [x] Re-ran web TypeScript and tests (375/375 pass) and rebuilt with Webpack (56 static pages generated). This used a dummy `DATABASE_URL` and is not a real database/production integration test.
+- [x] Stopped the local preview server after the user requested shutdown. The preview fixes are committed locally on `fix/preview-clerk-chunk-cache` (`b098d75`); not pushed or deployed.
+
+**Still outstanding for real content:** configure a real Neon `DATABASE_URL`, apply/reconcile the versioned migrations against a dedicated database, inspect and safely import the actual scholarship catalogue, confirm records are `published`, and test `/api/scholarships` and the rendered list against the real dataset. pgvector extensions, `ScholarshipDoc` documents, and embeddings are additionally needed for RAG/semantic matching; they are not required just to render ordinary published scholarship rows. Do not use the preview's dummy DB URL as a production or data-import target.
+
 ## Phase 0 — remaining tasks
 
 ### P0 — Repository and release safety

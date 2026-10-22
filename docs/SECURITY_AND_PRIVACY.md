@@ -64,7 +64,14 @@ A server-side URL importer must mitigate SSRF and untrusted page content:
 - Explain that IndexedDB is not automatically encrypted and can be exposed by a compromised same-origin script or device.
 - Private cloud documents require a private bucket, narrowly scoped authorization, short-lived access URLs, size/type checks, and deletion behaviour; the existing public asset CDN is not a private vault.
 
-## 7. Release gates
+## 7. Local visual-preview boundary
+
+- `SCHOLARHUB_LOCAL_PREVIEW=1` is a developer-only visual-preview switch, not a login/test-auth implementation. It bypasses Clerk middleware in the local proxy and makes `/auth/*` unavailable by redirecting to the public homepage.
+- Do not set this flag in Vercel, a production deployment, or a publicly reachable shared environment. Production must use the normal Clerk middleware, real Clerk keys, the real `DATABASE_URL`, and credentials-backed smoke tests.
+- The preview's dummy database URL only allows compilation/rendering to be inspected while database reads fail/fall back. It does not seed scholarship records, prove migration success, or validate private-data authorization.
+- The preview clears prior service-worker registrations/cache entries on its browser-side load. This is a local inspection aid and must not be treated as an account/data deletion mechanism.
+
+## 8. Release gates
 
 Before a public release:
 - Complete a threat model and focused OWASP ASVS/API-security checklist.
