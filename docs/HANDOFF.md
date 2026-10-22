@@ -13,11 +13,11 @@ Continue adapting the existing application into **ScholarHub**, a broader schola
 - Main implementation: `apps/web`. Native app: `apps/mobile`. Shared contracts: `packages/shared`.
 - Current web foundation: Next.js 16.4.2, React 19, TypeScript, Clerk, Neon/PostgreSQL/pgvector, R2, OpenRouter, optional Redis/NIM. Mobile: Expo SDK 57, React Native 0.86, Clerk Expo.
 - API handlers are in `apps/web/src/app/api`; zero-byte `apps/api`/`packages/db` scaffold files were removed from the fresh tree.
-- **Active local branch:** `fix/production-readiness-and-app-id`, based on `fa98e09`. Its work is uncommitted and has not been pushed or merged. Review the full diff before committing.
-- Latest passing local checks: web lint/typecheck, 375 web tests (18 files), production build with the configured local environment (56 routes), production dependency audit (no known vulnerabilities), mobile lint/typecheck, Expo SDK check, and Expo Doctor (20/20).
-- Android Metro/Router resolution is fixed locally by setting `packageImportMethod: copy` for the mobile pnpm root. The normal Android export bundles 2,216 modules but fails at Hermes bytecode with `SIGILL` because this host is ARM64 and its installed compiler binary is x86-64; the diagnostic `--no-bytecode` export passes (2,216 modules, 77 assets). Hosted Ubuntu CI now checks the normal export, but GitHub Actions has not run yet.
-- Added `.github/workflows/ci.yml`; it has passed local YAML parsing, but remains unpushed/unrun remotely. The local web production build passed; no DB migration, seed/import, or production write took place.
-- Mobile identifiers remain locally set to `com.scholarhub.app`, but store/update compatibility, Firebase/push, EAS/signing, public HTTPS API, auth/deep links, and real-device tests remain outstanding. See `docs/CURRENT_STATE.md` for evidence and limitations.
+- **Active branch:** `fix/production-readiness-and-app-id`; PR #2 is open. Published commit `608711a` passed both jobs in [GitHub Actions run 39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903), including standard Android export on hosted Ubuntu.
+- A follow-up is being committed locally: mobile generic credential/generated-file ignore protections are restored; auth role state is keyed to the current Clerk user ID to prevent an old role leaking across account switches; docs/roadmap are updated. Push this follow-up after local verification and inspect its own CI run.
+- Current local follow-up: Web lint/typecheck and 379 tests across 19 files pass, including four auth role-state tests. The Webpack production build passed and generated all 56 routes after the auth provider change. The previous published head passed hosted CI, including standard Android export; local export still fails because the ARM64 host has an x86-64 Hermes compiler.
+- The intended `com.scholarhub.app` identity is for a separate ScholarHub app listing, not an in-place update of the legacy BairePorbo listing. The store registration and signing path still need verification. No matching Firebase config is committed; push configuration is needed only if push is included. `keystore.properties` is optional for EAS-managed remote signing.
+- No migration/import or production DB write occurred. See `docs/CURRENT_STATE.md` for current release gates and honest CI scope.
 
 ## Most recent local preview fix
 
@@ -34,7 +34,7 @@ Continue adapting the existing application into **ScholarHub**, a broader schola
 - Replaced the generic web README and updated web-specific agent instructions.
 - Removed stale duplicate root project plans/migration notes and the legacy interview brief.
 - Updated primary product-name copy, site metadata/schema, PWA/native labels, Expo slug/scheme, Android deep-link scheme, shared package scope, and service-worker cache namespace/version. Removed the former APK/assetlinks, disabled former ad/pixel integrations, made public outbound links configurable, and marked legal policies as pre-release drafts. No database schema, production data, deployed environment, or production deployment was changed.
-- Follow-up (2026-10-23): root-caused and fixed the Android Metro file-map issue using copied package files, aligned Expo CLI/Notifications patches and the lockfile, added CI gates, and reran web/mobile checks. The diagnostic Android bundle passes; normal export still fails at Hermes SIGILL on this ARM64 host. The remote CI run remains pending.
+- Follow-up (2026-10-23): root-caused the Android Metro file-map issue using copied package files, aligned Expo SDK package patches/lockfile, and added CI gates. Published head `608711a` passed hosted Web/Mobile CI, including regular Android export. The next local commit restores `.gitignore` safeguards, fixes account-switch role-state handling, and reconciles the current-status docs; it needs a new CI run after push.
 
 ## Read first
 
@@ -49,12 +49,12 @@ Continue adapting the existing application into **ScholarHub**, a broader schola
 
 ## Next steps
 
-1. Push the reviewed local branch when ready and inspect the first `.github/workflows/ci.yml` run, especially the regular Android export on hosted Ubuntu. Do not claim remote CI is green before it completes.
-2. If the standard export passes on the supported runner, perform an EAS preview/native build, configure the deployed HTTPS API origin, and test a signed internal build on a real device.
-3. Decide whether `com.scholarhub.app` is a new store listing or an update to the former app before release. Supply matching Firebase settings if push is in scope, verify OAuth/deep links, and test update/signing compatibility.
-4. Configure a dedicated staging Neon `DATABASE_URL`, reconcile migrations with backup/rollback, review the actual scholarship source data, and run an approved dry-run import before writing any records.
-5. Add route/API E2E, two-user authorization, accessibility/performance, and deployment smoke tests; review core applicant journeys and their evidence/data requirements.
-6. Finalise approved assets, operator/legal/privacy details, production domain/provider credentials, monitoring/rollback, historical source artifacts, and staged-release approval after the appropriate gates pass.
+1. Finish local lint/typecheck/tests/build and diff review, commit this follow-up, then push it. Inspect the new CI run; the previous published head `608711a` already passed both hosted jobs.
+2. Configure the real deployed HTTPS API origin for EAS preview/production, produce a signed EAS/native build, and test installation/login/API/core journeys on a physical Android device.
+3. Register/verify the separate ScholarHub listing using `com.scholarhub.app`; configure matching Firebase only if push is in scope, retain signing credentials safely, and verify OAuth/deep links.
+4. Configure a dedicated staging Neon `DATABASE_URL`, reconcile migrations with backup/rollback, review the actual scholarship source data, and run an approved dry-run import before writing records.
+5. Add route/API E2E, two-user authorization, accessibility/performance, and deployment smoke tests; review core applicant journeys and evidence/data requirements.
+6. Finalise approved assets, operator/legal/privacy details, production domain/provider credentials, monitoring/rollback, historical source artifacts, and staged-release approval after the appropriate checks pass.
 
 ## Operational commands
 

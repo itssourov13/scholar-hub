@@ -1,12 +1,38 @@
-# Expo generated and local files
+# Dependencies
+node_modules/
+
+# Expo generated/local files
 .expo/
 dist/
 web-build/
 expo-env.d.ts
-node_modules/
+
+# Native patch leftovers and local signing credentials — never commit private keys.
+*.orig.*
+*.jks
+*.keystore
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro temporary health-check files
+.metro-health-check*
+
+# Package-manager debug logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS metadata
+.DS_Store
+
+# Local environment overrides
+.env*.local
 
 # Private/release-specific Firebase app configuration (must match com.scholarhub.app)
 /android/app/google-services.json
+# Optional local signing config; EAS-managed signing does not require these local files.
 /android/keystore.properties
 /android/app/upload-keystore.jks
 

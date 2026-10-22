@@ -1,6 +1,6 @@
 # Architecture
 
-_Last reviewed: 2026-10-21. Existing implementation is separated from the intended ScholarHub target so planned capabilities are not mistaken for current behaviour._
+_Last reviewed: 2026-10-23. Existing implementation is separated from the intended ScholarHub target so planned capabilities are not mistaken for current behaviour._
 
 ## 1. Current architecture
 
@@ -150,7 +150,7 @@ Any user-supplied URL fetcher is an SSRF-sensitive component. It must:
 
 ## 8. Existing architecture risks to address
 
-1. Product copy, metadata, PWA/native labels, slug/scheme, and shared package scope were updated; the old APK and assetlinks were removed, legacy ad/pixel code was disabled, and old outbound links are unset/configurable. Legacy artwork, native application IDs, Firebase/signing configuration, upload secret names, and deployment credentials remain.
+1. Product copy, metadata, PWA/native labels, slug/scheme, and shared package scope were updated; the old APK and assetlinks were removed and legacy ad/pixel code was disabled. Native IDs are set to `com.scholarhub.app` for the intended separate ScholarHub listing; store registration/update compatibility remains unverified. Matching Firebase configuration (if push is in scope), EAS/local signing setup, legacy artwork and deployment credentials still require release review.
 2. Root pnpm workspace/dependency configuration is inconsistent or incomplete; validate installation before changing it.
 3. Historic architecture documents conflicted with the actual Clerk/Neon/R2 implementation.
 4. Offline support currently centres on the app shell, not durable offline application workflows.

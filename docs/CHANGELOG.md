@@ -4,6 +4,12 @@ Meaningful product and engineering changes are recorded here. Dates use YYYY-MM-
 
 ## Unreleased
 
+### 2026-10-23 — Mobile ignore safeguards, role-state isolation, and current CI/docs status
+- Restored generic mobile ignore protections for local signing/certificate formats, `.env*.local`, Metro health-check files, package-manager debug logs, macOS metadata and patch leftovers, while retaining explicit ScholarHub Firebase/signing/build-output paths. These are Git-safety rules, not local-preview requirements; EAS-managed signing does not require local `keystore.properties`.
+- Fixed a possible account-switch race in the web auth provider: role state is now tied to the user ID it was fetched for, and a different user's role stays null/loading until their profile role resolves. Added focused tests for user switching, same-user role, signed-out and auth-loading states. Server-side authorization remains independently required.
+- Reconciled README, current state, task state, handoff, architecture, decisions, security/privacy and roadmap with hosted CI run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903), which passed both jobs on published head `608711a`. The new local follow-up must be pushed and its own CI run inspected.
+- Documented `com.scholarhub.app` as the intended separate ScholarHub identity, Firebase registration only if push is in scope, and optional local signing configuration. Local Web lint/typecheck, all 379 tests across 19 files, and Webpack production build (56 routes) pass; the current follow-up still needs its own hosted CI run after push. No Firebase credentials, keystore, database migration/import, production write or deployment was added/performed.
+
 ### 2026-10-23 — Android Metro root-cause fix, dependency alignment, CI gates, and verification
 - Traced the Android Metro `expo-router/entry` resolution failure to Android/Termux F2FS/Node Dirent metadata: hard-linked regular files were returned as symlinks by `readdir`, so Metro's file map skipped package files. Configured `packageImportMethod: copy` for the mobile pnpm root and freshly reinstalled dependencies; inspected package files to confirm link count 1 and regular-file metadata.
 - Aligned `@expo/cli` to `57.0.32` and `expo-notifications` to `57.0.24`, updated `apps/mobile/pnpm-lock.yaml`, and confirmed `expo install --check` passes. Enabled the existing 24-hour `minimumReleaseAge` policy explicitly as already present in the working mobile pnpm config and added exact exceptions for those SDK-required patches.

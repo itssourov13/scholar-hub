@@ -35,9 +35,9 @@ The roadmap scope remains a **Proposed**, editable plan; individual task checkbo
 
 - [x] `P1.1` Pin/use the supported Node.js 22 range (`>=22 <23`) consistently for local work and CI via `.nvmrc` and the CI workflow.
 - [x] `P1.2` Expo SDK 57 alignment passes `expo install --check`; the mobile pnpm root has an explicit 24-hour `minimumReleaseAge` setting plus exact exceptions for the SDK-required CLI/Notifications patches.
-- [x] `P1.3` Fixed the reproduced Metro file-map failure by using pnpm copied package files on Android/Termux F2FS. Diagnostic export passes 2,216 modules/77 assets; normal local export still cannot execute this host's x86-64 Hermes compiler on ARM64 (`SIGILL`), so the standard export result on hosted Ubuntu CI is still required.
+- [x] `P1.3` Fixed the reproduced Metro file-map failure by using pnpm copied package files on Android/Termux F2FS. Diagnostic export passes 2,216 modules/77 assets; regular Android export passed on hosted Ubuntu in [run 39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903). The local ARM64 host's x86-64 Hermes compiler still causes `SIGILL`; EAS/native signing and device checks remain separate release gates.
 - [x] `P1.4` Resolve the observed web/mobile lint errors in focused groups; current-branch lint passes for both apps.
-- [x] `P1.5` Added `.github/workflows/ci.yml` with web lint/typecheck/tests/build plus mobile lint/typecheck/Expo compatibility/Doctor/standard Android export. The workflow parses locally but its first GitHub-hosted run is pending.
+- [x] `P1.5` Added `.github/workflows/ci.yml` for Web lint/typecheck/tests/build and Mobile lint/typecheck/Expo compatibility/Doctor/standard Android export. Run 39839441903 passed both jobs for published head `608711a`; the current local ignore/auth/docs follow-up must be pushed and its own run checked.
 - [ ] `P1.6` Add/confirm essential smoke tests for public web routes, core API routes, and a mobile build connected to a test API.
 - [x] `P1.7` Document separate install/check commands because root, web, and mobile use separate pnpm roots and lockfiles.
 
@@ -93,7 +93,7 @@ The roadmap scope remains a **Proposed**, editable plan; individual task checkbo
 - [ ] `P5.1` Decide the production domain, hosting/deployment target, support identity, analytics/ads ownership, monitoring, and rollback process.
 - [ ] `P5.2` Keep staging and production environment variables/secrets separate. Configure the real production database and only the Clerk, AI, R2, Redis, email, webhook, and other services that are actually enabled.
 - [ ] `P5.3` Keep `SCHOLARHUB_LOCAL_PREVIEW` unset in Vercel/production. Verify normal Clerk middleware, production auth, callbacks, OAuth, webhooks, and mobile redirects using test accounts.
-- [ ] `P5.4` Decide whether Android should update the existing Play Store app or become a new listing. Verify application ID, existing listing ownership, signing/upload key compatibility, and update path before changing identifiers or publishing.
+- [ ] `P5.4` Register/verify the separate ScholarHub listing using `com.scholarhub.app`; confirm package registration/availability and signing ownership in the Play Console before publishing. Do not treat this as an in-place update to the legacy BairePorbo listing.
 - [ ] `P5.5` Finalise approved logo/favicon/social/open-graph/launcher/adaptive/splash assets, app links/deep links, Firebase/push settings, signing and EAS release configuration.
 - [ ] `P5.6` Set the mobile production API base to the deployed HTTPS API (not `localhost`), build a signed Android App Bundle, and test installation/update, login, API access, notifications if enabled, and critical journeys on real devices.
 - [ ] `P5.7` Complete the web production build and browser/device smoke tests against production-like services; verify migrations, auth/authorisation, errors, logs, rate limits, performance, and recovery procedures.
@@ -106,7 +106,7 @@ The roadmap scope remains a **Proposed**, editable plan; individual task checkbo
 
 These are intentionally unresolved until the related phase is reviewed:
 
-- Whether the existing Android listing should be updated or a new Play Store listing created; do not change the application ID speculatively.
+- The intent is to publish ScholarHub as a separate app using `com.scholarhub.app`, not update the legacy BairePorbo listing. Confirm package registration/availability and signing ownership in the store console before release; do not publish until verified.
 - Final web hosting/domain, operator/support identity, legal-policy details, analytics/ads, and rollout timing.
 - Which product features must be offline-first and whether cross-device sync is necessary for the first release.
 - Whether iOS is in the first release scope or deferred.
@@ -115,19 +115,19 @@ These are intentionally unresolved until the related phase is reviewed:
 ## Current verified baseline (updated 2026-10-23; not a release claim)
 
 - The web application and API handlers live in apps/web; apps/mobile is the separate Expo/React Native client.
-- Web lint/typecheck pass, all 375 web tests pass, the local production build completes and generates 56 routes with the configured .env.local environment, and the production dependency audit finds no known vulnerabilities. These checks do not replace auth/API/browser/device smoke tests; no migration, seed, or import was run during this pass.
+- Web lint/typecheck, all 379 tests (19 files), and the Webpack production build (56 routes) pass locally on the current follow-up. The previous published head also passed hosted GitHub CI; this follow-up still needs its own hosted run. The production dependency audit previously found no known vulnerabilities. These checks do not replace auth/API/browser/device smoke tests; no migration, seed, or import was run during this pass.
 - Mobile lint/typecheck, Expo install compatibility, and Expo Doctor (20/20 checks) pass. Metro's missing expo-router/entry root cause was Node/F2FS Dirent misclassification of hard-linked regular package files. Setting packageImportMethod: copy and reinstalling resolves that file-metadata issue; the diagnostic Android export passes 2,216 modules and 77 assets.
-- The normal Android export still fails at Hermes bytecode with SIGILL on the local ARM64 host because the installed Hermes compiler is x86-64. The new hosted-Ubuntu CI workflow runs normal export, but its first GitHub run is still pending.
+- Standard Android export passes on hosted Ubuntu (run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903)); only the local ARM64 host's x86-64 Hermes compiler fails with `SIGILL`. EAS/native signed build and physical-device validation remain open.
 - The mobile dependency baseline is aligned to Expo SDK 57: @expo/cli 57.0.32 and expo-notifications 57.0.24. The 24-hour minimumReleaseAge policy is explicit with exact patch exceptions, and the refreshed mobile lockfile passes a frozen install.
-- .github/workflows/ci.yml covers web lint/typecheck/tests/build and mobile lint/typecheck/Expo validation/Doctor/Android export. It is locally YAML-validated but not remotely verified.
-- Android and iOS identifiers remain locally configured as com.scholarhub.app; store/update compatibility is undecided and unverified. Matching Firebase/push, EAS/signing, a deployed HTTPS API, OAuth/deep links, and real-device tests remain outstanding.
+- `.github/workflows/ci.yml` covers Web lint/typecheck/tests/build and Mobile lint/typecheck/Expo validation/Doctor/Android export. Both jobs passed on published head `608711a`; CI must run again after the current local follow-up is pushed.
+- Android and iOS identifiers are configured as `com.scholarhub.app` for the intended separate ScholarHub listing. The product direction is decided, but store registration/availability and signing ownership remain unverified. Matching Firebase/push (if in scope), EAS/signing, a deployed HTTPS API, OAuth/deep links, and real-device tests remain outstanding.
 - The Clerk-free visual preview fix was merged through PR #1; its preview flag is for local review only and must not be used as production configuration.
 
 ### Current open release gates
 
-1. Push/review the local branch when ready and inspect the first GitHub CI run, especially normal Android export on hosted Ubuntu; then complete EAS/native signed-build validation on a real device.
+1. Push the current local follow-up and inspect its new CI run; then complete EAS/native signed-build validation and physical-device smoke tests.
 2. Configure a dedicated staging database, reconcile migrations with backup/rollback, and run a reviewed dry-run of the actual scholarship source data before importing records.
-3. Decide the app-store identity; provide matching Firebase configuration where needed; verify signing, public HTTPS API URL, OAuth, and deep links.
+3. Register/verify the separate ScholarHub listing using `com.scholarhub.app`; configure matching Firebase only if push is in scope; verify signing, public HTTPS API URL, OAuth, and deep links.
 4. Finish auth/authorization, route-level E2E, accessibility/performance, privacy/legal/operator, monitoring, and staged-release checks.
 
 ## Change log for this draft

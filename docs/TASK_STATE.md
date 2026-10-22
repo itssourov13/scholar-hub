@@ -1,10 +1,10 @@
 # Task State
 
-_Last reviewed: 2026-10-22 — latest local production-readiness/app-ID branch status_
+_Last reviewed: 2026-10-23 — PR #2 hosted CI passed; local follow-up commit is being prepared_
 
 ## Current phase
 
-The ScholarHub documentation/brand foundation and the Clerk-free local visual-preview fix are merged into `main`. A separate local branch, `fix/production-readiness-and-app-id`, has substantially improved quality checks but remains uncommitted and not pushed/merged. Web/mobile lint and typecheck, 375 web tests, the web production dependency audit, Expo package compatibility check, and `git diff --check` pass. This is not a production-readiness claim: Android export is still blocked, the latest web build lacks `DATABASE_URL`, and Firebase/native signing/store identity/real-service tests remain outstanding.
+The ScholarHub documentation/brand foundation and Clerk-free local visual-preview fix are merged into `main`. PR #2 branch `fix/production-readiness-and-app-id` was pushed at `608711a`; GitHub Actions run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903) passed both Web and Mobile jobs, including normal Android export on hosted Ubuntu. A local follow-up adds general mobile ignore safeguards, binds web role state to the current Clerk user ID, and refreshes docs; it must be committed/pushed and its own CI run checked. The project is not release-ready: database/staging content, authorization/E2E, new listing, EAS signing, conditional Firebase/push, public API URL, legal/operator and device checks remain outstanding.
 
 The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the planning source of truth. Legacy brand artwork, legal/operator details, real service configuration, verified scholarship data, security testing, and release configuration still require work. Policy pages remain pre-release drafts.
 
@@ -50,8 +50,8 @@ The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the pla
 - [x] Replaced former-operator About/Contact copy and marked Privacy, Terms, Cookies, and Delete Account pages as pre-release drafts.
 - [ ] Finalise legal policies with the actual operator, enabled data processors, target markets, contact address, retention rules, and deletion behaviour.
 - [ ] Decide the domain, support identity, hosting environment, app links, analytics/ads ownership, and release ownership. Former hard-coded ad/pixel integrations are disabled until this is decided.
-- [x] Local branch sets Android namespace/application ID and iOS bundle identifier to `com.scholarhub.app`; this is a configuration change only and has not been published.
-- [ ] Decide whether this should be a new store listing or an update to an existing listing; verify signing ownership and update compatibility before release.
+- [x] The PR branch sets Android namespace/application ID and iOS bundle identifier to `com.scholarhub.app`; this is configuration only and has not been released to an app store.
+- [x] Record intent to use `com.scholarhub.app` for a separate ScholarHub listing rather than updating the legacy BairePorbo listing. Verify the new package registration and signing ownership in the relevant store console before release.
 - [x] Repoint service-worker cache namespace/version to ScholarHub, update native deep-link scheme, and make store/support/social/Telegram destinations configurable rather than tied to the old product.
 - [ ] Supply/test Firebase config matching the new package if push notifications are in scope; inventory OAuth, CDN paths, signing, and remaining deployment URLs.
 - [ ] Keep existing production environment and credentials isolated until the migration plan is verified.
@@ -100,7 +100,7 @@ The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the pla
 ### Passing locally
 
 - [x] Web lint and TypeScript checks.
-- [x] Web unit tests: 18 files, 375 tests.
+- [x] Web unit tests: 19 files, 379 tests on the current local follow-up; four new tests cover user-switch, same-user, signed-out and auth-loading role state.
 - [x] Web production build with the configured local `.env.local` environment; 56 static pages/routes generated.
 - [x] Web production dependency audit: `pnpm audit --prod --audit-level=moderate` reports no known vulnerabilities.
 - [x] Mobile lint and TypeScript checks.
@@ -113,9 +113,9 @@ The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the pla
 
 ### Still blocking or not yet verified
 
-- [ ] **Normal Android export/native build:** the standard local `expo export --platform android` successfully bundles 2,216 modules but fails at Hermes bytecode generation with `SIGILL`; the host is ARM64 while the installed Hermes compiler binary is x86-64. The new CI job includes standard export on hosted Ubuntu but has not been run by GitHub Actions yet. Review that first CI result, then complete EAS/native build validation.
-- [ ] Sign and install an internal Android build; verify upgrade/update path and real-device core journeys.
-- [ ] Confirm whether `com.scholarhub.app` is a new Play Store listing or an update to an existing listing; verify ownership and signing compatibility.
+- [x] Standard Android export smoke test on hosted Ubuntu passed in GitHub Actions run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903). The local ARM64 host still cannot run its x86-64 Hermes compiler (`SIGILL`); this is an environment-specific local limitation.
+- [ ] Complete an EAS/native signed build, install it on a physical Android device, and test app start, login, real API connectivity, critical journeys and the intended new-listing install path.
+- [ ] Confirm/register `com.scholarhub.app` as the intended separate ScholarHub app listing in the relevant store console. The product intent is not to update the legacy BairePorbo listing; package registration and signing ownership still require verification.
 - [ ] Supply/test Firebase config matching `com.scholarhub.app` if push remains in scope.
 - [ ] Configure a public HTTPS API origin for EAS preview/production, verify EAS secrets/signing and OAuth/deep links, and test push delivery if enabled.
 - [ ] Apply/reconcile migrations on a dedicated staging Neon database with backup/rollback; inspect and import the supplied scholarship catalogue through a reviewed dry run. No migration, seed, or import occurred during the current pass.
@@ -127,9 +127,10 @@ The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the pla
 - [x] Added `.github/workflows/ci.yml` for PRs, pushes to `main`, and manual dispatch.
 - [x] Web job runs frozen install, lint, typecheck, unit tests, and build. Without the `DATABASE_URL` repository secret, the build uses an intentionally unreachable placeholder: compilation only, not DB integration.
 - [x] Mobile job runs frozen install, lint, typecheck, Expo SDK validation, Expo Doctor, and normal Android export on hosted Ubuntu.
-- [ ] GitHub-hosted CI result is pending; the workflow has not been pushed or run remotely.
+- [x] GitHub-hosted run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903) passed for published commit `608711a` (both jobs).
+- [ ] The current local follow-up commit still needs to be committed/pushed and its own hosted run inspected.
 
-**State:** the Metro file-map/entry-resolution root cause is fixed locally and the diagnostic export passes; web quality gates and the configured local web production build pass. A normal Hermes/native build and all release/data/security gates remain unverified. The working tree remains local and uncommitted.
+**State:** the Metro file-map issue is fixed, and standard Android export passes on hosted Ubuntu. The current follow-up restores mobile ignore protections and fixes account-switch role-state derivation; local lint, typecheck and 379 tests pass. The production build has passed; complete the final diff review before commit. Database integration, source import, two-user authorization/E2E, EAS signing and device/release gates remain open.
 
 ## Editable production roadmap
 

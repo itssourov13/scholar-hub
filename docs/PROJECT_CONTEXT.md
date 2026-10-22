@@ -1,6 +1,6 @@
 # Project Context
 
-_Last reviewed: 2026-10-21_
+_Last reviewed: 2026-10-23_
 
 ## 1. Product purpose
 

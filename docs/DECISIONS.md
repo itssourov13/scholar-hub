@@ -1,13 +1,13 @@
 # Decisions
 
-_Last reviewed: 2026-10-21_
+_Last reviewed: 2026-10-23_
 
 This is the durable decision log. A decision labelled **Accepted** is the current working direction; it may be superseded only by a documented change with its reason and migration impact.
 
 ## ADR-001 — Product name is ScholarHub
 **Status:** Accepted
 
-All new product documentation and primary labels use **ScholarHub**. The workspace path remains as-is. Primary copy/metadata/PWA/native labels, Expo slug/scheme, Android deep-link scheme, and the shared TypeScript package scope have changed locally. Legacy visual assets, actual legal/operator details, production domain, OAuth, push configuration, native application IDs, signing, Firebase settings, and deployment credentials still require deliberate migration. Store/social/support destinations are configuration-driven and unset by default.
+All new product documentation and primary labels use **ScholarHub**. The workspace path remains as-is. Primary copy/metadata/PWA/native labels, Expo slug/scheme, Android deep-link scheme, and the shared TypeScript package scope have changed. Android/iOS identifiers are set to `com.scholarhub.app` for the intended separate ScholarHub listing; store registration/update compatibility and signing remain unverified. Legacy artwork, actual legal/operator details, production domain, OAuth, push configuration, Firebase settings (if push is in scope), and deployment credentials still require deliberate migration. Store/social/support destinations are configuration-driven and unset by default.
 
 **Reason:** Establish one product identity without accidentally breaking existing installations or integrations.
 
@@ -76,11 +76,25 @@ Do not describe ScholarHub as fully rebranded, production-ready, fully offline, 
 
 ## ADR-011 — Copy mobile dependencies on Android/Termux F2FS
 
-**Status:** accepted for the current mobile workspace; verify the same checks in CI before release.
+**Status:** Accepted — hosted CI verified the standard Android export on 2026-10-23; EAS/native signing and device validation remain required before release.
 
 The mobile pnpm root keeps `nodeLinker: hoisted` for Metro compatibility and sets `packageImportMethod: copy`. Testing on the ARM64 Android/Termux F2FS filesystem showed Node's directory-entry metadata can classify hard-linked regular files as symlinks (`Dirent.isSymbolicLink() === true`) while `lstat` reports regular files and `readlink` fails with `EINVAL`. Metro's file map skips those entries, causing an existing `expo-router/entry.js` to look missing.
 
 A clean install with copied files gives the affected package files a link count of one and regular-file metadata, allowing Metro to discover them. Do not replace this with manual entry-path hacks or remove the import method without repeating the file-metadata probe and Android export test. Copying may consume more install time/storage; the normal Hermes/native build must still be verified on a supported runner because this ARM64 host contains an x86-64 Hermes compiler.
+
+## ADR-012 — Keep local signing secrets and generated files out of Git
+
+**Status:** Accepted — 2026-10-23
+
+Keep app-specific ignores for `android/app/google-services.json`, optional `android/keystore.properties`, local upload keystores, and Android build output. Retain generic ignore rules for common signing/certificate formats (`*.jks`, `*.keystore`, `*.p8`, `*.p12`, `*.key`, `*.mobileprovision`), local `.env*.local`, Metro temporary files, package-manager debug logs, macOS metadata, and patch leftovers.
+
+These rules protect local credentials/generated files; they are not part of local-preview behaviour and do not alter app runtime or build code. EAS-managed remote signing does not require a local `keystore.properties`, but local signing may. If Firebase Android services/push are enabled, `google-services.json` must match `com.scholarhub.app` and must not be committed. `.gitignore` affects untracked files only; verify tracked files and Git history separately. If legitimate source is caught by a broad extension rule, explicitly handle that file rather than removing credential protection wholesale.
+
+## ADR-013 — Use `com.scholarhub.app` for the separate ScholarHub app identity
+
+**Status:** Accepted intent; store registration remains unverified — 2026-10-23
+
+The product intent is a separate ScholarHub app using `com.scholarhub.app`, not an in-place update of the legacy BairePorbo listing. The Android/iOS identifiers are configured accordingly. Before release, verify the intended new listing is registered/available and preserve EAS/Play signing credentials. If an existing listing must instead be updated, stop and review package/update compatibility before building or publishing. Matching Firebase registration/configuration is a separate requirement only when Firebase services/push are in the release scope.
 
 ## Change process
 
