@@ -4,7 +4,7 @@
 
 The initial product focus is to help students discover undergraduate scholarships and university programmes, understand eligibility and funding, manage applications, organise documents, and track deadlines—with source evidence and useful offline capability.
 
-> **Current status:** Core web/mobile copy and metadata, PWA labels, Expo display name/slug/scheme, shared TypeScript package scope, and the service-worker cache namespace now use ScholarHub. The legacy APK and assetlinks file were removed; old Play Store/Telegram/support/social destinations are unset or configuration-driven, and the previous AdSense/Meta tracking integrations were disabled. Legacy logo/icon/splash artwork, Android/iOS application IDs, Firebase configuration, upload signing settings, and deployment credentials still need a planned migration. Legal policy pages are explicitly marked as pre-release drafts. Do not deploy this branch as a released ScholarHub product yet.
+> **Current status (2026-10-23; not a release claim):** GitHub Actions run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903) passed both Web (lint, typecheck, 375 tests, build) and Mobile (lint, typecheck, Expo validation/Doctor, standard Android export) jobs for commit `608711a`. The local ARM64/Termux export still fails at Hermes because its compiler binary is x86-64; hosted Ubuntu confirmed the regular export works there. The current local follow-up restores mobile local-secret ignore rules, binds web role state to the authenticated user ID, and adds four regression tests; local lint/typecheck, all 379 tests and the Webpack production build (56 routes) pass. This commit must be pushed and CI rerun. Real database/staging content, authorization E2E, EAS signed build, store listing, Firebase push, and real-device release checks remain unverified.
 
 ## Product principles
 
@@ -42,6 +42,7 @@ See [Current State](docs/CURRENT_STATE.md) for what was observed in the reposito
 - [Architecture](docs/ARCHITECTURE.md) — existing architecture and target evolution.
 - [Decisions](docs/DECISIONS.md) — durable architecture and product decisions.
 - [Task state](docs/TASK_STATE.md) — current phase, priorities, and acceptance criteria.
+- [Production roadmap (draft)](docs/PRODUCTION_ROADMAP.md) — temporary, editable proposal for staging and web/mobile release; phases can be changed.
 - [Changelog](docs/CHANGELOG.md) — meaningful project changes.
 - [Handoff](docs/HANDOFF.md) — exact next steps for a future session.
 - [Security and privacy](docs/SECURITY_AND_PRIVACY.md) — personal data, imports, storage, and public-release risks.
@@ -62,7 +63,7 @@ The web app lives in `apps/web`. Run its commands from that directory. Its packa
 - `pnpm test` — Vitest suite
 - `pnpm build` — production build
 
-The mobile app lives in `apps/mobile`. Run its commands from that directory; it defines `start`, `android`, `ios`, `web`, `typecheck`, `lint`, and `doctor` scripts.
+The mobile app lives in `apps/mobile`. Run its commands from that directory; it defines `start`, `android`, `ios`, `web`, `typecheck`, `lint`, and `doctor` scripts. On Android/Termux F2FS, `packageImportMethod: copy` is intentional: it prevents a Node filesystem metadata issue that made Metro skip hard-linked package files.
 
 The root, web, and mobile directories are separate pnpm roots with separate lockfiles; there is no single root pnpm workspace. In this working tree, frozen-lockfile dependency installs completed for all three roots. From a fresh checkout, install each root independently before checks:
 
@@ -70,7 +71,7 @@ The root, web, and mobile directories are separate pnpm roots with separate lock
 - `pnpm install --frozen-lockfile` from `apps/web`.
 - `pnpm install --frozen-lockfile` from `apps/mobile`.
 
-See [Current State](docs/CURRENT_STATE.md) for the real typecheck/test/lint/build/export outcomes and the remaining blockers. Successful install or typecheck alone does not mean the product is production-ready.
+The CI workflow at `.github/workflows/ci.yml` runs web lint/typecheck/tests/build and mobile lint/typecheck/Expo checks/standard Android export on pull requests and pushes to `main`. The current published branch head has a successful hosted run; the current local follow-up needs to be pushed and checked again. The Web build uses an unreachable placeholder if the `DATABASE_URL` secret is not configured, so green CI does not prove database integration. See [Current State](docs/CURRENT_STATE.md) for evidence and remaining release gates.
 
 ## Importing the supplied scholarship materials
 
@@ -78,4 +79,4 @@ The client-supplied archive and workbook are source inputs, not application asse
 
 ## Project status
 
-The immediate priority is to establish a reliable documentation baseline, verify the current build/test setup, map the existing code to the ScholarHub requirements, and then deliver focused, testable increments. Full brand replacement, import tooling, expanded application tracking, source verification, and stronger offline/sync behaviour remain explicit work items.
+The ScholarHub brand foundation and Clerk-free local visual-preview fix are merged into `main`. The readiness branch's published head passed hosted Web and Mobile CI, including normal Android export on Ubuntu. A local follow-up adds generic mobile secret/generated-file ignore safeguards, prevents role state from carrying across user switches, and corrects these docs; that follow-up still needs a push and fresh CI run. The project is not release-ready: production/staging database and real catalogue import, authorization/E2E coverage, app-store listing/identity verification, EAS signing, matching Firebase configuration if push is used, public HTTPS API configuration, device tests, and legal/operator/monitoring decisions remain. See [Current State](docs/CURRENT_STATE.md), [Task State](docs/TASK_STATE.md), and [Production Roadmap](docs/PRODUCTION_ROADMAP.md).

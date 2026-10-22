@@ -4,6 +4,36 @@ Meaningful product and engineering changes are recorded here. Dates use YYYY-MM-
 
 ## Unreleased
 
+### 2026-10-23 — Mobile ignore safeguards, role-state isolation, and current CI/docs status
+- Restored generic mobile ignore protections for local signing/certificate formats, `.env*.local`, Metro health-check files, package-manager debug logs, macOS metadata and patch leftovers, while retaining explicit ScholarHub Firebase/signing/build-output paths. These are Git-safety rules, not local-preview requirements; EAS-managed signing does not require local `keystore.properties`.
+- Fixed a possible account-switch race in the web auth provider: role state is now tied to the user ID it was fetched for, and a different user's role stays null/loading until their profile role resolves. Added focused tests for user switching, same-user role, signed-out and auth-loading states. Server-side authorization remains independently required.
+- Reconciled README, current state, task state, handoff, architecture, decisions, security/privacy and roadmap with hosted CI run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903), which passed both jobs on published head `608711a`. The new local follow-up must be pushed and its own CI run inspected.
+- Documented `com.scholarhub.app` as the intended separate ScholarHub identity, Firebase registration only if push is in scope, and optional local signing configuration. Local Web lint/typecheck, all 379 tests across 19 files, and Webpack production build (56 routes) pass; the current follow-up still needs its own hosted CI run after push. No Firebase credentials, keystore, database migration/import, production write or deployment was added/performed.
+
+### 2026-10-23 — Android Metro root-cause fix, dependency alignment, CI gates, and verification
+- Traced the Android Metro `expo-router/entry` resolution failure to Android/Termux F2FS/Node Dirent metadata: hard-linked regular files were returned as symlinks by `readdir`, so Metro's file map skipped package files. Configured `packageImportMethod: copy` for the mobile pnpm root and freshly reinstalled dependencies; inspected package files to confirm link count 1 and regular-file metadata.
+- Aligned `@expo/cli` to `57.0.32` and `expo-notifications` to `57.0.24`, updated `apps/mobile/pnpm-lock.yaml`, and confirmed `expo install --check` passes. Enabled the existing 24-hour `minimumReleaseAge` policy explicitly as already present in the working mobile pnpm config and added exact exceptions for those SDK-required patches.
+- Added `.github/workflows/ci.yml` for web lint/typecheck/tests/build and mobile lint/typecheck/Expo SDK check/Doctor/Android export. The workflow is locally YAML-validated but has not yet run on GitHub.
+- Verified web lint, typecheck, all 375 tests, production build (56 static pages/routes, using the configured local environment), and production dependency audit (no known vulnerabilities); mobile lint/typecheck, Expo SDK check, and Expo Doctor (20/20 checks) also pass.
+- Verified the Android JS/assets bundle on the main project with `expo export --platform android --clear --no-bytecode` (2,216 modules, 77 assets). Standard export bundles modules successfully but the local ARM64 host cannot execute the installed x86-64 Hermes compiler (`SIGILL`); hosted Ubuntu CI must confirm the normal bytecode export.
+- Updated current state, task state, handoff, roadmap, decisions, README, and the local-only `audit.md`. No schema migration, seed/import, commit, push, merge, or production deployment was performed.
+
+
+### 2026-10-22 — Local production-readiness/app-ID progress and status refresh
+- Recorded latest local checks: web lint/typecheck pass, all 375 web tests pass, production dependency audit reports no known vulnerabilities, mobile lint/typecheck pass, Expo SDK package check passes, and `git diff --check` passes.
+- Updated Current State, Task State, Handoff, README, and the editable production roadmap to distinguish passing quality gates from remaining release blockers.
+- Recorded that Android Metro export still cannot resolve `expo-router/entry` and the latest web production build fails without a real `DATABASE_URL`; an earlier fake-database Webpack build is not production verification.
+- Recorded local Android/iOS identifier changes to `com.scholarhub.app`, removal of the old package-specific Firebase JSON, and unverified EAS/API/signing/store-compatibility work.
+- Flagged the mismatch between mobile pnpm comments about a 24-hour release-age quarantine and the currently absent `minimumReleaseAge` setting.
+- This entry describes local working-tree evidence only: branch changes remain uncommitted/unpushed/unmerged and no production deployment, database, or credentials were changed during this documentation-only refresh.
+
+
+### 2026-10-22 — Temporary editable production roadmap
+- Added `docs/PRODUCTION_ROADMAP.md` as a proposed, changeable plan for stabilising the web/mobile build pipeline, staging real scholarship data, completing core applicant journeys, strengthening security/offline handling, and staged web/Android release.
+- Explicitly documented that phases and tasks may be added, removed, reordered, split, combined, or deferred after review; the draft is not a locked specification or proof of completed functionality.
+- Linked the draft from the root README, project context, task state, and handoff.
+- Corrected stale documentation that still described PR #1 as unpushed; the preview fix is merged, but production deployment remains unverified.
+
 ### 2026-10-22 — Local preview Clerk handshake fix and real-browser verification
 - Root cause confirmed in Chromium network logs: Clerk middleware returned an HTTP 307 to `https://clerk.scholarhub.local/v1/client/handshake` when the local dev-browser handshake cookie was missing. A successful HTML/HTTP 200 response alone had not proved the browser could render the page.
 - Updated `apps/web/src/proxy.ts` so the explicitly enabled `SCHOLARHUB_LOCAL_PREVIEW=1` mode bypasses Clerk middleware and redirects `/auth/*` to the public homepage. The flag must remain unset outside a trusted local preview; this mode is not an authentication mode and must not be deployed.

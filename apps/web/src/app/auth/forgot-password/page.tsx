@@ -11,7 +11,7 @@ type Step = "email" | "code" | "password" | "done";
 
 function ForgotPasswordForm() {
   const router = useRouter();
-  const { signIn, isLoaded, setActive } = useSignIn() as any;
+  const { signIn, isLoaded, setActive } = useSignIn();
 
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
@@ -73,7 +73,7 @@ function ForgotPasswordForm() {
     setError(null);
     setLoading(true);
     try {
-      const result = await (signIn as any).resetPassword({ password: newPassword });
+      const result = await signIn.resetPassword({ password: newPassword });
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
         setStep("done");
@@ -100,7 +100,7 @@ function ForgotPasswordForm() {
         {step === "email" && (
           <>
             <h1 className={styles.heading}>Reset your password</h1>
-            <p className={styles.sub}>Enter your email and we'll send you a reset code.</p>
+            <p className={styles.sub}>Enter your email and we&apos;ll send you a reset code.</p>
             <form onSubmit={handleEmailSubmit} className={styles.form}>
               <div className={styles.field}>
                 <label htmlFor="email">Email address</label>

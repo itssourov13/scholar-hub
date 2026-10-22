@@ -165,39 +165,50 @@ function ChatContent() {
   // ── Init: load anon key and sessions ──────────────────────────────────────
 
   useEffect(() => {
-    const key = getOrCreateAnonKey();
-    setAnonKey(key);
-    setAnonUsage(readAnonUsage());
-    if (userId) {
-      loadSessions(key);
-    }
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      const key = getOrCreateAnonKey();
+      setAnonKey(key);
+      setAnonUsage(readAnonUsage());
+      if (userId) void loadSessions(key);
+    });
+    return () => { active = false; };
   }, [userId]);
 
   // Reset welcome message and clear sessions when auth state changes
   useEffect(() => {
-    setMessages([isAnon ? WELCOME_ANON : WELCOME_USER]);
-    if (isAnon) {
-      setSessions([]);
-      setActiveSessionId(null);
-    }
+    queueMicrotask(() => {
+      setMessages([isAnon ? WELCOME_ANON : WELCOME_USER]);
+      if (isAnon) {
+        setSessions([]);
+        setActiveSessionId(null);
+      }
+    });
   }, [isAnon]);
 
   // Pre-fill from ?question= query param
   useEffect(() => {
     const question = searchParams.get("question");
-    if (question) setInput(question);
+    if (question) queueMicrotask(() => setInput(question));
   }, [searchParams]);
 
   // Open a specific session via ?session=<id> (used by the dashboard "Resume" link)
   useEffect(() => {
+    let active = true;
     const sessionIdParam = searchParams.get("session");
-    if (!sessionIdParam || !userId) return;
-    // Build a minimal Session shape — loadSessionHistory only needs id.
-    loadSessionHistory({
-      id: sessionIdParam,
-      title: "",
-      updated_at: new Date().toISOString(),
-    });
+    if (sessionIdParam && userId) {
+      // Wait until after the effect's call stack before starting stateful work.
+      queueMicrotask(() => {
+        if (!active) return;
+        void loadSessionHistory({
+          id: sessionIdParam,
+          title: "",
+          updated_at: new Date().toISOString(),
+        });
+      });
+    }
+    return () => { active = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, userId]);
 
@@ -209,7 +220,7 @@ function ChatContent() {
 
   // ── Session management ────────────────────────────────────────────────────
 
-  const loadSessions = async (key: string) => {
+  async function loadSessions(key: string): Promise<void> {
     try {
       const res = await fetch("/api/chat/sessions", {
         headers: { "x-anon-key": key },
@@ -220,7 +231,7 @@ function ChatContent() {
     } catch {
       // non-critical — sidebar just shows empty
     }
-  };
+  }
 
   const createSession = useCallback(
     async (firstMessage: string): Promise<string | null> => {
@@ -244,7 +255,7 @@ function ChatContent() {
     [anonKey]
   );
 
-  const loadSessionHistory = async (session: Session) => {
+  async function loadSessionHistory(session: Session): Promise<void> {
     setActiveSessionId(session.id);
     setError(null);
     try {
@@ -265,7 +276,7 @@ function ChatContent() {
     } catch {
       setMessages([welcomeMessage]);
     }
-  };
+  }
 
   const startNewChat = () => {
     setActiveSessionId(null);

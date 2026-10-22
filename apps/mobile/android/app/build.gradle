@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'app.baireporbo.android'
+    namespace 'com.scholarhub.app'
     defaultConfig {
-        applicationId 'app.baireporbo.android'
+        applicationId 'com.scholarhub.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 9
@@ -111,12 +111,20 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
-        if (keystorePropsFile.exists()) {
-            release {
-                storeFile file(keystoreProps['BAIREPORBO_UPLOAD_STORE_FILE'])
-                storePassword keystoreProps['BAIREPORBO_UPLOAD_STORE_PASSWORD']
-                keyAlias keystoreProps['BAIREPORBO_UPLOAD_KEY_ALIAS']
-                keyPassword keystoreProps['BAIREPORBO_UPLOAD_KEY_PASSWORD']
+        release {
+            // EAS injects its remote signing credentials into this config during
+            // the build. Local credentials are optional and must not be required
+            // while Gradle configures the project on EAS.
+            if (keystorePropsFile.exists()) {
+                storeFile file(keystoreProps['SCHOLARHUB_UPLOAD_STORE_FILE'])
+                storePassword keystoreProps['SCHOLARHUB_UPLOAD_STORE_PASSWORD']
+                keyAlias keystoreProps['SCHOLARHUB_UPLOAD_KEY_ALIAS']
+                keyPassword keystoreProps['SCHOLARHUB_UPLOAD_KEY_PASSWORD']
+            } else if (project.hasProperty('SCHOLARHUB_UPLOAD_STORE_FILE')) {
+                storeFile file(project.property('SCHOLARHUB_UPLOAD_STORE_FILE'))
+                storePassword project.property('SCHOLARHUB_UPLOAD_STORE_PASSWORD')
+                keyAlias project.property('SCHOLARHUB_UPLOAD_KEY_ALIAS')
+                keyPassword project.property('SCHOLARHUB_UPLOAD_KEY_PASSWORD')
             }
         }
     }
@@ -125,7 +133,9 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            signingConfig keystorePropsFile.exists() ? signingConfigs.release : signingConfigs.debug
+            // EAS injects its managed keystore after this project is configured.
+            // For local release builds, configure the SCHOLARHUB_UPLOAD_* values above.
+            signingConfig signingConfigs.release
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
             shrinkResources enableShrinkResources.toBoolean()
             minifyEnabled enableMinifyInReleaseBuilds

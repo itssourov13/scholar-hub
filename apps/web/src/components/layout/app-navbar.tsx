@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useState } from "react";
 import PrimaryNav from "@/components/layout/primary-nav";
 import LangToggle from "@/components/layout/lang-toggle";
-import { useAuth } from "@/lib/auth-context";
 import { useLang, useT } from "@/lib/lang-context";
 import { homeHref } from "@/lib/i18n";
 import styles from "./app-navbar.module.css";

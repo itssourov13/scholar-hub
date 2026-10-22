@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { useDialog } from "@/components/ui/dialog-provider";
 import { CompetitivenessGauge } from "./competitiveness-gauge";
@@ -29,7 +30,7 @@ export default function ScholarshipHeroPanelClient({ scholarship }: Props) {
 
   useEffect(() => {
     if (!userId) {
-      setIsBookmarked(false);
+      queueMicrotask(() => setIsBookmarked(false));
       return;
     }
     fetch("/api/bookmarks")
@@ -77,9 +78,9 @@ export default function ScholarshipHeroPanelClient({ scholarship }: Props) {
   return (
     <div className={styles.heroPanel}>
       <div className={styles.heroActions}>
-        <a className={styles.ghostButton} href="/scholarships">
+        <Link className={styles.ghostButton} href="/scholarships">
           Back to list
-        </a>
+        </Link>
         {scholarship.official_url && (
           <a
             className={styles.primaryButton}

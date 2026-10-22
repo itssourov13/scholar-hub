@@ -79,9 +79,13 @@ export default function CvEditor() {
 
   useEffect(() => {
     if (!data?.cv) return;
-    setTitle(data.cv.title);
-    setTemplate(data.cv.template);
-    setCv(data.cv.data);
+    const cvData = data.cv;
+    const frame = requestAnimationFrame(() => {
+      setTitle(cvData.title);
+      setTemplate(cvData.template);
+      setCv(cvData.data);
+    });
+    return () => cancelAnimationFrame(frame);
   }, [data]);
 
   const setField = (k: keyof CVData) => (v: string) => setCv((c) => (c ? { ...c, [k]: v } : c));

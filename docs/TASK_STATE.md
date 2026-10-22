@@ -1,12 +1,12 @@
 # Task State
 
-_Last reviewed: 2026-10-22_
+_Last reviewed: 2026-10-23 — PR #2 hosted CI passed; local follow-up commit is being prepared_
 
 ## Current phase
 
-**Phase 0 — ScholarHub documentation/brand reset and baseline verification.**
+The ScholarHub documentation/brand foundation and Clerk-free local visual-preview fix are merged into `main`. PR #2 branch `fix/production-readiness-and-app-id` was pushed at `608711a`; GitHub Actions run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903) passed both Web and Mobile jobs, including normal Android export on hosted Ubuntu. A local follow-up adds general mobile ignore safeguards, binds web role state to the current Clerk user ID, and refreshes docs; it must be committed/pushed and its own CI run checked. The project is not release-ready: database/staging content, authorization/E2E, new listing, EAS signing, conditional Firebase/push, public API URL, legal/operator and device checks remain outstanding.
 
-The documentation/brand work is being prepared as a fresh root commit on `main` for the empty `itssourov13/scholar-hub` repository. Canonical documentation and primary product labels now use ScholarHub. Legacy brand artwork, native application IDs/Firebase/signing, operator details, and release configuration remain pending; policy pages are draft notices, not final legal terms.
+The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the planning source of truth. Legacy brand artwork, legal/operator details, real service configuration, verified scholarship data, security testing, and release configuration still require work. Policy pages remain pre-release drafts.
 
 ## Completed in the static audit and documentation reset
 
@@ -30,39 +30,40 @@ The documentation/brand work is being prepared as a fresh root commit on `main` 
 - [x] Added preview-only cleanup of old service-worker registrations and `scholarhub-*` caches; bumped the regular cache version to `v6`.
 - [x] Verified the rendered page with Chromium at 412×915 and with an Android user agent; zero placeholder Clerk handshake/DNS events were recorded.
 - [x] Re-ran web TypeScript and tests (375/375 pass) and rebuilt with Webpack (56 static pages generated). This used a dummy `DATABASE_URL` and is not a real database/production integration test.
-- [x] Stopped the local preview server after the user requested shutdown. The preview fixes are committed locally on `fix/preview-clerk-chunk-cache` (`b098d75`); not pushed or deployed.
+- [x] Stopped the local preview server after the user requested shutdown. The preview fix was pushed and merged through PR #1; it has not been verified in a production deployment.
 
 **Still outstanding for real content:** configure a real Neon `DATABASE_URL`, apply/reconcile the versioned migrations against a dedicated database, inspect and safely import the actual scholarship catalogue, confirm records are `published`, and test `/api/scholarships` and the rendered list against the real dataset. pgvector extensions, `ScholarshipDoc` documents, and embeddings are additionally needed for RAG/semantic matching; they are not required just to render ordinary published scholarship rows. Do not use the preview's dummy DB URL as a production or data-import target.
 
-## Phase 0 — remaining tasks
+## Previously identified brand/repository and product tasks
 
 ### P0 — Repository and release safety
 - [x] Remove historical conversation exports/logs and the generated repository dump from the current working tree so they are not part of the ScholarHub source tree.
 - [ ] Review their historical Git versions for private data/secrets before any public source release; clean repository history and rotate credentials if exposure is found.
 - [x] Inspect package-manager/workspace setup and frozen lockfiles; install root, web, and mobile dependencies. The root and each app are separate pnpm roots, not a single pnpm workspace.
-- [x] Capture actual lint, typecheck, unit-test, and build outcomes, including failures and environment limitations; full lint cleanup and credentials-backed build verification remain pending.
+- [x] Capture actual lint, typecheck, unit-test, build, and dependency-audit outcomes, including failures and environment limitations. Web/mobile lint cleanup is passing on the current local branch; credentials-backed build verification remains pending.
 - [ ] Complete the remaining source/asset/integration inventory, including legal/operator copy, domains, native identifiers, release credentials, and legacy public artifacts.
 
 ### P1 — Brand and integration inventory
-- [x] Replace primary user-facing brand copy, page-title/Open Graph labels, organization/site schema name, PWA manifest labels, Expo display name/slug/scheme, Android deep-link scheme, and shared TypeScript package scope with ScholarHub.
+- [x] Replace primary user-facing brand copy, page-title/Open Graph labels, organization/site schema name, PWA labels, Expo display name/slug/scheme, Android deep-link scheme, and shared TypeScript package scope with ScholarHub.
 - [x] Removed the old prebuilt APK and assetlinks file so they are not served as ScholarHub assets.
 - [ ] Replace legacy logo/favicon/OG/splash/launcher artwork with approved ScholarHub assets.
 - [x] Replaced former-operator About/Contact copy and marked Privacy, Terms, Cookies, and Delete Account pages as pre-release drafts.
-- [ ] Finalise all legal policies with the actual operator, enabled data processors, target markets, contact address, retention rules, and deletion behaviour before public release.
-- [ ] Decide the new domain, support identity, logo/icon set, hosting environment, app links, analytics/ads ownership, and release ownership. Former hard-coded ad/pixel integrations are disabled until this is decided.
-- [ ] Decide whether a new Android application ID is required. Do not change it casually because it can affect app-store identity and update compatibility.
+- [ ] Finalise legal policies with the actual operator, enabled data processors, target markets, contact address, retention rules, and deletion behaviour.
+- [ ] Decide the domain, support identity, hosting environment, app links, analytics/ads ownership, and release ownership. Former hard-coded ad/pixel integrations are disabled until this is decided.
+- [x] The PR branch sets Android namespace/application ID and iOS bundle identifier to `com.scholarhub.app`; this is configuration only and has not been released to an app store.
+- [x] Record intent to use `com.scholarhub.app` for a separate ScholarHub listing rather than updating the legacy BairePorbo listing. Verify the new package registration and signing ownership in the relevant store console before release.
 - [x] Repoint service-worker cache namespace/version to ScholarHub, update native deep-link scheme, and make store/support/social/Telegram destinations configurable rather than tied to the old product.
-- [ ] Inventory OAuth, push notifications, CDN paths, signing, native application IDs, Firebase project settings, and remaining deployment URLs.
-- [ ] Keep the existing production environment and credentials isolated until the migration plan is verified.
+- [ ] Supply/test Firebase config matching the new package if push notifications are in scope; inventory OAuth, CDN paths, signing, and remaining deployment URLs.
+- [ ] Keep existing production environment and credentials isolated until the migration plan is verified.
 
-## Phase 1 — Requirements and data model
+## Backlog — Requirements and data model
 - [ ] Build a data dictionary from the actual client workbook: sheet names, headers, rows, identifiers, dates, links, enums, and import rules.
 - [ ] Define core records: institutions, programmes/intakes, opportunities, funding components, eligibility rules, sources/evidence, and change events.
 - [ ] Define private records: profiles/preferences, saved opportunities, applications/status history, tasks, requirements, document metadata/versions, and essays.
 - [ ] Add validation and duplicate/conflict reports to a dry-run import script.
 - [ ] Use a staging database/environment; never import client-private data into a public demo.
 
-## Phase 2 — Core product
+## Backlog — Core product
 - [ ] Map existing catalogue/search/detail/profile/dashboard functionality against ScholarHub user journeys.
 - [ ] Finish application lifecycle, linked checklists/tasks, personal deadline overrides, and calendar UX.
 - [ ] Add funding-component modelling and transparent coverage/out-of-pocket comparisons.
@@ -70,18 +71,18 @@ The documentation/brand work is being prepared as a fresh root commit on `main` 
 - [ ] Add reliable JSON/CSV export and restore validation.
 - [ ] Evaluate a first-run walkthrough, accessible password visibility toggle, in-app feedback, and store discoverability metadata from previous user feedback.
 
-## Phase 3 — Research and verification
+## Backlog — Research and verification
 - [ ] Add typed source records, evidence references, verification state, checked timestamps, and intake applicability.
 - [ ] Harden URL import for SSRF, timeouts, response-size limits, redirects, content types, and rate limits.
 - [ ] Add a human-review queue for extracted or changed material facts.
 - [ ] Add snapshots/diffs, retries, stale-source status, and approved-update history.
 - [ ] Ensure failed fetches never mark opportunities closed.
 
-## Phase 4 — Multi-user and release readiness
+## Backlog — Multi-user and release readiness
 - [ ] Add two-user authorization/integration tests for every private-data domain.
 - [ ] Define sync outbox/idempotency/revision conflict handling before enabling cross-device sync.
 - [ ] Define private document storage and deletion/export behaviour before cloud upload is available.
-- [ ] Add accessibility and performance CI gates, route-level E2E tests, security checks, and deployment smoke tests.
+- [ ] Add accessibility/performance gates, route-level E2E tests, focused security checks, and deployment smoke tests; current CI covers lint, typecheck, unit tests, build, and Expo export only.
 - [ ] Create sanitized demo data, portfolio case study, setup guide, and release checklist.
 
 ## Acceptance criteria for the documentation and product-label reset
@@ -94,15 +95,44 @@ The documentation/brand work is being prepared as a fresh root commit on `main` 
 - [x] Documentation distinguishes current implementation, planned work, and unverified behaviour.
 - [x] No database schema, production data, deployment, or environment credentials were changed. Product copy/metadata, app labels, footer links, consent/analytics source code, legal pages, and native/app configuration changed locally.
 
-## Verification record and remaining gates (2026-10-22)
+## Latest verification record and remaining gates (2026-10-23)
 
-- [x] `git diff --check` passed.
-- [x] The working tree and diff were reviewed; a new-repository commit must contain a fresh root history and must not carry legacy database/log-export history.
-- [x] Retired root docs are absent and 18 relative Markdown links across the reviewed docs resolve.
-- [x] JSON/YAML and changed JavaScript syntax checks passed after removing the zero-byte unused scaffold files.
-- [x] Root, web, and mobile frozen-lockfile installs completed; web typecheck passed; 375 web tests passed; mobile typecheck passed.
-- [ ] Web/mobile lint are not clean (28 web errors + 10 warnings; 7 mobile errors + 3 warnings). Avoid unrelated mass refactors; fix them in a dedicated quality pass.
-- [x] Attempted Android export repeatedly; Metro cannot resolve `expo-router/entry` and its file map reports the installed entry as not watched. Temporary resolver/watch-folder diagnostics were removed.
-- [ ] Resolve the Expo SDK 57 package-version mismatch and Android bundle blocker. The supported `expo install --fix` path encountered pnpm minimum-release-age blocks for very recently published packages; the partial SDK change was rolled back rather than bypassing the supply-chain age gate.
-- [ ] Run the final `pnpm build` using the configured real database/service environment and verify runtime routes. The local Webpack build passed with a dummy DB URL but logged expected database connection failures; default Turbopack failed with an invalid-symlink error.
-- [ ] Finalise production domain, actual provider credentials, native application identifiers, Firebase/OAuth/push, signing, legal/operator details, and release configuration before deployment.
+### Passing locally
+
+- [x] Web lint and TypeScript checks.
+- [x] Web unit tests: 19 files, 379 tests on the current local follow-up; four new tests cover user-switch, same-user, signed-out and auth-loading role state.
+- [x] Web production build with the configured local `.env.local` environment; 56 static pages/routes generated.
+- [x] Web production dependency audit: `pnpm audit --prod --audit-level=moderate` reports no known vulnerabilities.
+- [x] Mobile lint and TypeScript checks.
+- [x] SDK package alignment: `pnpm exec expo install --check` reports dependencies are up to date; the installed CLI is `57.0.32` and Notifications is `57.0.24`.
+- [x] Expo Doctor: 20/20 checks passed and no issues detected; a non-fatal network warning prevented fetching bundled native-module metadata.
+- [x] Android Metro/Router resolution failure reproduced and root-caused to Node/F2FS Dirent metadata misreporting hard-linked regular package files as symbolic links. Adding `packageImportMethod: copy`, then doing a fresh mobile install, makes the relevant dependency files appear as regular files with link count 1.
+- [x] Diagnostic Android bundle/export: `pnpm exec expo export --platform android --clear --no-bytecode` exited 0 with 2,216 modules and 77 assets.
+- [x] Mobile frozen-lockfile install; the refreshed mobile lockfile now matches `expo-notifications@57.0.24` and `@expo/cli@57.0.32`.
+- [x] CI workflow/YAML and package JSON syntax checks; `git diff --check` passed.
+
+### Still blocking or not yet verified
+
+- [x] Standard Android export smoke test on hosted Ubuntu passed in GitHub Actions run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903). The local ARM64 host still cannot run its x86-64 Hermes compiler (`SIGILL`); this is an environment-specific local limitation.
+- [ ] Complete an EAS/native signed build, install it on a physical Android device, and test app start, login, real API connectivity, critical journeys and the intended new-listing install path.
+- [ ] Confirm/register `com.scholarhub.app` as the intended separate ScholarHub app listing in the relevant store console. The product intent is not to update the legacy BairePorbo listing; package registration and signing ownership still require verification.
+- [ ] Supply/test Firebase config matching `com.scholarhub.app` if push remains in scope.
+- [ ] Configure a public HTTPS API origin for EAS preview/production, verify EAS secrets/signing and OAuth/deep links, and test push delivery if enabled.
+- [ ] Apply/reconcile migrations on a dedicated staging Neon database with backup/rollback; inspect and import the supplied scholarship catalogue through a reviewed dry run. No migration, seed, or import occurred during the current pass.
+- [ ] Complete credentials-backed auth, two-user authorization, route/API E2E, accessibility/performance, and deployment smoke tests.
+- [ ] Review historical Git artifacts before wider source release; rotate any exposed credentials if evidence of exposure is found.
+
+### CI status
+
+- [x] Added `.github/workflows/ci.yml` for PRs, pushes to `main`, and manual dispatch.
+- [x] Web job runs frozen install, lint, typecheck, unit tests, and build. Without the `DATABASE_URL` repository secret, the build uses an intentionally unreachable placeholder: compilation only, not DB integration.
+- [x] Mobile job runs frozen install, lint, typecheck, Expo SDK validation, Expo Doctor, and normal Android export on hosted Ubuntu.
+- [x] GitHub-hosted run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903) passed for published commit `608711a` (both jobs).
+- [ ] The current local follow-up commit still needs to be committed/pushed and its own hosted run inspected.
+
+**State:** the Metro file-map issue is fixed, and standard Android export passes on hosted Ubuntu. The current follow-up restores mobile ignore protections and fixes account-switch role-state derivation; local lint, typecheck and 379 tests pass. The production build has passed; complete the final diff review before commit. Database integration, source import, two-user authorization/E2E, EAS signing and device/release gates remain open.
+
+## Editable production roadmap
+
+- [x] Added the temporary draft in [Production Roadmap](PRODUCTION_ROADMAP.md), including phased goals and exit criteria for both web and mobile.
+- [ ] Review and adjust phase/task scope with the user before treating any proposed item as committed work. Tasks may be added, removed, reordered, deferred, or split.

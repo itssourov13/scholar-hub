@@ -5,10 +5,21 @@ import Constants from "expo-constants";
  * Metro) with a fallback to app.json `extra` for the API base.
  */
 
-export const API_BASE: string =
-  process.env.EXPO_PUBLIC_API_BASE ??
-  (Constants.expoConfig?.extra?.apiBase as string | undefined) ??
-  "http://localhost:3000";
+const configuredApiBase =
+  process.env.EXPO_PUBLIC_API_BASE?.trim() ||
+  (Constants.expoConfig?.extra?.apiBase as string | undefined)?.trim();
+
+// Android emulators reach the development host through 10.0.2.2, not localhost.
+// Production must supply the actual deployed API origin via EXPO_PUBLIC_API_BASE.
+export const API_BASE: string = configuredApiBase
+  ? configuredApiBase.replace(/\/+$/, "")
+  : __DEV__
+    ? "http://10.0.2.2:3000"
+    : "";
+
+if (!API_BASE && !__DEV__) {
+  console.error("[config] EXPO_PUBLIC_API_BASE is missing. Configure the deployed ScholarHub API URL in the build environment.");
+}
 
 export const CLERK_PUBLISHABLE_KEY: string =
   process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";

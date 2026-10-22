@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, type ReactNode } from "react";
 import { AppState } from "react-native";
 import { useAuth } from "@clerk/clerk-expo";
 import { fetch as expoFetch } from "expo/fetch";
@@ -15,75 +15,75 @@ import { getAnonKey } from "./anon-key";
  */
 const TOKEN_TTL_MS = 45_000;
 
+type TokenResolver = {
+  resolve: (opts?: GetTokenOpts) => Promise<string | null>;
+  invalidate: () => void;
+};
+
+/** Create request-time token caching without React refs in render-time factories. */
+function createTokenResolver(
+  getToken: (opts?: GetTokenOpts) => Promise<string | null>,
+  isSignedIn: boolean,
+): TokenResolver {
+  let cached: { token: string; at: number } | null = null;
+  let inflight: Promise<string | null> | null = null;
+
+  const invalidate = () => { cached = null; };
+
+  const resolve = async (opts?: GetTokenOpts): Promise<string | null> => {
+    if (!isSignedIn) return null;
+    const now = Date.now();
+    const fresh = Boolean(cached && now - cached.at < TOKEN_TTL_MS);
+
+    if (opts?.skipCache) invalidate();
+    else if (fresh && cached) return cached.token;
+    if (inflight) return inflight;
+
+    let pending: Promise<string | null>;
+    pending = getToken({ skipCache: true })
+      .then((token) => {
+        if (token) cached = { token, at: Date.now() };
+        return token ?? null;
+      })
+      .catch((err) => {
+        console.error("[api] Clerk getToken failed:", err);
+        return null;
+      })
+      .finally(() => {
+        if (inflight === pending) inflight = null;
+      });
+
+    inflight = pending;
+    return pending;
+  };
+
+  return { resolve, invalidate };
+}
+
 const ApiContext = createContext<ApiClient | null>(null);
 
 export function ApiProvider({ children }: { children: ReactNode }) {
   const { getToken, isSignedIn } = useAuth();
-  const cacheRef = useRef<{ token: string | null; at: number } | null>(null);
-  const inflightRef = useRef<Promise<string | null> | null>(null);
-
-  useEffect(() => {
-    const sub = AppState.addEventListener("change", (state) => {
-      if (state !== "active") cacheRef.current = null;
-    });
-    return () => sub.remove();
-  }, []);
-
-  useEffect(() => {
-    if (!isSignedIn) {
-      cacheRef.current = null;
-      inflightRef.current = null;
-    }
-  }, [isSignedIn]);
-
-  const resolveToken = useCallback(
-    async (opts?: GetTokenOpts) => {
-      if (!isSignedIn) return null;
-
-      const now = Date.now();
-      const cached = cacheRef.current;
-      const fresh = Boolean(cached && now - cached.at < TOKEN_TTL_MS);
-
-      if (opts?.skipCache) {
-        cacheRef.current = null;
-      } else if (fresh && cached) {
-        return cached.token;
-      }
-
-      if (inflightRef.current) return inflightRef.current;
-
-      let pending: Promise<string | null>;
-      pending = getToken({ skipCache: true })
-        .then((token) => {
-          // Only a real token is cached. Caching a null — Clerk hiccuping, or a
-          // sign-in that hasn't settled — would lock every request out of auth
-          // for the whole TTL.
-          if (token) cacheRef.current = { token, at: Date.now() };
-          return token ?? null;
-        })
-        .catch((err) => {
-          console.error("[api] Clerk getToken failed:", err);
-          return null;
-        })
-        .finally(() => {
-          if (inflightRef.current === pending) inflightRef.current = null;
-        });
-
-      inflightRef.current = pending;
-      return pending;
-    },
+  const tokenResolver = useMemo(
+    () => createTokenResolver(getToken, Boolean(isSignedIn)),
     [getToken, isSignedIn],
   );
 
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state !== "active") tokenResolver.invalidate();
+    });
+    return () => sub.remove();
+  }, [tokenResolver]);
+
   const client = useMemo(
-    () =>
-      createApiClient({
-        baseUrl: API_BASE,
-        getToken: resolveToken,
-        getAnonKey,
-        fetchImpl: expoFetch as unknown as typeof fetch,
-      }),
-    [resolveToken],
+    () => createApiClient({
+      baseUrl: API_BASE,
+      getToken: tokenResolver.resolve,
+      getAnonKey,
+      fetchImpl: expoFetch as unknown as typeof fetch,
+    }),
+    [tokenResolver],
   );
 
   return <ApiContext.Provider value={client}>{children}</ApiContext.Provider>;

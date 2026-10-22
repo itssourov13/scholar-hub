@@ -9,14 +9,17 @@
     "icon": "./assets/icon.png",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.baireporbo.ios"
+      "bundleIdentifier": "com.scholarhub.app"
     },
     "android": {
-      "package": "app.baireporbo.android",
+      "package": "com.scholarhub.app",
       "versionCode": 9,
-      "googleServicesFile": "./android/app/google-services.json",
-      "permissions": ["android.permission.POST_NOTIFICATIONS"],
-      "blockedPermissions": ["android.permission.SYSTEM_ALERT_WINDOW"],
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS"
+      ],
+      "blockedPermissions": [
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -59,8 +62,6 @@
     "experiments": {
       "typedRoutes": true
     },
-    "extra": {
-      "apiBase": "http://localhost:3000"
-    }
+    "extra": {}
   }
 }

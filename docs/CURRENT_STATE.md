@@ -1,15 +1,15 @@
 # Current State
 
-_Repository audit snapshot: 2026-10-22. Includes the ScholarHub reset and local verification results below; this is not a production credential/deployment smoke test._
+_Updated: 2026-10-23. Records the current PR branch, hosted CI evidence, local follow-up, and release gates. This is not a production credential/deployment smoke test._
 
 ## 1. Identity and working tree
 
 - Target product name: **ScholarHub**.
 - Existing workspace: `/home/kali/gpt-workspace/BairePorbo`. The workspace path has intentionally not been renamed.
-- The brand/documentation changes were prepared on `feat/scholarhub-rebrand-docs`; the deliverable is being committed as a fresh root commit on local `main` for `https://github.com/itssourov13/scholar-hub.git`.
-- `README.md` was recreated for ScholarHub and canonical docs now live under `docs/`.
-- `origin` is configured to the requested GitHub repository; no branches were returned when checked, so it appeared empty. No push or deploy has been performed.
-- Core web/mobile copy and metadata, PWA labels, Expo display name/slug/scheme, shared TypeScript package scope, and service-worker cache namespace use ScholarHub. The former APK and assetlinks file were removed; old store/social/support URLs are configuration-driven or unset, and legacy AdSense/Meta tracking code was disabled. Legacy visual assets, Android/iOS package IDs, Firebase and signing configuration, upload-secret names, and production credentials remain. Privacy/terms/cookie/account-deletion pages are pre-release drafts; the product is not release-ready.
+- The ScholarHub brand/documentation foundation is in `main` of `https://github.com/itssourov13/scholar-hub.git`.
+- `README.md` was recreated for ScholarHub and canonical docs live under `docs/`.
+- The Clerk-free local preview fix was merged through PR #1 on 2026-10-22. This confirms a source merge only; production deployment has not been verified.
+- Core web/mobile copy and metadata, PWA labels, Expo display name/slug/scheme, shared TypeScript package scope, and service-worker cache namespace use ScholarHub. The former APK and assetlinks file were removed; old store/social/support URLs are configuration-driven or unset, and legacy AdSense/Meta tracking code was disabled. Android/iOS bundle identifiers and upload-property names have been changed locally on the active branch, but store/update compatibility and signing are unverified. Approved visual assets, a matching Firebase configuration, signing credentials, and production credentials remain outstanding. Privacy/terms/cookie/account-deletion pages are pre-release drafts; the product is not release-ready.
 
 ## 2. Repository shape observed
 
@@ -26,7 +26,7 @@ _Repository audit snapshot: 2026-10-22. Includes the ScholarHub reset and local 
 ## 3. Web stack observed
 
 From `apps/web/package.json`, configuration, source, and migration notes:
-- Next.js 16.2.6 App Router, React 19.2.4, TypeScript.
+- Next.js 16.4.2 App Router, React 19.2.4, TypeScript (upgraded on the current local branch).
 - Clerk authentication; Neon Serverless PostgreSQL (including pgvector); Cloudflare R2-compatible object storage.
 - OpenRouter for user-facing chat/embeddings; optional NVIDIA NIM/admin completion flows.
 - ioredis-based rate-limiting integration with an in-memory fallback when Redis is not configured.
@@ -38,13 +38,15 @@ The old root architecture/migration documents contained conflicting historic Sup
 
 ## 4. Mobile stack observed
 
-From `apps/mobile/package.json` and route structure:
+From the current local branch configuration and route structure:
 - Expo SDK 57, React Native 0.86, Expo Router, TypeScript, NativeWind.
 - Clerk Expo authentication and Secure Store integration.
-- TanStack Query and a shared typed API client.
-- Existing routes include auth, home/discovery, scholarship detail, chat/session history, profile, bookmarks, roadmap, CV, guides, and notifications.
-
-Package name, Android application ID, deep links, API base URL, Firebase configuration, OAuth configuration, and signing/release setup still contain legacy-specific identifiers. These must be handled as a separate migration decision; changing an Android application ID can affect update compatibility and store identity.
+- TanStack Query and the shared typed API client.
+- Routes cover auth, home/discovery, scholarship detail, chat/session history, profile, bookmarks, roadmap, CV, guides, and notifications.
+- The branch sets Android namespace/application ID and iOS bundle identifier to `com.scholarhub.app`. The current product intent is a separate ScholarHub app identity, not an in-place update of the legacy BairePorbo listing. Verify that this identifier is registered/available for the intended new listing in the relevant store console before release; store registration and signing have not been verified.
+- The old Android `google-services.json` was removed because it targets the previous package. No matching new Firebase file is committed. If push is in scope, register the `com.scholarhub.app` Android app in Firebase and provide the matching file locally or through the `GOOGLE_SERVICES_JSON` EAS file-type variable. If push is deferred, current Gradle configuration allows a build without this file.
+- `keystore.properties` is optional local signing configuration. The current EAS setup can use remote EAS-managed signing credentials, so do not create/commit local keystore properties just to satisfy the repository. EAS credentials, public HTTPS API origin, OAuth/deep links, and device behaviour still require actual build/runtime validation.
+- Preview/production EAS profiles require a publicly reachable HTTPS API URL. No real deployed API URL, native signing result, push-notification result, or real-device smoke-test result is recorded for this branch.
 
 ## 5. Features observed in source
 
@@ -68,23 +70,51 @@ These are findings from static code inspection; they do not claim that every rou
 - No established application-wide IndexedDB persistence/outbox/sync-conflict implementation was confirmed during the reviewed file sample.
 - Scholarship URL parsing exists as an admin workflow; field-level provenance, reviewable source snapshots, and safe automatic change detection remain to be implemented/validated.
 
-## 7. Tests and verification (2026-10-22)
+## 7. Latest verification record (2026-10-23)
 
-Toolchain: Node.js 22.23.1 and pnpm 11.1.3. Dependency installs completed with frozen lockfiles for the root package, web app, and mobile app. The mobile lockfile had one `expo-image-picker` specifier mismatch; its lockfile importer was corrected from `^57.0.15` to the manifest's `~57.0.15` without changing the resolved package version.
+**Scope:** local branch `fix/production-readiness-and-app-id`, Node.js 22.23.1, pnpm 11.1.3, Android/Termux on ARM64 with an F2FS filesystem. Local command results below are from the implementation pass. The published head `608711ae1a27cc1875b493bd31aad47ece86ff2e` was pushed and both jobs passed in [GitHub Actions run 39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903). This local follow-up modifies mobile ignore rules, auth-role state isolation and docs; that new commit still needs to be pushed and rechecked. No database migration/import or production deployment was performed.
 
+### Android Metro/Expo Router root cause and local fix
+
+- The original failure was not a missing Expo Router file. Node resolved `expo-router/entry` to `node_modules/expo-router/entry.js`, but Metro's file-map lookup considered it absent.
+- Root cause reproduced independently: on this Android/Termux F2FS environment, Node's `fs.readdir(..., { withFileTypes: true })` reported hard-linked regular files as `Dirent.isSymbolicLink() === true`, while `lstat` reported regular files and `readlink` returned `EINVAL`. This happened to ordinary probe files once their hard-link count was greater than one. Metro's crawler skipped those wrongly classified files in `node_modules`, so the Router entry and other packages disappeared from Metro's index.
+- Applied the targeted package-manager fix in `apps/mobile/pnpm-workspace.yaml`: `packageImportMethod: copy`. The main mobile dependencies were reinstalled from the updated lockfile with this setting. Re-checks of React, React Native, Expo Router, and Expo Notifications all show link count 1, regular-file `lstat`, and regular-file `Dirent`. The original Metro resolution error no longer reproduces.
+- Expo SDK alignment now passes: installed `@expo/cli@57.0.32`, `expo-notifications@57.0.24`, and `pnpm exec expo install --check` reports `Dependencies are up to date`.
+- **Diagnostic Android bundle/export:** `pnpm exec expo export --platform android --clear --no-bytecode` exited 0. Metro bundled 2,216 modules, emitted 77 assets, and produced a 4.4 MB Android JS bundle. This command explicitly disables Hermes bytecode and is only a bundling diagnostic, not a release artifact or a substitute for a native/EAS build.
+- **Regular Android export on this host:** `pnpm exec expo export --platform android --clear` resolves/bundles all 2,216 modules, but exits 1 at Hermes with `SIGILL` because this ARM64 host has an x86-64 `hermesc` binary. This is a local host/toolchain mismatch after Metro bundling, not the original resolver failure. The regular export subsequently passed on hosted Ubuntu in GitHub Actions run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903). This does not replace an EAS signed build or real-device smoke test.
+- Expo Doctor reported 20/20 checks passed and no issues. It did print a non-fatal warning that it could not fetch bundled native modules. Its `appConfigFieldsNotSyncedCheck` is explicitly disabled because the tracked Android project contains manual native configuration; this is not a claim that dynamic Expo config is automatically synchronized. Keep native config changes reviewed against `apps/mobile/android`.
+
+### Checks currently passing
+
+- Web `pnpm lint`: PASS.
 - Web `pnpm typecheck`: PASS.
-- Web `pnpm test`: PASS — 18 test files, 375 tests.
-- Web `pnpm lint`: FAIL — 28 errors and 10 warnings across the existing codebase; includes React Hooks rules, explicit `any`, purity, and existing JSX/link warnings. These broad pre-existing issues were not mass-fixed in this scoped pass.
-- Web production build: `next build` (Turbopack default) failed locally with `TurbopackInternalError: Invalid symlink`. `next build --webpack` compiled, completed TypeScript and generated all 56 static pages, and exited 0 using a deliberately fake local `DATABASE_URL`; expected Neon connection errors were logged while database-backed pages fell back. This is not a production database verification. The app's `build` script now selects Webpack to avoid the observed Turbopack blocker in this workspace.
-- Mobile `pnpm typecheck`: PASS after adding an ambient `*.css` declaration for TypeScript 6's side-effect-import checking.
-- Mobile `pnpm lint`: FAIL — 7 errors and 3 warnings in existing React Hooks/ref patterns and a small number of warnings. They were not broadly refactored because the task is not a lint cleanup.
-- `expo install --check`: reports 22 Expo/React Native packages below the versions expected by the installed SDK 57 toolchain. No bulk dependency upgrade was applied; resolve this before native release and verify on a device/build.
-- Mobile Android export: multiple exports failed at Metro resolving `expo-router/entry`, even though `node_modules/expo-router/entry.js` exists. A temporary Metro resolver probe confirmed Metro’s file map reports that entry as not watched; temporary resolver/watch-folder experiments were reverted and no speculative workaround was kept.
-- Expo reports 22 native packages below the current SDK 57 compatibility matrix. `expo install --fix` was attempted, but its follow-up install was blocked by pnpm’s 24-hour minimum-release-age supply-chain check for newly published Expo packages; the partial SDK change was rolled back and the existing frozen lockfile reinstalled. Do not disable the age gate merely to force this upgrade; resolve compatibility deliberately before a device release.
-- JSON/YAML parsing, changed JavaScript syntax checks, `git diff --check`, and relative Markdown-link checks passed. The two confirmed zero-byte unused scaffold manifests and empty API module were removed rather than committed as invalid package/source files.
-- No browser E2E, accessibility/performance audit, real database migration, credentials-backed integration test, or live deployment smoke test was performed.
+- Web `pnpm test`: PASS on the current local follow-up — 19 test files, 379 tests, including four new auth role-state tests.
+- Web `pnpm build`: PASS — Next.js Webpack production build completed and generated all 56 static pages/routes using the configured local `.env.local` environment. This does not replace production-like auth, API, or user-journey smoke tests.
+- Web production dependency audit (`pnpm audit --prod --audit-level=moderate`): PASS — no known vulnerabilities found in the audited production dependency graph.
+- Mobile `pnpm lint`: PASS.
+- Mobile `pnpm typecheck`: PASS.
+- Mobile `pnpm exec expo install --check`: PASS.
+- Mobile `pnpm doctor`: PASS — 20/20 checks passed; the non-fatal native-module-fetch warning is noted above.
+- Mobile Android bundling diagnostic with `--no-bytecode`: PASS — 2,216 modules and 77 assets; the normal Hermes bytecode step remains blocked on this ARM64 host as described above.
+- Mobile dependency install with `pnpm install --frozen-lockfile`: PASS after refreshing `apps/mobile/pnpm-lock.yaml`. The first offline reinstall lacked the new Notifications tarball, so the final successful frozen install ran online and fetched one package.
+- CI workflow and pnpm workspace YAML parse successfully; package JSON files parse; `git diff --check` passes for tracked changes.
 
-Do not describe this branch as fully lint-clean or production verified. A real `DATABASE_URL`, final `NEXT_PUBLIC_SITE_URL`, provider configuration, and native release configuration are still required for environment-backed verification. The Android bundle/export is a known unresolved blocker; it should not be hidden by the web build result.
+### Hosted CI status
+
+- `.github/workflows/ci.yml` runs on pull requests, pushes to `main`, and manual dispatch.
+- GitHub Actions run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903) completed successfully for published head `608711ae1a27cc1875b493bd31aad47ece86ff2e`: Web job (frozen install, lint, typecheck, 375 tests, build) and Mobile job (frozen install, lint, typecheck, Expo SDK check, Doctor, standard Android export) both passed.
+- If repository secret `DATABASE_URL` is absent, Web CI uses an intentionally unreachable placeholder. The build job verifies compile/static build behaviour, not database connectivity, migrations, real scholarship data, or authenticated API journeys.
+- This follow-up changes `.gitignore`, role-state handling and docs. Once committed and pushed, inspect the new run; the previously green run does not certify the new commit.
+
+### Remaining blockers and limits
+
+- The normal Android export passed in hosted Ubuntu CI. The local ARM64/Termux failure is specific to the x86-64 Hermes compiler installed on that host. A real EAS/native signed build and installation on a physical device are still required before release.
+- The intended app identity is a separate ScholarHub listing using `com.scholarhub.app`, not an update of the legacy BairePorbo listing. Confirm the new listing/package registration and retain the EAS/Play signing credentials safely.
+- Matching Firebase configuration and push delivery remain untested if push is part of the release. `google-services.json` is intentionally absent from Git; `keystore.properties` is optional when EAS remote signing is used.
+- No staging migration, source-catalogue dry run/import, production database write, two-user authorization suite, or credentials-backed integration/E2E test was run. Green CI does not prove database integration or real data correctness.
+- The current follow-up commit (ignore safeguards, account-switch role loading and docs) is local only; after committing, push it and inspect its own CI run.
+
+**Conclusion:** Metro resolution is fixed and the standard export is verified on hosted Ubuntu. Web/mobile CI passed on the previous published head. The current follow-up is being revalidated locally; store, signing, Firebase, staging-data, authorization/E2E and real-device release gates remain open.
 
 ## 8. Sensitive and historical repository files
 
@@ -104,5 +134,5 @@ Before publishing this repository or its history to a wider audience:
 - In preview mode the browser-side code unregisters previous service workers and clears old `scholarhub-*` caches. The service-worker cache version is now `v6` for a normal app visit.
 - Real-browser verification (headless Chromium, 412×915 viewport; also repeated with an Android user agent): the page title and homepage content rendered, the browser did not show a DNS error, and the network log recorded zero requests/redirects to `clerk.scholarhub.local`. HTTP 200 is only a secondary check; it was not accepted as the sole pass criterion.
 - `pnpm typecheck` passed; `pnpm test` passed (18 files, 375 tests); `pnpm build` with Webpack passed and generated 56 static pages. The build used a deliberately fake `DATABASE_URL` and logged expected Neon connection errors. No actual database content, production Clerk credentials, or live deployment was verified.
-- The preview server was stopped after the user asked to turn it off. The changes are local and committed on branch `fix/preview-clerk-chunk-cache` (`b098d75`, following `88580cd`); they have not been pushed or deployed.
+- The preview server was stopped after the user asked to turn it off. The fix (`88580cd`, `b098d75`, plus verification documentation) has since been pushed and merged through PR #1. No production deployment or production configuration was verified.
 - Safety: `SCHOLARHUB_LOCAL_PREVIEW` is only for local visual review. Keep it unset in Vercel/production and use real Clerk/database/service configuration there. Login/sign-up are intentionally unavailable in preview mode. A fake local `DATABASE_URL` allows UI/build checks only; it cannot populate the app with real records.

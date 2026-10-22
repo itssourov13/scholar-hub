@@ -1,4 +1,4 @@
-package app.baireporbo.android
+package com.scholarhub.app
 
 import android.app.Application
 import android.content.res.Configuration

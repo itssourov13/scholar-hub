@@ -1,34 +1,41 @@
-# dependencies
+# Dependencies
 node_modules/
 
-# Expo
+# Expo generated/local files
 .expo/
 dist/
 web-build/
 expo-env.d.ts
 
-# Native
+# Native patch leftovers and local signing credentials — never commit private keys.
 *.orig.*
 *.jks
+*.keystore
 *.p8
 *.p12
 *.key
 *.mobileprovision
 
-# Metro
+# Metro temporary health-check files
 .metro-health-check*
 
-# debug
+# Package-manager debug logs
 npm-debug.*
 yarn-debug.*
 yarn-error.*
 
-# macOS
+# macOS metadata
 .DS_Store
 
-# local env
+# Local environment overrides
 .env*.local
 
-# release signing (NEVER commit — back these up privately)
-android/keystore.properties
-android/app/upload-keystore.jks
+# Private/release-specific Firebase app configuration (must match com.scholarhub.app)
+/android/app/google-services.json
+# Optional local signing config; EAS-managed signing does not require these local files.
+/android/keystore.properties
+/android/app/upload-keystore.jks
+
+# Android build outputs
+/android/.gradle/
+/android/app/build/
