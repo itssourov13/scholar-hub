@@ -8,5 +8,8 @@
       "path": "/api/cron/push-digest",
       "schedule": "0 3 * * *"
     }
+  ],
+  "regions": [
+    "sin1"
   ]
 }

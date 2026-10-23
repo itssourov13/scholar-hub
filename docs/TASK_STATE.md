@@ -1,10 +1,10 @@
 # Task State
 
-_Last reviewed: 2026-10-23 — PR #3 merged; active local branch `feat/scholarship-catalogue-import`; 94 unverified drafts imported to Neon staging._
+_Last reviewed: 2026-10-23 — PR #4 merged; current local branch `audit/production-neon-target`; Singapore production schema preflight completed on an isolated Neon branch._
 
 ## Current phase
 
-The ScholarHub documentation/brand foundation, Clerk-free local visual-preview fix, and Firebase/EAS/Vercel preparation are merged into `main`; PR #3's published head is merge `4d95ed1` and GitHub Actions run [39854247770](https://github.com/itssourov13/scholar-hub/actions/runs/39854247770) passed. The active branch is `feat/scholarship-catalogue-import`. It adds a dry-run-first importer, an additive provenance/document-cache migration, and a public endpoint fix preventing status query parameters from revealing drafts. The configured Neon staging branch now contains 94 draft/unverified candidates; production was not modified. See `docs/SCHOLARSHIP_DATA_IMPORT.md` and the local-only `report.md`. The project is not release-ready: canonical production DB target/schema, official record verification, admin publish gating, authorization/E2E, new listing, EAS signing, conditional Firebase/push, public API deployment, legal/operator and device checks remain outstanding.
+The ScholarHub foundation, local preview fix, Firebase/EAS/Vercel preparation, and PR #4 catalogue-import changes are merged into `main`; PR #4 merge commit is `33e88e0`. Its imported catalogue remains in the Singapore staging branch as 94 draft/unverified candidates. The current focused branch `audit/production-neon-target` selects the Singapore production project, adds the Vercel `sin1` Function region, documents the database target, and tests migrations `018`–`028` on an isolated preflight branch. Production has not been modified, and the connected Vercel account exposes no ScholarHub project. Production schema migration still requires explicit approval. Other gates include official-source review, admin publish gating, authorization/E2E, new app listing/signing, conditional Firebase/push, deployment, legal/operator and device checks.
 
 The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the planning source of truth. Legacy brand artwork, legal/operator details, real service configuration, verified scholarship data, security testing, and release configuration still require work. Policy pages remain pre-release drafts.
 
@@ -149,5 +149,17 @@ This section preserves the earlier mobile/role-state verification snapshot. Its 
 - [x] Fixed public scholarships route to always filter on `status='published'`; added three regression cases for query parameters.
 - [x] Added import helper mapping/duplicate tests (6/6) and public API exposure regression tests (3/3) pass.
 - [x] Final Web verification on Node 22.23.1 / pnpm 11.1.3: lint, typecheck, all 388 tests in 21 files, Webpack build (56 static pages/routes), `git diff --check`, and report-ignore checks passed.
-- [ ] Confirm canonical production Neon project/branch and reconcile production schema separately; do not copy staging rows into production before schema/record review.
+- [ ] Apply the reviewed migrations to the selected Singapore production branch only after explicit approval and restore/rollback readiness; do not copy staging rows into production before schema/record review.
 - [ ] Manually review current-cycle facts on official sources; 94 drafts are not publication-ready.
+
+
+## Current implementation — Singapore production target and schema preflight (2026-10-23)
+
+- [x] Confirmed the Bangladesh-first region decision: Neon `aws-ap-southeast-1` (Singapore), paired with Vercel Functions `sin1` in source configuration.
+- [x] Confirmed production target project `shy-darkness-67521294`, production branch `br-divine-grass-a16og13f`, and database `neondb`; local environment files point to staging branch `br-nameless-fog-a10fo0rl` and must not be reused for Vercel Production.
+- [x] Verified production is empty (0 public application tables) and staging has 14 tables/94 draft-unverified scholarships/0 published/0 live/0 RAG documents.
+- [x] Tested current baseline migrations `018`–`028` on isolated preflight branch `br-holy-cell-a1qlrlmy`. Verified 14 tables, five key scholarship schema fields, pgvector, `match_scholarship_docs`, and zero scholarship/RAG records.
+- [x] Added `docs/PRODUCTION_DATABASE.md` with branch evidence and the production migration runbook; synchronized region/target status across docs.
+- [ ] Get explicit approval before applying schema to the empty production branch. Do not import or publish staging catalogue rows as part of that operation.
+- [ ] Connect/import the GitHub repository into the intended Vercel account, configure encrypted Production variables against the confirmed production branch, and verify deployed `sin1` runtime via preview/production smoke tests.
+- [x] Current branch quality gates passed: lint, typecheck, 388 tests / 21 files, Webpack build (56 static pages/routes), `git diff --check`, JSON config validation and local Markdown-link scan. Existing Cache-Control warning remains non-blocking. Hosted branch CI is pending until push/PR.

@@ -4,13 +4,19 @@ Meaningful product and engineering changes are recorded here. Dates use YYYY-MM-
 
 ## Unreleased
 
+### 2026-10-23 — Choose Singapore Neon production target and preflight schema
+- Confirmed Neon region `aws-ap-southeast-1` (Singapore) for the Bangladesh-first audience and set Vercel Functions `regions` to `sin1` in `apps/web/vercel.json`. Static assets remain global CDN-served; runtime latency still requires deployed measurement.
+- Selected Neon project `ScholarHub Production Singapore` (`shy-darkness-67521294`) and its production branch `br-divine-grass-a16og13f`. The current local `DATABASE_URL` resolves to the separate staging branch; it is not a production configuration.
+- Audited the Singapore production branch, staging branch, and the empty US-East alternative. Created isolated preflight branch `br-holy-cell-a1qlrlmy`, applied baseline migrations `018`–`028` there, and verified 14 public tables, pgvector/RAG function, required scholarship columns, and zero scholarship data. Production remains untouched.
+- Added `docs/PRODUCTION_DATABASE.md` with an evidence matrix and explicit production migration runbook. A Vercel project is not available in the connected account scope, so environment variables/deploy were not changed. Applying schema to production remains an explicit-approval gate.
+
 ### 2026-10-23 — Controlled scholarship catalogue import to Neon staging
 - Added `028_scholarship_import_provenance.sql` for the existing `required_documents` cache field, source identity/provenance timestamps, verification state, and idempotent review indexes. Applied and verified only on the configured staging branch.
 - Added conservative data assessment/mapping for `cleaned_scholarships.json`, six focused import-helper tests, and an idempotent importer that is read-only by default and hard-guards write mode to an explicitly allowlisted staging host.
 - Dry-run classified 94 unique records for import and held 215 back for human review. Imported 94 records as drafts with `is_live=false` and `source_verification_status='unverified'`; no record was published and no RAG embeddings were generated.
 - Fixed the public scholarships endpoint so `?status=draft`/`?status=archived` cannot bypass the published-only boundary, and added three regression tests.
 - Added `docs/SCHOLARSHIP_DATA_IMPORT.md` and refreshed project docs. Root `.gitignore` now excludes both `/audit.md` and `/report.md`; both reports are local-only.
-- The intended production Neon project/branch remains unresolved; no production branch or Vercel deployment was modified. Final local verification on Node 22.23.1 passed lint, typecheck, 388 tests across 21 files, the Webpack production build (56 static pages/routes), `git diff --check`, and local-report ignore checks. The build emitted a non-blocking Cache-Control warning for `/_next/static/:path*`.
+- At the time of that catalogue-import checkpoint, the intended production Neon project/branch had not yet been selected; no production branch or Vercel deployment was modified. Final local verification on Node 22.23.1 passed lint, typecheck, 388 tests across 21 files, the Webpack production build (56 static pages/routes), `git diff --check`, and local-report ignore checks. The build emitted a non-blocking Cache-Control warning for `/_next/static/:path*`.
 ### 2026-10-23 — Prepare Vercel deployment configuration
 - Added the official Vercel JSON schema and declared the Next.js framework in `apps/web/vercel.json`.
 - Pinned Vercel's install/build commands to the web app's `packageManager` via Corepack and `--frozen-lockfile`, avoiding accidental lockfile drift.

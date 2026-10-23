@@ -35,7 +35,7 @@ Observed stack:
 - Object storage: Cloudflare R2 using the S3-compatible API.
 - AI: OpenRouter for chat/embeddings; optional NVIDIA NIM for selected admin tooling.
 - Rate limits: Redis integration with a process-local fallback.
-- Web deployment: Vercel configuration and a deployment guide are prepared, but no Vercel project has been linked from the intended account and no hosted deployment has been verified. The canonical production Neon project/branch remains unresolved; see `docs/SCHOLARSHIP_DATA_IMPORT.md` and the local-only `report.md`.
+- Web deployment: Vercel is configured in source for Singapore Functions (`sin1`) to align with the selected Neon Singapore project. The connected Vercel workspace currently lists no ScholarHub project, so production env configuration and deployment remain unverified. The selected production branch `br-divine-grass-a16og13f` is empty; schema preflight passed on an isolated temporary branch but no production migration has run. See [Production Database Target](PRODUCTION_DATABASE.md) and [Vercel Deployment](VERCEL_DEPLOYMENT.md).
 - Native client: Expo SDK 57/React Native 0.86.
 
 The existing request path is API-centric. Personal record ownership is primarily enforced through server handlers that derive the caller from Clerk and include the caller's ID in queries. Do not assume PostgreSQL RLS is currently the active authorization boundary.
