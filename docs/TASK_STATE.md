@@ -1,10 +1,10 @@
 # Task State
 
-_Last reviewed: 2026-10-23 — PR #3 merged; active local branch `feat/scholarship-catalogue-import`; 94 unverified drafts imported to Neon staging._
+_Last reviewed: 2026-10-23 — PR #4 merged; Singapore Production migrations `018`–`028` applied and verified; current focus is catalogue/Guide content readiness before first deployment._
 
 ## Current phase
 
-The ScholarHub documentation/brand foundation, Clerk-free local visual-preview fix, and Firebase/EAS/Vercel preparation are merged into `main`; PR #3's published head is merge `4d95ed1` and GitHub Actions run [39854247770](https://github.com/itssourov13/scholar-hub/actions/runs/39854247770) passed. The active branch is `feat/scholarship-catalogue-import`. It adds a dry-run-first importer, an additive provenance/document-cache migration, and a public endpoint fix preventing status query parameters from revealing drafts. The configured Neon staging branch now contains 94 draft/unverified candidates; production was not modified. See `docs/SCHOLARSHIP_DATA_IMPORT.md` and the local-only `report.md`. The project is not release-ready: canonical production DB target/schema, official record verification, admin publish gating, authorization/E2E, new listing, EAS signing, conditional Firebase/push, public API deployment, legal/operator and device checks remain outstanding.
+The ScholarHub foundation, local preview fix, Firebase/EAS/Vercel preparation and PR #4 catalogue importer are in the repository; PR #4 merged as `33e88e0`. The Singapore Production schema migration `018`–`028` has since been explicitly approved, applied and verified (14 tables, 31 indexes, pgvector/RAG function); Production has 0 scholarship, 0 RAG and 0 Guide rows. Staging has 94 draft/unverified scholarship candidates (58 old ISO deadlines, 36 missing deadlines), and 215 of 309 source candidates remain held for data-quality review. Current priority: official source review, trusted Guide content, server-enforced publish/RAG safety, a reviewed Production import workflow, and full Vercel configuration before the first deployment. No Vercel project is visible in the connected account scope, so env vars/deployment remain untouched.
 
 The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the planning source of truth. Legacy brand artwork, legal/operator details, real service configuration, verified scholarship data, security testing, and release configuration still require work. Policy pages remain pre-release drafts.
 
@@ -32,7 +32,7 @@ The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the pla
 - [x] Re-ran web TypeScript and tests (375/375 pass) and rebuilt with Webpack (56 static pages generated). This used a dummy `DATABASE_URL` and is not a real database/production integration test.
 - [x] Stopped the local preview server after the user requested shutdown. The preview fix was pushed and merged through PR #1; it has not been verified in a production deployment.
 
-**Still outstanding for real content:** configure a real Neon `DATABASE_URL`, apply/reconcile the versioned migrations against a dedicated database, inspect and safely import the actual scholarship catalogue, confirm records are `published`, and test `/api/scholarships` and the rendered list against the real dataset. pgvector extensions, `ScholarshipDoc` documents, and embeddings are additionally needed for RAG/semantic matching; they are not required just to render ordinary published scholarship rows. Do not use the preview's dummy DB URL as a production or data-import target.
+**Still outstanding for real content:** Production schema is now ready, but Production `scholarships`, `guides` and `ScholarshipDoc` are empty. Verify/import current-cycle scholarships and trusted Guide content, enforce source-review/publish rules, address RAG ingest/retrieval verification before embeddings, and test the real Web/Mobile journeys. Ordinary published scholarship rows do not require RAG embeddings; AI semantic retrieval does. Do not use the local/staging DB URL as a production target.
 
 ## Previously identified brand/repository and product tasks
 
@@ -93,7 +93,7 @@ The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the pla
 - [x] A security/privacy document was added because client documents and broader public usage require explicit safeguards.
 - [x] Historical duplicate/stale root docs were retired or replaced with canonical pointers.
 - [x] Documentation distinguishes current implementation, planned work, and unverified behaviour.
-- [x] No database schema, production data, deployment, or environment credentials were changed. Product copy/metadata, app labels, footer links, consent/analytics source code, legal pages, and native/app configuration changed locally.
+- [x] At that earlier documentation-reset checkpoint, no database schema, production data, deployment, or environment credentials were changed. Product copy/metadata, app labels, footer links, consent/analytics source code, legal pages, and native/app configuration changed locally.
 
 ## Historical verification record — mobile/role-state pass before catalogue import (2026-10-23)
 
@@ -120,7 +120,7 @@ This section preserves the earlier mobile/role-state verification snapshot. Its 
 - [ ] Confirm/register `com.scholarhub.app` as the intended separate ScholarHub app listing in the relevant store console. The product intent is not to update the legacy BairePorbo listing; package registration and signing ownership still require verification.
 - [ ] Supply/test Firebase config matching `com.scholarhub.app` if push remains in scope.
 - [ ] Configure a public HTTPS API origin for EAS preview/production, verify EAS secrets/signing and OAuth/deep links, and test push delivery if enabled.
-- Historical note: staging migration/import had not yet occurred at that earlier checkpoint. The later catalogue-import pass applied migration 028 and imported 94 draft/unverified records to the configured Neon staging branch only; production was not modified. Production schema reconciliation and official-source review remain open.
+- Historical note: staging migration/import had not yet occurred at that earlier checkpoint. The later catalogue-import pass applied migration 028 and imported 94 draft/unverified records to Neon staging. The subsequently approved 2026-10-23 Production schema migration is now complete; official-source review and content import remain open.
 - [ ] Complete credentials-backed auth, two-user authorization, route/API E2E, accessibility/performance, and deployment smoke tests.
 - [ ] Review historical Git artifacts before wider source release; rotate any exposed credentials if evidence of exposure is found.
 
@@ -149,5 +149,21 @@ This section preserves the earlier mobile/role-state verification snapshot. Its 
 - [x] Fixed public scholarships route to always filter on `status='published'`; added three regression cases for query parameters.
 - [x] Added import helper mapping/duplicate tests (6/6) and public API exposure regression tests (3/3) pass.
 - [x] Final Web verification on Node 22.23.1 / pnpm 11.1.3: lint, typecheck, all 388 tests in 21 files, Webpack build (56 static pages/routes), `git diff --check`, and report-ignore checks passed.
-- [ ] Confirm canonical production Neon project/branch and reconcile production schema separately; do not copy staging rows into production before schema/record review.
+- [x] Applied and verified migrations `018`–`028` on Singapore Production branch `br-divine-grass-a16og13f` after explicit approval. This was schema-only; no staging scholarship or private user rows were copied.
 - [ ] Manually review current-cycle facts on official sources; 94 drafts are not publication-ready.
+
+
+## Current implementation — Singapore production schema and pre-deployment content readiness (2026-10-23)
+
+- [x] Confirmed the Bangladesh-first region decision: Neon `aws-ap-southeast-1` (Singapore), paired with Vercel Functions `sin1` in source configuration.
+- [x] Confirmed production target project `shy-darkness-67521294`, branch `br-divine-grass-a16og13f`, database `neondb`; local `.env.local` files still target staging branch `br-nameless-fog-a10fo0rl` and must not be reused for Vercel Production.
+- [x] Preflighted the baseline `018`–`028` on isolated branch `br-holy-cell-a1qlrlmy`.
+- [x] Applied the same `018`–`028` schema sequence to Production after explicit user approval on 2026-10-23, in one transaction.
+- [x] Post-migration verification: 14 public tables, 31 indexes, no missing expected scholarship/provenance/profile columns among those checked, pgvector present, `match_scholarship_docs` present, `prompt_cache` removed, and 0 scholarship rows / 0 RAG rows.
+- [x] Confirmed staging has 94 draft/unverified scholarships, 0 published/live, 0 RAG documents, 0 guides, and no checked profile/CV/chat/bookmark/task/roadmap records. Date review found 58 staging rows with past ISO deadlines and 36 without a deadline.
+- [ ] Officially review all 309 source candidates and decide which are current, eligible, accurate, duplicate, stale, or rejected. Do not assume the 215 held rows are all expired; hold reasons are chiefly data quality and overlap.
+- [ ] Locate/confirm trusted Guide content and seed reviewed/published rows in Production. Current Guide API/pages depend on the `guides` table and have no static fallback.
+- [ ] Implement/test enforceable source verification/publish gates and ensure single/batch RAG ingestion plus Mentor retrieval cannot treat unverified/draft data as authoritative.
+- [ ] Create a separately reviewed, idempotent production import/seed path for approved scholarship and Guide data; the existing catalogue importer is staging-only.
+- [ ] Complete environment-variable/service review, credentials-backed auth/API/E2E tests and mobile release checks. No connected Vercel ScholarHub project is currently visible; no env vars/deployment have been changed.
+- [x] Cross-checked canonical docs against the completed migration and current staging/source audits; refreshed the roadmap and status references. This update changes documentation only; no app/runtime code files are changed.

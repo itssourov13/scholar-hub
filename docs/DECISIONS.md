@@ -110,6 +110,16 @@ The unauthenticated `GET /api/scholarships` route hardcodes `status='published'`
 
 **Reason:** Prevent draft visibility even if a client attempts `?status=draft` or `?status=archived`.
 
+## ADR-016 — Use Singapore for the first production database and API compute
+
+**Status:** Accepted — 2026-10-23
+
+Because Bangladesh is the primary audience, use the existing Neon project `ScholarHub Production Singapore` (`shy-darkness-67521294`, region `aws-ap-southeast-1`) as the production database project. The production branch is `br-divine-grass-a16og13f`; the staging branch `br-nameless-fog-a10fo0rl` stays staging-only. Configure Vercel server-side Functions in `sin1` (Singapore) so dynamic database-backed requests run near Neon. Static content remains served via Vercel's global CDN. This is a latency-oriented deployment choice, not a claim that all requests or browser-to-server network latency are eliminated; verify real-world timings after deployment.
+
+The baseline schema was first tested on isolated branch `br-holy-cell-a1qlrlmy`, then applied to Production branch `br-divine-grass-a16og13f` after explicit user approval on 2026-10-23. Post-migration verification found 14 public tables, 31 indexes, pgvector and the RAG matching function, with zero scholarship/RAG/guide rows. Schema setup did not import or publish data. Do not set Vercel Production `DATABASE_URL` to local/staging credentials. The 94 staging scholarships remain unverified drafts and require current-cycle/source review; the 215 source rows held by the importer should be reviewed rather than automatically discarded.
+
+**Reason:** Keep DB round-trips near the chosen data region for Bangladesh-first dynamic requests while preserving a clear staging/production boundary. Other visible Neon project is in US East and empty; it is not the selected target.
+
 ## Change process
 
 For a new durable decision, add:
