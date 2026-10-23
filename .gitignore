@@ -33,5 +33,6 @@ apps/web/supabase_data.sql
 # Local Android debug signing keystore — never commit keys.
 apps/mobile/android/app/debug.keystore
 
-# Local-only audit output; keep reports out of commits.
+# Local-only audit and execution reports; keep reports out of commits.
 /audit.md
+/report.md

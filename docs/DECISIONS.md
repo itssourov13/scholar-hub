@@ -96,6 +96,20 @@ These rules protect local credentials/generated files; they are not part of loca
 
 The product intent is a separate ScholarHub app using `com.scholarhub.app`, not an in-place update of the legacy BairePorbo listing. The Android/iOS identifiers are configured accordingly. Before release, verify the intended new listing is registered/available and preserve EAS/Play signing credentials. If an existing listing must instead be updated, stop and review package/update compatibility before building or publishing. Matching Firebase registration/configuration is a separate requirement only when Firebase services/push are in the release scope.
 
+## ADR-014 — Catalogue imports remain unverified drafts until manual source review
+**Status:** Accepted — 2026-10-23
+
+The first-pass importer requires title, country and a syntactically valid HTTP(S) official-link field; duplicates and missing minimum fields are held for review. It stores source provenance and deterministic source identity. Every imported row remains `draft`, `is_live=false`, and `source_verification_status='unverified'`. A dry run is the default; actual writes require an explicit staging target plus exact staging-host allowlist. Never automatically infer new deadlines, Bangladeshi eligibility, or full-funding status from the original post.
+
+**Reason:** Scholarship errors can mislead users about eligibility, funding and application deadlines. Imported social-post content is not authoritative proof.
+
+## ADR-015 — Public scholarship catalogue API always serves published records
+**Status:** Accepted — 2026-10-23
+
+The unauthenticated `GET /api/scholarships` route hardcodes `status='published'`. Query parameters must not be able to retrieve drafts or archived items; administration uses separate server-guarded admin routes.
+
+**Reason:** Prevent draft visibility even if a client attempts `?status=draft` or `?status=archived`.
+
 ## Change process
 
 For a new durable decision, add:

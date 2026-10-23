@@ -1,6 +1,6 @@
 # Current State
 
-_Updated: 2026-10-23. Records the current PR branch, hosted CI evidence, local follow-up, and release gates. This is not a production credential/deployment smoke test._
+_Updated: 2026-10-23. Records merged EAS/Vercel preparation, the active catalogue-import branch, and the staging-only data setup. This is not a production credential/deployment smoke test._
 
 ## 1. Identity and working tree
 
@@ -72,9 +72,9 @@ These are findings from static code inspection; they do not claim that every rou
 - No established application-wide IndexedDB persistence/outbox/sync-conflict implementation was confirmed during the reviewed file sample.
 - Scholarship URL parsing exists as an admin workflow; field-level provenance, reviewable source snapshots, and safe automatic change detection remain to be implemented/validated.
 
-## 7. Latest verification record (2026-10-23)
+## 7. Earlier verification record (2026-10-23; before catalogue-import work)
 
-**Scope:** local branch `fix/production-readiness-and-app-id`, Node.js 22.23.1, pnpm 11.1.3, Android/Termux on ARM64 with an F2FS filesystem. Local command results below are from the implementation pass. The published head `608711ae1a27cc1875b493bd31aad47ece86ff2e` was pushed and both jobs passed in [GitHub Actions run 39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903). This local follow-up modifies mobile ignore rules, auth-role state isolation and docs; that new commit still needs to be pushed and rechecked. No database migration/import or production deployment was performed.
+**Historical scope:** local branch `fix/production-readiness-and-app-id`, Node.js 22.23.1, pnpm 11.1.3, Android/Termux on ARM64 with an F2FS filesystem. These results precede the later scholarship catalogue import; see Section 10 for the active branch and newest local verification. Published head `608711ae1a27cc1875b493bd31aad47ece86ff2e` passed both jobs in [GitHub Actions run 39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903). The mobile ignore/auth-role changes are present in subsequent mainline history at merge `4d95ed1`. No database migration/import or production deployment was performed during that earlier pass.
 
 ### Android Metro/Expo Router root cause and local fix
 
@@ -86,11 +86,11 @@ These are findings from static code inspection; they do not claim that every rou
 - **Regular Android export on this host:** `pnpm exec expo export --platform android --clear` resolves/bundles all 2,216 modules, but exits 1 at Hermes with `SIGILL` because this ARM64 host has an x86-64 `hermesc` binary. This is a local host/toolchain mismatch after Metro bundling, not the original resolver failure. The regular export subsequently passed on hosted Ubuntu in GitHub Actions run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903). This does not replace an EAS signed build or real-device smoke test.
 - Expo Doctor reported 20/20 checks passed and no issues. It did print a non-fatal warning that it could not fetch bundled native modules. Its `appConfigFieldsNotSyncedCheck` is explicitly disabled because the tracked Android project contains manual native configuration; this is not a claim that dynamic Expo config is automatically synchronized. Keep native config changes reviewed against `apps/mobile/android`.
 
-### Checks currently passing
+### Checks recorded for that earlier verification pass
 
 - Web `pnpm lint`: PASS.
 - Web `pnpm typecheck`: PASS.
-- Web `pnpm test`: PASS on the current local follow-up — 19 test files, 379 tests, including four new auth role-state tests.
+- Historical prior-branch Web `pnpm test`: PASS — 19 files, 379 tests, including four auth role-state tests. The newer catalogue-import branch passed 21 files / 388 tests; see Section 10.
 - Web `pnpm build`: PASS — Next.js Webpack production build completed and generated all 56 static pages/routes using the configured local `.env.local` environment. This does not replace production-like auth, API, or user-journey smoke tests.
 - Web production dependency audit (`pnpm audit --prod --audit-level=moderate`): PASS — no known vulnerabilities found in the audited production dependency graph.
 - Mobile `pnpm lint`: PASS.
@@ -101,22 +101,22 @@ These are findings from static code inspection; they do not claim that every rou
 - Mobile dependency install with `pnpm install --frozen-lockfile`: PASS after refreshing `apps/mobile/pnpm-lock.yaml`. The first offline reinstall lacked the new Notifications tarball, so the final successful frozen install ran online and fetched one package.
 - CI workflow and pnpm workspace YAML parse successfully; package JSON files parse; `git diff --check` passes for tracked changes.
 
-### Hosted CI status
+### Hosted CI status for the earlier published commit
 
 - `.github/workflows/ci.yml` runs on pull requests, pushes to `main`, and manual dispatch.
 - GitHub Actions run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903) completed successfully for published head `608711ae1a27cc1875b493bd31aad47ece86ff2e`: Web job (frozen install, lint, typecheck, 375 tests, build) and Mobile job (frozen install, lint, typecheck, Expo SDK check, Doctor, standard Android export) both passed.
 - If repository secret `DATABASE_URL` is absent, Web CI uses an intentionally unreachable placeholder. The build job verifies compile/static build behaviour, not database connectivity, migrations, real scholarship data, or authenticated API journeys.
-- This follow-up changes `.gitignore`, role-state handling and docs. Once committed and pushed, inspect the new run; the previously green run does not certify the new commit.
+- Run 39839441903 certifies the earlier published commit only. The later active `feat/scholarship-catalogue-import` branch has separate local checks documented in Section 10; the older green run does not certify it. Its PR-specific CI must be inspected after the branch is pushed and a pull request is opened or updated.
 
-### Remaining blockers and limits
+### Blockers and limits recorded at that earlier checkpoint
 
 - The normal Android export passed in hosted Ubuntu CI. The local ARM64/Termux failure is specific to the x86-64 Hermes compiler installed on that host. A real EAS/native signed build and installation on a physical device are still required before release.
 - The intended app identity is a separate ScholarHub listing using `com.scholarhub.app`, not an update of the legacy BairePorbo listing. Confirm the new listing/package registration and retain the EAS/Play signing credentials safely.
 - Matching Firebase configuration and push delivery remain untested if push is part of the release. `google-services.json` is intentionally absent from Git; `keystore.properties` is optional when EAS remote signing is used.
-- No staging migration, source-catalogue dry run/import, production database write, two-user authorization suite, or credentials-backed integration/E2E test was run. Green CI does not prove database integration or real data correctness.
-- The current follow-up commit (ignore safeguards, account-switch role loading and docs) is local only; after committing, push it and inspect its own CI run.
+- No staging migration, source-catalogue dry run/import, production database write, two-user authorization suite, or credentials-backed integration/E2E test was run during that earlier pass. Section 10 records the later staging-only migration/import; production writes and credentials-backed integration/E2E remain unverified.
+- The mobile ignore/auth-role follow-up was later incorporated into the mainline history. The active catalogue-import branch is a separate feature branch and must receive its own PR CI run.
 
-**Conclusion:** Metro resolution is fixed and the standard export is verified on hosted Ubuntu. Web/mobile CI passed on the previous published head. The current follow-up is being revalidated locally; store, signing, Firebase, staging-data, authorization/E2E and real-device release gates remain open.
+**Conclusion for that earlier checkpoint:** Metro resolution was fixed and standard Android export was verified on hosted Ubuntu. Web/Mobile CI passed for the then-published head. The later catalogue-import branch and its staging results are described in Section 10. Production database target/schema, scholarship-source verification, enforced admin publish gating, authorization/E2E, signing, and real-device release gates remain open.
 
 ## 8. Sensitive and historical repository files
 
@@ -138,3 +138,14 @@ Before publishing this repository or its history to a wider audience:
 - `pnpm typecheck` passed; `pnpm test` passed (18 files, 375 tests); `pnpm build` with Webpack passed and generated 56 static pages. The build used a deliberately fake `DATABASE_URL` and logged expected Neon connection errors. No actual database content, production Clerk credentials, or live deployment was verified.
 - The preview server was stopped after the user asked to turn it off. The fix (`88580cd`, `b098d75`, plus verification documentation) has since been pushed and merged through PR #1. No production deployment or production configuration was verified.
 - Safety: `SCHOLARHUB_LOCAL_PREVIEW` is only for local visual review. Keep it unset in Vercel/production and use real Clerk/database/service configuration there. Login/sign-up are intentionally unavailable in preview mode. A fake local `DATABASE_URL` allows UI/build checks only; it cannot populate the app with real records.
+
+## 10. Latest scholarship catalogue staging setup (2026-10-23)
+
+- Active local branch is `feat/scholarship-catalogue-import`, created from updated `origin/main` at merge `4d95ed1`. The branch has local implementation and documentation changes but has not been pushed; its own hosted CI is pending.
+- The local web `DATABASE_URL` host is the staging compute endpoint in the Neon project named `ScholarHub Production Singapore` (project ID `shy-darkness-67521294`, staging branch ID `br-nameless-fog-a10fo0rl`). Do not log or expose the password.
+- On staging, added and verified `required_documents` JSONB plus `source_dataset`, `source_record_id`, `source_observed_at`, `source_verified_at`, `source_last_checked_at`, `source_verification_status`, and supporting indexes through migration 028.
+- Read-only dry run of `cleaned_scholarships.json`: 309 input rows; 94 importable candidates; 215 held for review. The review reasons include 166 missing official links, 81 missing required country values, and 14 records in duplicate URL groups. Reason counts can overlap.
+- Imported 94 rows as `draft`, `is_live=false`, `source_verification_status='unverified'`; no insert errors. SQL confirms 94 rows, zero published/live, and zero `ScholarshipDoc` chunks. A second dry-run confirms 94 source identities already imported and zero new candidates.
+- Public `GET /api/scholarships` now fixes the status predicate to published-only. Added API regression tests for draft/archived query parameters.
+- Separate Neon project `ScholarHub` also exists. Both inspected production branches lacked `public.scholarships`. Canonical production target/schema must be confirmed; neither branch was written to.
+- Final local Web verification on Node 22.23.1 / pnpm 11.1.3 passed lint, typecheck, 388 tests across 21 files, Webpack build (56 static pages/routes), and `git diff --check`. The second read-only dry run confirmed 94 already-imported records and zero new candidates. The build has a non-blocking custom Cache-Control warning for `/_next/static/:path*`; this branch has not yet run its own hosted CI. See `docs/SCHOLARSHIP_DATA_IMPORT.md` and local-only `report.md` for detailed results/manual tasks. `audit.md` and `report.md` are ignored by Git.

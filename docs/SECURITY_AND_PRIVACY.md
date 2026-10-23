@@ -28,7 +28,7 @@ The supplied archive includes personal applicant materials as well as scholarshi
 
 The mobile `.gitignore` excludes the package-specific `android/app/google-services.json`, optional local `android/keystore.properties`, the local upload keystore, Android/Gradle build output, common credential/certificate formats (`*.jks`, `*.keystore`, `*.p8`, `*.p12`, `*.key`, `*.mobileprovision`), local `.env*.local`, Metro health-check files, debug logs, macOS `.DS_Store`, and patch leftovers. These rules are repository hygiene/safety measures, not runtime requirements.
 
-The generic rules remain alongside explicit ScholarHub paths because changing product identity or using local preview does not remove the risk of accidentally committing signing material. `google-services.json` must be generated for `com.scholarhub.app` if Firebase Android services/push are used; do not commit it. EAS-managed remote signing does not require local `keystore.properties`, while a deliberately configured local signing build may. The root `.gitignore` also excludes env files, service-account JSON, local database export and audit output.
+The generic rules remain alongside explicit ScholarHub paths because changing product identity or using local preview does not remove the risk of accidentally committing signing material. `google-services.json` must be generated for `com.scholarhub.app` if Firebase Android services/push are used; do not commit it. EAS-managed remote signing does not require local `keystore.properties`, while a deliberately configured local signing build may. The root `.gitignore` also excludes env files, service-account JSON, local database export, `/audit.md`, and `/report.md`.
 
 Important limitation: `.gitignore` prevents normal tracking of untracked files; it does not untrack an already committed file or clean Git history. Verify with `git check-ignore -v <path>` and `git ls-files <path>`. Broad extension rules can catch legitimate source assets, so explicitly allow a legitimate source file when one is intentionally required rather than removing credential protection.
 
@@ -46,6 +46,7 @@ The current app uses Clerk identity and server-side SQL against Neon. Therefore:
 - Derive user identity from a verified auth context; never trust a client-supplied owner ID.
 - Scope all user-owned reads/writes/deletes to the authenticated owner or a documented share permission.
 - Protect admin APIs server-side. A hidden button or route guard does not protect data.
+- Public catalogue routes must hardcode `status='published'`; never trust a public query parameter to select `draft` or `archived`. A regression test now covers `/api/scholarships?status=draft` and `?status=archived`.
 - Test cross-user ID substitution across profiles, tasks, bookmarks, chat sessions, CVs, documents, and applications.
 - Check affected-row counts and avoid returning another user's records through joins, counts, logs, or caches.
 - Apply rate limits and size/timeout caps to chat, semantic matching, imports, parsing, uploads, and expensive providers.
@@ -61,6 +62,7 @@ A server-side URL importer must mitigate SSRF and untrusted page content:
 - Treat webpage content as untrusted data, not instructions for the AI, tools, or server.
 - Store short evidence excerpts/section references and metadata rather than wholesale page copies where possible.
 - Keep raw model output as a draft; validate against schemas and show evidence before accepting material claims.
+- The current JSON importer only checks URL syntax and does not fetch pages or prove domain ownership/current-cycle accuracy. It writes only unverified drafts to an exact allowlisted staging endpoint by default; no imported record may be treated as verified until an official-source human review is recorded.
 
 ## 7. PWA and offline security
 
