@@ -1,55 +1,63 @@
-# Production Database Target and Migration Runbook
+# Production Database Target and Migration Record
 
-_Last verified: 2026-10-23. No production schema or data writes have been made._
+_Last verified: 2026-10-23. Production schema migration completed; Production content has not been imported._
 
-## Decision
+## Selected target
 
-Use Neon **AWS Asia Pacific 1 (Singapore), `aws-ap-southeast-1`** for the primary database. The primary audience is in Bangladesh; Singapore is the chosen nearby supported region, and the web server-side functions are configured for Vercel `sin1` so database-backed requests do not default to a US function region.
+Use Neon **AWS Asia Pacific 1 (Singapore), `aws-ap-southeast-1`** for the Bangladesh-first audience. The Next.js server-side Vercel Functions are configured for `sin1` in `apps/web/vercel.json`; actual hosted latency still needs measurement after deployment.
 
-The target is the existing Neon project **ScholarHub Production Singapore**:
-
+- Neon project: **ScholarHub Production Singapore**
 - Project ID: `shy-darkness-67521294`
-- Region: `aws-ap-southeast-1` (Singapore)
-- Intended production branch: `br-divine-grass-a16og13f` (`production`, default/primary)
+- Production branch: `br-divine-grass-a16og13f` (`production`, primary/default)
 - Database: `neondb`
+- Staging branch: `br-nameless-fog-a10fo0rl`
+- Isolated preflight branch: `br-holy-cell-a1qlrlmy` (kept as migration test evidence for now)
 
-Do not use the local `DATABASE_URL` as Vercel's production value: both local environment files currently resolve to the **staging** branch `br-nameless-fog-a10fo0rl`. Never paste a database URL or password into documentation, logs, Git, or chat.
+**Connection safety:** both local `.env.local` files currently use the staging branch. Do not copy either local `DATABASE_URL` into Vercel Production. Never print or store database URLs/passwords in docs, Git, logs or chat. The connected Vercel workspace currently exposes no ScholarHub project; no Vercel env variables have been changed and no deploy was triggered.
 
-## Read-only evidence matrix
+## Production migration result — 2026-10-23
 
-| Candidate | Region / branch | Observed state | Decision |
-|---|---|---|---|
-| `ScholarHub Production Singapore` — `shy-darkness-67521294` | `aws-ap-southeast-1` / production `br-divine-grass-a16og13f` | The production branch's `neondb` has zero public application tables. | **Chosen production project.** Schema still needs an approved migration. |
-| Same project | Singapore / staging `br-nameless-fog-a10fo0rl` | 14 public tables; 94 scholarship records, all draft/unverified; 0 published, 0 live, 0 RAG documents. Local `DATABASE_URL` resolves here. | Staging only. Never point Production at this branch. |
-| Same project | Singapore / preflight `br-holy-cell-a1qlrlmy` | Temporary isolated child of production. Baseline migrations `018`–`028` were tested here; 14 public tables, expected schema fields, pgvector extension and `match_scholarship_docs` function verified; 0 scholarship/RAG rows. | Preflight evidence only; not the production database. Keep until the production migration decision is completed. |
-| `ScholarHub` — `calm-poetry-87067538` | `aws-us-east-2` / production `br-floral-sunset-b49utafc` | Empty production branch; wrong region for the approved first-release target. | Not selected. |
-| Vercel | Authenticated Vercel workspace | Project list returned no projects; `scholar-hub` lookup returned not found. | No Production environment exists in the connected Vercel scope to configure yet. |
+With explicit user approval, the existing Clerk/Neon baseline and additive migrations `018`–`028` were applied to **only** production branch `br-divine-grass-a16og13f` in one database transaction. Sixty parsed SQL statements ran successfully. No staging rows were copied and no scholarship or guide was published.
 
-## Schema preflight
+Post-migration read-only verification confirmed:
 
-The clean preflight branch was tested using the existing baseline `apps/web/supabase/migrations/018_neon_migration.sql` and current additive migrations `019`–`028`, including the scholarship slug/live fields, CV tables, push state, roadmap, Bangladeshi eligibility, and import provenance.
+- PostgreSQL `18.6` on `neondb`.
+- **14 public application tables** and **31 public indexes**.
+- No missing expected columns among the scholarship import/publish fields and roadmap/profile additions checked.
+- `vector` extension present and `public.match_scholarship_docs(...)` function present.
+- `prompt_cache` absent, as intended by migration `024`.
+- **0 `scholarships` rows, 0 `ScholarshipDoc` RAG rows, and 0 `guides` rows.** This is schema-only setup, not a content migration.
 
-Verified on `br-holy-cell-a1qlrlmy`:
+The 14 application tables are `profiles`, `scholarships`, `ScholarshipDoc`, `chat_sessions`, `chat_messages`, `user_bookmarks`, `user_tasks`, `guides`, `user_cvs`, `cv_analyses`, `push_tokens`, `push_reminders_sent`, `roadmaps`, and `milestone_progress`. User-owned tables are empty; they will receive real per-user records as people use the app, unless a separately identified legacy database contains private data that must be migrated.
 
-- PostgreSQL 18.6.
-- 14 public application tables.
-- `vector` extension and `match_scholarship_docs` function exist.
-- Scholarship schema has the required five fields checked for this release: `slug`, `required_documents`, `source_dataset`, `source_record_id`, and `source_verification_status`.
-- Zero scholarships and zero `ScholarshipDoc` rows. No staging records were copied into this branch.
-- Schema comparison against staging showed only the position/order of the `slug` column differs; the column and its partial unique index exist. Column ordering does not change the named-column application queries used by this app.
+## Staging and preflight evidence
 
-The historical files include duplicate `004` and `007` prefixes and older Supabase-specific migrations. Do **not** replay `001`–`017` as an indiscriminate numbered sequence against Neon. For a fresh empty Neon branch, `018` is the current Clerk/Neon baseline and `019`–`028` are its later additive changes. Check this sequence against source and the tested preflight branch before execution.
+| Environment | Verified current state | Use |
+|---|---|---|
+| Singapore Production `br-divine-grass-a16og13f` | Schema ready; 14 tables, 31 indexes, vector/RAG function present; 0 scholarships, 0 RAG docs, 0 guides | **Production target.** Do not point the public app here until the required content, secrets and release checks are ready. |
+| Singapore Staging `br-nameless-fog-a10fo0rl` | 14 tables; 94 scholarships, all `draft`/`unverified`; 0 published, 0 live, 0 RAG docs, 0 guides; profile/CV/chat/roadmap/bookmark/task records checked were 0 | Testing only. Local environment files currently target this branch. |
+| Isolated preflight `br-holy-cell-a1qlrlmy` | Baseline `018`–`028` tested before production change; 14 tables, pgvector and RAG function worked; 0 scholarship/RAG data | Keep temporarily as migration evidence. Do not use it as app runtime. |
+| Separate US-East project `calm-poetry-87067538` | Empty production branch in `aws-us-east-2` | Not selected. |
 
-## Production migration procedure
+Historical migrations `001`–`017` include duplicate `004`/`007` prefixes and Supabase-specific assumptions. Do **not** replay them blindly against Neon. The tested fresh-Neon baseline is `018_neon_migration.sql`, followed by additive migrations `019`–`028`.
 
-Production currently has zero public application tables. The schema must be created before the web app can use the production DB, but this is a production schema write and must be explicitly approved before execution.
+## Content readiness findings
 
-1. Keep the preflight branch and its evidence; verify the production branch still has zero application tables immediately before the change.
-2. Take/confirm an available recoverable Neon restore point or snapshot and record the rollback procedure. There is no production app data to migrate at the moment, but the empty branch must not be replaced without checking its state again.
-3. Apply the tested `018` baseline followed by `019`–`028` to **only** `br-divine-grass-a16og13f`, within a controlled maintenance window/transaction where supported. Do not migrate or import staging records as part of schema setup.
-4. Run schema/table/function/extension smoke checks and verify key application queries against production.
-5. Only after a Vercel project is linked, configure its encrypted Production `DATABASE_URL` from the production branch endpoint; confirm the branch ID in Neon first. Preview must use a distinct staging value.
-6. Deploy to Preview first, then run approved web/API/auth smoke tests. Do not promote until the deployed environment is proven to use the intended production branch.
-7. Keep the 94 staging candidates unverified; do not copy or publish them automatically. Official-source review and the admin publish gate are separate release gates.
+- `apps/web/cleaned_scholarships.json` contains 309 source candidates. The first conservative importer placed 94 in staging as draft/unverified; 215 remain held for review because minimum fields/duplicates require resolution. Diagnostic reason counts overlap: 166 source rows lack an official URL, 81 lack a country, and 14 rows belong to duplicate-URL groups.
+- A syntax-only deadline check of the full 309-row JSON found 183 old ISO-format dates and 125 missing deadlines. In the 94 staging rows, 58 have a past ISO-format deadline and 36 have no deadline. These figures do **not** prove a programme is permanently closed; verify every candidate's official current intake before publication.
+- Staging and Production have **zero guide records**. The web guide reader queries only published `guides` rows; there is no static/demo fallback. Locate/confirm trusted guide source content, then import/write it with draft/publish handling before claiming Guides are ready.
+- RAG documents/embeddings are empty in both staging and Production. The pgvector schema is ready, but AI content retrieval isn't populated. Before ingestion, close the code-level safety gap: the single-scholarship ingest route currently fetches by ID without enforcing published + verified status, batch ingest filters published but not verification state, and mentor retrieval must not treat an unverified/draft vector hit as authoritative. Code changes/tests are a required follow-up; this document change does not fix the runtime behaviour.
+- Profiles, CVs, chat sessions/messages, roadmaps, bookmarks, and tasks are currently empty in staging. Do not invent or bulk-seed private user records. If client-provided private data exists in a separate source/archive, identify it and plan a separate, permission-aware migration.
 
-**Current blocker:** the schema baseline passed on an isolated preflight branch, but it has **not** been applied to production. The connected Vercel workspace has no ScholarHub project, so its environment variables and deployment cannot yet be set. Ask for explicit approval before executing the production schema migration.
+## Pre-deployment order
+
+1. Keep staging separate and audit all source candidates against official provider pages: current-cycle dates, application links, eligibility/nationality, degree level, funding/conditions, and source evidence. Correct, reject, or keep uncertain rows as drafts; do not roll dates forward by guesswork.
+2. Implement and test an enforced admin verification/publish flow and RAG ingestion/retrieval safeguards. AI may analyse source documents and prepare drafts; unverified output must remain labelled as such and must not be presented as verified fact.
+3. Locate/confirm guide source content; populate Production `guides` after review, with only intentionally published guides publicly visible. Reconcile whether any pre-existing public/private content lives outside the current staging branch.
+4. Import the reviewed catalogue and guide content into Production using safe, repeatable, idempotent tools. Verify row counts and statuses. Publish only current, verified scholarship records; then ingest RAG documents from the allowed verified/public set.
+5. Connect/import `itssourov13/scholar-hub` into the intended Vercel account. Set the correct project options (`apps/web`, Node 22.x, outside-root source access, Corepack) and add the complete set of required production environment variables. `DATABASE_URL` must be generated for this exact production branch and verified by its branch target, not borrowed from local env files.
+6. Run final build/tests and release checklist before the first planned production deployment. The user prefers completing content and env setup before deploying once; do not trigger any Vercel deployment without explicit instruction. After the first deployment, smoke-test production pages, API, authentication, database target, Mentor/Guide flows and essential mobile API journeys before declaring release-ready.
+
+## Migration scope and limits
+
+This migration created **database structure only**. It did not import or publish scholarships, add guide content, generate embeddings, transfer user profiles/CVs/chat history, configure Vercel, or deploy the app. No Vercel credentials have been supplied by this database migration. `docs/PRODUCTION_ROADMAP.md`, `docs/SCHOLARSHIP_DATA_IMPORT.md`, and `docs/VERCEL_DEPLOYMENT.md` record the remaining work.

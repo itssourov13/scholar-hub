@@ -1,6 +1,6 @@
 # Vercel Deployment Guide
 
-_Status: Singapore Function region is configured in source; no Vercel project has been linked or deployed from the connected workspace._
+_Status (2026-10-23): Singapore Function region is configured in source and Production schema is ready, but content data and Vercel configuration remain incomplete. No ScholarHub project is visible in the connected workspace, and no deployment has been triggered._
 
 ## Vercel project settings
 
@@ -19,7 +19,7 @@ The Vercel configuration uses a frozen lockfile install and the existing web `bu
 
 ## Environment variables
 
-Add the values in Vercel **Settings → Environment Variables**. Keep private credentials as Sensitive/Encrypted values where available, never in source files, client-side variables, or Git. The production DB target and preflight evidence are recorded in [Production Database Target](PRODUCTION_DATABASE.md). The database URL must resolve to production branch `br-divine-grass-a16og13f`, not the staging branch currently used by local `.env.local` files.
+Add the values in Vercel **Settings → Environment Variables**. Keep private credentials as Sensitive/Encrypted values where available, never in source files, client-side variables, or Git. The production DB target and preflight evidence are recorded in [Production Database Target](PRODUCTION_DATABASE.md). The database URL must resolve to production branch `br-divine-grass-a16og13f`, not the staging branch currently used by local `.env.local` files. The Production schema exists, but scholarship/guide content has not been populated yet; complete the data/content and release checklist before the first deployment.
 
 ### Required for a functioning web application
 
@@ -48,7 +48,7 @@ Other model labels, fallback models, redirect paths, support/contact links, and 
 1. Import the repository and set the project settings above.
 2. Add/validate environment variables before deploying. Do not deploy with a placeholder or dummy `DATABASE_URL`.
 3. Build from a preview branch first if one is available. Review build logs and smoke-test public pages, database-backed APIs, Clerk authentication, AI, admin storage, and notification configuration.
-4. Confirm the Production database is the intended populated database and that authorization checks have been exercised with separate users before sending live traffic.
+4. Before the first deployment, confirm the Production database is the intended populated database (current verified scholarship rows and guide content), that RAG gates/embeddings behave as intended, and that authorization checks have been exercised with separate users. Schema existence alone is not a populated/ready database.
 5. Promote/deploy Production, confirm the generated HTTPS URL, then update `NEXT_PUBLIC_SITE_URL` and redeploy if the URL changed.
 6. Verify Vercel Cron registration and run an approved, non-broadcast smoke test. Do not test broadcasts against real users without explicit approval.
 
@@ -57,4 +57,4 @@ Other model labels, fallback models, redirect paths, support/contact links, and 
 - On `audit/production-neon-target`, Node 22.23.1 / pnpm 11.1.3 verification passed lint, typecheck, all 388 tests across 21 files, and the Next.js Webpack production build (56 static pages/routes). Build warning: custom Cache-Control for `/_next/static/:path*` may affect development caching; this is a pre-existing non-blocking warning. `git diff --check`, `vercel.json` JSON validation and Markdown local-link checks also passed. No hosted Vercel deployment was run.
 - `apps/web/vercel.json` is valid JSON and preserves the daily push-digest schedule.
 - The local FCM service-account is stored outside Git, and its Base64 environment value is round-trip validated without exposing its contents.
-- These checks do not establish a successful Vercel build, valid production credentials, a populated production catalogue, or a real device push delivery. Those require the intended Vercel account, provider values, and deployment/runtime verification.
+- The Production migration was separately verified on 2026-10-23 (14 tables, 31 indexes, pgvector/RAG match function; 0 scholarship rows, 0 RAG docs, 0 guide rows). Local build checks do not establish a successful Vercel build, valid production credentials, a populated catalogue/guides, or real device push delivery. Those require the intended Vercel account, provider values and deployment/runtime verification.

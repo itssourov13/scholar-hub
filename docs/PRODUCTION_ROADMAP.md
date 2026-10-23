@@ -1,6 +1,6 @@
 # ScholarHub Production Roadmap (Draft)
 
-_Status: temporary planning draft — 2026-10-23. This is an editable proposal, not a locked specification, promise, or release date._
+_Status: active, editable release plan — updated 2026-10-23 after the Production schema migration. This is not a deployment or release claim._
 
 ## Purpose and target
 
@@ -43,19 +43,22 @@ The roadmap scope remains a **Proposed**, editable plan; individual task checkbo
 
 **Exit criteria:** a clean, reproducible install and builds for the web and intended mobile target; required checks report honestly; known blockers are either fixed or explicitly accepted with a reason. A dummy database build alone does not pass the real-service release gate.
 
-### Phase 2 — Establish real staging data and content ingestion
+### Phase 2 — Establish real catalogue and content data across environments
 
-**Goal:** show accurate, testable scholarship content from a controlled database before touching production data.
+**Goal:** prepare reviewed, useful real content for both clients before the first planned Production deployment. The schema work is complete; data quality, source review, guide content, public publish policy and integration checks are the active work.
 
-- [x] `P2.1` Verified dedicated Singapore Neon staging branch `br-nameless-fog-a10fo0rl` and server-only connection configuration. Local environment files point to staging; production values remain separate.
-- [x] `P2.2` Reviewed the current Clerk/Neon baseline `018` through additive migrations `019`–`028` and exercised that schema on isolated preflight branch `br-holy-cell-a1qlrlmy`. The production branch still needs an approved migration; do not interpret preflight as a production write.
-- [ ] `P2.3` Inspect the actual supplied workbook/archive only when it is available at a confirmed path. Build a data dictionary and dry-run report before writing records.
-- [ ] `P2.4` Create/verify a repeatable importer with deduplication, validation, error reporting, and a safe way to rerun it.
-- [ ] `P2.5` Preserve official source URLs, evidence, verification status/time, intake applicability, and conflicts for material fields such as eligibility, funding, deadlines, and application links.
-- [ ] `P2.6` Test the scholarship APIs and rendered web/mobile screens against staged records; verify the publication filter and expected empty/error states.
-- [ ] `P2.7` Configure and validate pgvector/documents/embeddings only for the RAG or semantic-matching workflows that actually require them.
+- [x] `P2.1` Verified the Singapore Neon staging branch `br-nameless-fog-a10fo0rl` and identified the existing local server-only DB configuration; local environment files remain staging-only.
+- [x] `P2.2` Applied the tested Clerk/Neon baseline `018` plus additive migrations `019`–`028` to Singapore Production branch `br-divine-grass-a16og13f` after explicit approval. One transaction completed; verification found 14 public tables, 31 indexes, required scholarship/import fields, pgvector and `match_scholarship_docs`. Production still has zero content rows. See `PRODUCTION_DATABASE.md`.
+- [x] `P2.3` Ran a preliminary structural audit of `cleaned_scholarships.json` (309 candidates) and confirmed importer output: 94 draft/unverified staging rows, 215 held for review. Full-source diagnostic counts overlap: 166 have no official URL, 81 lack country, 14 rows occur in duplicate-URL groups, 183 have past ISO-format dates, and 125 have no deadline.
+- [x] `P2.4` Added a deterministic/idempotent staging-only importer and repeated a read-only check to confirm the 94 existing source identities were not duplicated.
+- [ ] `P2.5` Review all candidates against current official sources. Resolve source URL, country, duplicates, intake/deadline, nationality/academic eligibility, degree level, funding details and required documents. A past source date alone does not prove a programme is permanently closed; verify the next cycle or retain/reject with an evidence-based reason.
+- [ ] `P2.6` Add/test a server-enforced admin verification/publish policy using provenance and verification state. The database field exists; the complete review UI and enforce-publish gate are not yet wired end to end.
+- [ ] `P2.7` Locate/confirm trusted initial Guides/Articles source content and populate `guides` using draft-first review. Staging and Production currently have zero guide rows, and the public guide reader has no static fallback; this is a real-content release blocker.
+- [ ] `P2.8` Test the Web and Mobile scholarship/guide APIs and rendered views against real staged content, including published-only filters, empty/error states and cache/revalidation behaviour.
+- [ ] `P2.9` Close RAG safety gaps before generating embeddings. Single-record ingestion currently lacks a published/verified gate; batch ingestion filters published status but not verification status; Mentor retrieval must not treat unverified/draft vectors as authoritative. After code/tests land, ingest only content allowed by the verified/publication policy.
+- [ ] `P2.10` Import the reviewed scholarship and guide content into Production through a separately reviewed, idempotent production workflow; verify counts/statuses after writes. The current `import-scholarships.ts` is intentionally staging-only, and schema migration did not copy data.
 
-**Exit criteria:** staging data can be rebuilt/reconciled, import discrepancies are reviewable, and published scholarship records display from the real staging database. No personal applicant documents are committed to Git or imported into a public demo.
+**Exit criteria:** Production contains a reconciled set of source-reviewed current-cycle scholarships and the initial reviewed guide collection; only intentionally published records are public; data counts/statuses are independently checked; RAG has vectors only for the allowed source set; public Web/Mobile catalogue and Guide views are tested against real records. Unverified/stale candidates remain drafts or are rejected, not silently discarded or auto-published.
 
 ### Phase 3 — Complete and verify the core product journeys
 
@@ -114,23 +117,26 @@ These are intentionally unresolved until the related phase is reviewed:
 
 ## Current verified baseline (updated 2026-10-23; not a release claim)
 
-- The web application and API handlers live in `apps/web`; `apps/mobile` is the separate Expo/React Native client. The chosen database project is Neon `shy-darkness-67521294` in Singapore (`aws-ap-southeast-1`) and the Vercel Function region is set to `sin1`. Production branch `br-divine-grass-a16og13f` is currently schema-empty; baseline migrations `018`–`028` have been tested only on isolated preflight branch `br-holy-cell-a1qlrlmy`. See [Production Database Target](PRODUCTION_DATABASE.md).
-- PR #4 catalogue-import changes are merged to `main` at `33e88e0`. The current `audit/production-neon-target` branch was also verified on Node 22.23.1 / pnpm 11.1.3: lint, typecheck, all 388 tests across 21 files, and Webpack build passed; 56 static pages/routes were generated. The build retains the existing non-blocking custom Cache-Control warning for `/_next/static/:path*`. These checks do not replace hosted CI, credentials-backed integration, or browser/device smoke tests.
-- A controlled run applied additive migration 028 and imported 94 scholarship candidates into the configured Neon staging branch as `draft`, `is_live=false`, and `source_verification_status='unverified'`. A repeat dry-run found all 94 source identities already imported and zero new candidates, confirming rerun idempotence. No records were published, no RAG embeddings were created, and no production branch was modified. The other 215 source rows remain held for manual review.
-- The local import analysis classified 166 rows as missing an official link, 81 as missing a country required by the current schema, and 14 as belonging to duplicate-URL groups; these reason counts can overlap. The URLs and material scholarship facts have not been verified against official, current-cycle sources.
-- PR #4 is merged at `33e88e0`. Hosted run [39947245254](https://github.com/itssourov13/scholar-hub/actions/runs/39947245254) passed the Web and Mobile checks for the catalogue-import PR. The current local `audit/production-neon-target` branch adds the Singapore Function-region setting and production-target docs; it requires its own quality gates and hosted CI. The Web build uses an unreachable placeholder if `DATABASE_URL` is not configured, so green CI alone does not prove database integration.
-- Earlier mobile checks passed lint, typecheck, Expo install compatibility, and Expo Doctor (20/20). The Metro/Router issue was traced to Node/F2FS Dirent misclassification of hard-linked regular package files; `packageImportMethod: copy` and reinstalling resolved that file-metadata issue. Diagnostic Android export passed for 2,216 modules and 77 assets, and standard Android export passed on hosted Ubuntu in run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903). Local ARM64 Hermes incompatibility, EAS/native signing, and physical-device validation remain open.
-- Android and iOS identifiers are configured as `com.scholarhub.app` for the intended separate ScholarHub listing. Store registration/availability and signing ownership remain unverified. The Clerk-free visual preview fix is merged; its opt-in flag is for trusted local review only and must not be used in production.
+- `apps/web` contains the Next.js app and API routes; `apps/mobile` is the separate Expo/React Native app. The selected Neon target is project `shy-darkness-67521294`, Singapore (`aws-ap-southeast-1`), Production branch `br-divine-grass-a16og13f`; Vercel Function region is set to `sin1`.
+- Production migrations `018`–`028` have now been applied and verified. The branch has 14 public tables, 31 indexes, the vector extension, the `match_scholarship_docs` function, and the expected scholarship/provenance/roadmap fields. Production has 0 scholarship rows, 0 `ScholarshipDoc` rows and 0 guide rows; this was schema-only setup, not a content migration.
+- Staging branch `br-nameless-fog-a10fo0rl` has 94 draft/unverified scholarship rows, 0 published/live rows, 0 RAG docs and 0 guides. The 309-row source file has 215 held rows; reason counts overlap. In the 94 staging records, 58 have past ISO-format deadlines and 36 have no deadline. Each record needs current-cycle verification before publication.
+- The guides feature reads only published rows from the `guides` table and has no static/demo fallback. A trusted initial guide collection must be identified/created and populated. Checked staging private/user-data tables (profiles, CVs/analyses, chats/messages, bookmarks, tasks, roadmaps/milestones) are empty; do not seed invented personal data.
+- Source inspection shows RAG ingestion/retrieval still needs a server-side verification/publication gate. The single-record ingest handler can load an arbitrary scholarship ID; batch ingest checks `status='published'` but not source verification; retrieval must not treat unverified/draft vectors as authoritative. No embeddings have been generated yet.
+- Vercel has no ScholarHub project visible in the connected account/scope. No env vars were changed and no deployment was triggered. Both local database URLs target staging and must not be reused for Production.
+- Earlier local Web checks for `audit/production-neon-target` passed on Node 22.23.1 / pnpm 11.1.3: lint, typecheck, 388 tests over 21 files, Webpack build (56 static pages/routes), JSON validation, `git diff --check` and docs-link scan. The build's existing Cache-Control warning for `/_next/static/:path*` was non-blocking. These results predate the current docs-only updates and do not establish hosted deployment or real-data integration.
+- The user’s deployment preference is to finish content review, guide population, RAG/access safeguards, and the Vercel environment-variable checklist before the first planned deployment. Do not trigger a deploy without explicit instruction. The deployment itself must still be followed by real production smoke tests.
 
-### Current open release gates
+### Current ordered work
 
-1. Finish the current `audit/production-neon-target` quality gates and review its focused diff; then push it and inspect branch-specific Web and Mobile CI. PR #4 is already merged as `33e88e0`.
-2. Apply the reviewed schema baseline to Singapore production branch `br-divine-grass-a16og13f` only after explicit approval and a recorded restore/rollback procedure. The isolated preflight succeeded; production currently has zero public tables.
-3. Manually review the 94 staging drafts and repair/review the other 215 source rows against official provider sources. Confirm current-cycle deadlines, nationality/academic eligibility, degree level, funding conditions, and application links. Do not publish unverified or expired/unknown-cycle records.
-4. Add an enforced admin review/publish gate for `source_verification_status` and source provenance. RAG ingestion must remain separate and limited to verified, published records.
-5. Register/verify the separate ScholarHub listing using `com.scholarhub.app`; verify signing, public HTTPS API URL, OAuth/deep links, and Firebase push delivery if push is in scope.
-6. Finish credentials-backed auth and two-user authorization tests, route/API E2E, accessibility/performance checks, deployment smoke tests, and privacy/legal/operator/monitoring decisions.
+1. Audit and review scholarship source candidates. Keep the 94 existing staging rows unverified until official/current-cycle checks; assess the 215 held rows rather than discard them solely due to importer hold reasons.
+2. Locate/confirm trusted guide source content and decide which guides should initially be published. Populate `guides` with review/publish status; verify its web API/page.
+3. Implement and test admin verification/publish enforcement and RAG ingest/retrieval filtering. AI can read official/source documents and create analysis/drafts; it must not mislabel unverified output as verified fact.
+4. Create a reviewed production-capable idempotent import/seed workflow. Import approved catalogue and guide content into Production; verify totals/statuses. Generate embeddings only for content permitted by the reviewed policy.
+5. Check whether any legacy private user data exists outside staging. User profiles, CVs/analyses, conversations, bookmarks, tasks and roadmaps should be populated from legitimate user activity or a separately authorised private migration, never dummy seed data.
+6. Connect/import `itssourov13/scholar-hub` in the intended Vercel account and complete the environment-variable matrix using the Production branch URL. Keep local/staging and Production credentials distinct; configure only integrations used by the release.
+7. Before the first deployment, run all relevant lint/typecheck/unit/build/CI and credentials-backed integration/auth tests; verify mobile HTTPS API config, signing and device flows, legal/operator/monitoring/rollback needs. After the user authorises deployment, smoke-test the deployed Web, Guide, scholarship, Mentor, authentication and mobile API journeys.
 
 ## Change log for this draft
 
-- `2026-10-22`: initial editable roadmap added. It records the suggested sequence from build stability through staging data, core workflows, security/offline capability, and staged web/Android release. Revise it as product priorities and verified blockers change.
+- `2026-10-22`: initial editable roadmap added; phases covered repository stability, staging data, core product, privacy/offline, and staged Web/Android release.
+- `2026-10-23`: updated after the approved Production schema migration. Reordered Phase 2 around actual content, guide population, publication enforcement and RAG safeguards. Explicitly distinguished completed schema work from the still-empty Production catalogue and Guides collection.
