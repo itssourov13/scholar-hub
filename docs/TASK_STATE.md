@@ -1,10 +1,10 @@
 # Task State
 
-_Last reviewed: 2026-10-23 — PR #2 hosted CI passed; local follow-up commit is being prepared_
+_Last reviewed: 2026-10-23 — PR #3 merged; active local branch `feat/scholarship-catalogue-import`; 94 unverified drafts imported to Neon staging._
 
 ## Current phase
 
-The ScholarHub documentation/brand foundation and Clerk-free local visual-preview fix are merged into `main`. PR #2 branch `fix/production-readiness-and-app-id` was pushed at `608711a`; GitHub Actions run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903) passed both Web and Mobile jobs, including normal Android export on hosted Ubuntu. A local follow-up adds general mobile ignore safeguards, binds web role state to the current Clerk user ID, and refreshes docs; it must be committed/pushed and its own CI run checked. The project is not release-ready: database/staging content, authorization/E2E, new listing, EAS signing, conditional Firebase/push, public API URL, legal/operator and device checks remain outstanding.
+The ScholarHub documentation/brand foundation, Clerk-free local visual-preview fix, and Firebase/EAS/Vercel preparation are merged into `main`; PR #3's published head is merge `4d95ed1` and GitHub Actions run [39854247770](https://github.com/itssourov13/scholar-hub/actions/runs/39854247770) passed. The active branch is `feat/scholarship-catalogue-import`. It adds a dry-run-first importer, an additive provenance/document-cache migration, and a public endpoint fix preventing status query parameters from revealing drafts. The configured Neon staging branch now contains 94 draft/unverified candidates; production was not modified. See `docs/SCHOLARSHIP_DATA_IMPORT.md` and the local-only `report.md`. The project is not release-ready: canonical production DB target/schema, official record verification, admin publish gating, authorization/E2E, new listing, EAS signing, conditional Firebase/push, public API deployment, legal/operator and device checks remain outstanding.
 
 The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the planning source of truth. Legacy brand artwork, legal/operator details, real service configuration, verified scholarship data, security testing, and release configuration still require work. Policy pages remain pre-release drafts.
 
@@ -72,7 +72,7 @@ The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the pla
 - [ ] Evaluate a first-run walkthrough, accessible password visibility toggle, in-app feedback, and store discoverability metadata from previous user feedback.
 
 ## Backlog — Research and verification
-- [ ] Add typed source records, evidence references, verification state, checked timestamps, and intake applicability.
+- [ ] Complete the source/evidence model with explicit evidence references, field-level provenance, and intake applicability. Record-level source identity, verification status, and timestamps have been introduced for the import workflow, but a complete evidence/review UI is not yet in place.
 - [ ] Harden URL import for SSRF, timeouts, response-size limits, redirects, content types, and rate limits.
 - [ ] Add a human-review queue for extracted or changed material facts.
 - [ ] Add snapshots/diffs, retries, stale-source status, and approved-update history.
@@ -95,12 +95,14 @@ The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the pla
 - [x] Documentation distinguishes current implementation, planned work, and unverified behaviour.
 - [x] No database schema, production data, deployment, or environment credentials were changed. Product copy/metadata, app labels, footer links, consent/analytics source code, legal pages, and native/app configuration changed locally.
 
-## Latest verification record and remaining gates (2026-10-23)
+## Historical verification record — mobile/role-state pass before catalogue import (2026-10-23)
 
-### Passing locally
+This section preserves the earlier mobile/role-state verification snapshot. Its “not yet verified” items describe that earlier checkpoint, not the later catalogue-import branch. Current import and production-target status is documented in the latest implementation pass below.
+
+### Checks recorded as passing during that earlier phase
 
 - [x] Web lint and TypeScript checks.
-- [x] Web unit tests: 19 files, 379 tests on the current local follow-up; four new tests cover user-switch, same-user, signed-out and auth-loading role state.
+- [x] Historical prior-branch Web unit-test result: 19 files, 379 tests; four tests cover user-switch, same-user, signed-out and auth-loading role state. The newer catalogue-import branch passed 21 files / 388 tests; see the latest implementation pass below.
 - [x] Web production build with the configured local `.env.local` environment; 56 static pages/routes generated.
 - [x] Web production dependency audit: `pnpm audit --prod --audit-level=moderate` reports no known vulnerabilities.
 - [x] Mobile lint and TypeScript checks.
@@ -111,28 +113,41 @@ The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the pla
 - [x] Mobile frozen-lockfile install; the refreshed mobile lockfile now matches `expo-notifications@57.0.24` and `@expo/cli@57.0.32`.
 - [x] CI workflow/YAML and package JSON syntax checks; `git diff --check` passed.
 
-### Still blocking or not yet verified
+### Items still blocking or not verified at that historical checkpoint
 
 - [x] Standard Android export smoke test on hosted Ubuntu passed in GitHub Actions run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903). The local ARM64 host still cannot run its x86-64 Hermes compiler (`SIGILL`); this is an environment-specific local limitation.
 - [ ] Complete an EAS/native signed build, install it on a physical Android device, and test app start, login, real API connectivity, critical journeys and the intended new-listing install path.
 - [ ] Confirm/register `com.scholarhub.app` as the intended separate ScholarHub app listing in the relevant store console. The product intent is not to update the legacy BairePorbo listing; package registration and signing ownership still require verification.
 - [ ] Supply/test Firebase config matching `com.scholarhub.app` if push remains in scope.
 - [ ] Configure a public HTTPS API origin for EAS preview/production, verify EAS secrets/signing and OAuth/deep links, and test push delivery if enabled.
-- [ ] Apply/reconcile migrations on a dedicated staging Neon database with backup/rollback; inspect and import the supplied scholarship catalogue through a reviewed dry run. No migration, seed, or import occurred during the current pass.
+- Historical note: staging migration/import had not yet occurred at that earlier checkpoint. The later catalogue-import pass applied migration 028 and imported 94 draft/unverified records to the configured Neon staging branch only; production was not modified. Production schema reconciliation and official-source review remain open.
 - [ ] Complete credentials-backed auth, two-user authorization, route/API E2E, accessibility/performance, and deployment smoke tests.
 - [ ] Review historical Git artifacts before wider source release; rotate any exposed credentials if evidence of exposure is found.
 
-### CI status
+### CI status at that historical checkpoint
 
 - [x] Added `.github/workflows/ci.yml` for PRs, pushes to `main`, and manual dispatch.
 - [x] Web job runs frozen install, lint, typecheck, unit tests, and build. Without the `DATABASE_URL` repository secret, the build uses an intentionally unreachable placeholder: compilation only, not DB integration.
 - [x] Mobile job runs frozen install, lint, typecheck, Expo SDK validation, Expo Doctor, and normal Android export on hosted Ubuntu.
 - [x] GitHub-hosted run [39839441903](https://github.com/itssourov13/scholar-hub/actions/runs/39839441903) passed for published commit `608711a` (both jobs).
-- [ ] The current local follow-up commit still needs to be committed/pushed and its own hosted run inspected.
+- [x] That earlier mobile/role-state follow-up is present in the subsequent mainline history. Its successful CI run does not cover the newer catalogue-import branch; after pushing the active feature branch, open/update a PR and inspect the branch-specific CI run.
 
-**State:** the Metro file-map issue is fixed, and standard Android export passes on hosted Ubuntu. The current follow-up restores mobile ignore protections and fixes account-switch role-state derivation; local lint, typecheck and 379 tests pass. The production build has passed; complete the final diff review before commit. Database integration, source import, two-user authorization/E2E, EAS signing and device/release gates remain open.
+**Conclusion for that earlier pass:** the Metro file-map issue was fixed, and standard Android export passed on hosted Ubuntu. That pass restored mobile ignore protections and account-switch role-state derivation; lint, typecheck and 379 tests passed at that point. The later catalogue-import branch passed 388 Web tests locally. Its hosted CI, production database target/schema, official-source review, enforced admin publish gate, two-user authorization/E2E, EAS signing, and device/release checks remain open.
 
 ## Editable production roadmap
 
 - [x] Added the temporary draft in [Production Roadmap](PRODUCTION_ROADMAP.md), including phased goals and exit criteria for both web and mobile.
 - [ ] Review and adjust phase/task scope with the user before treating any proposed item as committed work. Tasks may be added, removed, reordered, deferred, or split.
+
+## Latest implementation pass — scholarship catalogue import (2026-10-23)
+
+- [x] Created isolated branch `feat/scholarship-catalogue-import` from the latest `origin/main` (PR #3 merge `4d95ed1`).
+- [x] Added additive migration 028 for required-document caching and source provenance/review state.
+- [x] Added conservative source-data assessment/mapping and a read-only-by-default, staging-host-allowlisted importer with deterministic source IDs.
+- [x] Initial staging import completed: 94 draft/unverified rows inserted; 0 per-row write errors; 0 records published; 215 rows held for manual review.
+- [x] Second read-only run confirms idempotence: 94 source records already imported, 0 new import candidates.
+- [x] Fixed public scholarships route to always filter on `status='published'`; added three regression cases for query parameters.
+- [x] Added import helper mapping/duplicate tests (6/6) and public API exposure regression tests (3/3) pass.
+- [x] Final Web verification on Node 22.23.1 / pnpm 11.1.3: lint, typecheck, all 388 tests in 21 files, Webpack build (56 static pages/routes), `git diff --check`, and report-ignore checks passed.
+- [ ] Confirm canonical production Neon project/branch and reconcile production schema separately; do not copy staging rows into production before schema/record review.
+- [ ] Manually review current-cycle facts on official sources; 94 drafts are not publication-ready.

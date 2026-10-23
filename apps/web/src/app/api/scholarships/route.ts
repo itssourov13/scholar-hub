@@ -20,10 +20,10 @@ function cardSummary(aiSummary: string | null, eligibility: string | null): stri
   return pick.length > 220 ? `${pick.slice(0, 217).trimEnd()}…` : pick;
 }
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status") ?? "published";
-
+export async function GET(_req: NextRequest) {
+  // This is a public endpoint. Never let a query parameter expose admin drafts
+  // or archived records; non-published catalogue entries require admin routes.
+  void _req; // Request parameters are deliberately ignored on this public surface.
   const rows = await sql`
     SELECT id, title, country, funding_type, deadline, degree_level,
            tags, thumbnail_url, competitiveness, is_flagship, updated_at, slug,
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
            LEFT(ai_summary, 900) AS ai_summary,
            LEFT(eligibility_summary, 300) AS eligibility_summary
     FROM scholarships
-    WHERE status = ${status}
+    WHERE status = 'published'
     ORDER BY is_flagship DESC, created_at DESC
   `;
 

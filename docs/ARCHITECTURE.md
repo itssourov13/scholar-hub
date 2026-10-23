@@ -35,7 +35,7 @@ Observed stack:
 - Object storage: Cloudflare R2 using the S3-compatible API.
 - AI: OpenRouter for chat/embeddings; optional NVIDIA NIM for selected admin tooling.
 - Rate limits: Redis integration with a process-local fallback.
-- Web deployment configuration: references indicate Railway; live deployment was not checked.
+- Web deployment: Vercel configuration and a deployment guide are prepared, but no Vercel project has been linked from the intended account and no hosted deployment has been verified. The canonical production Neon project/branch remains unresolved; see `docs/SCHOLARSHIP_DATA_IMPORT.md` and the local-only `report.md`.
 - Native client: Expo SDK 57/React Native 0.86.
 
 The existing request path is API-centric. Personal record ownership is primarily enforced through server handlers that derive the caller from Clerk and include the caller's ID in queries. Do not assume PostgreSQL RLS is currently the active authorization boundary.

@@ -15,7 +15,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "bench": "vitest bench --run",
-    "reingest": "tsx --env-file=.env.local --tsconfig tsconfig.json scripts/reingest-scholarships.ts"
+    "reingest": "tsx --env-file=.env.local --tsconfig tsconfig.json scripts/reingest-scholarships.ts",
+    "import:scholarships": "tsx --env-file=.env.local --tsconfig tsconfig.json scripts/import-scholarships.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1068.0",
