@@ -4,6 +4,27 @@ Meaningful product and engineering changes are recorded here. Dates use YYYY-MM-
 
 ## Unreleased
 
+### 2026-10-23 — Prepare Vercel deployment configuration
+- Added the official Vercel JSON schema and declared the Next.js framework in `apps/web/vercel.json`.
+- Pinned Vercel's install/build commands to the web app's `packageManager` via Corepack and `--frozen-lockfile`, avoiding accidental lockfile drift.
+- Preserved the daily `/api/cron/push-digest` schedule at 03:00 UTC (09:00 Dhaka); confirmed the handler checks `CRON_SECRET` and declares `maxDuration = 60`.
+- Added `docs/VERCEL_DEPLOYMENT.md` and linked it from the README; it documents Root Directory, Node 22, shared-source inclusion, Corepack, environment variables and smoke-test steps for the user's separate Vercel account.
+- No Vercel project has been linked, no environment variables were uploaded to Vercel, and no deployment was triggered.
+
+### 2026-10-23 — Configure local backend FCM service-account secret
+- Validated the downloaded Google service-account JSON against project scholarhub-itssourov13 and required private-key fields without printing credential contents.
+- Moved the JSON from the repository root to $HOME/.config/scholarhub/fcm-service-account.json, restricted the containing directory and file permissions, and confirmed the original file is no longer in the repository.
+- Set FCM_SERVICE_ACCOUNT in Git-ignored apps/web/.env.local as Base64 JSON; round-trip validation passed and the existing environment content was preserved.
+- Refreshed the push utility's explanatory comment so it no longer claims there is no EAS project; runtime delivery logic was not changed.
+- Generated a unique local CRON_SECRET because none existed, without printing its value. Hosting-side FCM_SERVICE_ACCOUNT and CRON_SECRET still require configuration once the production host is confirmed.
+- The user confirmed the service account's `Firebase Cloud Messaging API Admin` role in Google Cloud Console. The FCM API enabled state could not be checked from this terminal because gcloud is unavailable. No push message was sent; production hosting, real-device token registration/delivery, and deployment remain unverified.
+
+### 2026-10-23 — Link EAS team project and configure Firebase Android file
+- Linked the Expo app to `@skking13s-team/scholarhub` (EAS project ID `698f4a91-f440-4caa-9a03-26cb04b8dfa0`) and recorded the owner/project ID in `apps/mobile/app.json`.
+- Downloaded and validated the Firebase config for Android package `com.scholarhub.app`; retained the file locally under `.gitignore` rather than committing it.
+- Uploaded `GOOGLE_SERVICES_JSON` to EAS as a secret File variable assigned to both Preview and Production; EAS environment listing confirms file type and secret visibility.
+- This config does not configure backend FCM sending. `FCM_SERVICE_ACCOUNT`, confirmed hosting target, real mobile API/Clerk environment values, EAS signing, signed build, and real-device notification test remain release gates. No deployment was performed.
+
 ### 2026-10-23 — Mobile ignore safeguards, role-state isolation, and current CI/docs status
 - Restored generic mobile ignore protections for local signing/certificate formats, `.env*.local`, Metro health-check files, package-manager debug logs, macOS metadata and patch leftovers, while retaining explicit ScholarHub Firebase/signing/build-output paths. These are Git-safety rules, not local-preview requirements; EAS-managed signing does not require local `keystore.properties`.
 - Fixed a possible account-switch race in the web auth provider: role state is now tied to the user ID it was fetched for, and a different user's role stays null/loading until their profile role resolves. Added focused tests for user switching, same-user role, signed-out and auth-loading states. Server-side authorization remains independently required.

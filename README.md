@@ -46,6 +46,7 @@ See [Current State](docs/CURRENT_STATE.md) for what was observed in the reposito
 - [Changelog](docs/CHANGELOG.md) — meaningful project changes.
 - [Handoff](docs/HANDOFF.md) — exact next steps for a future session.
 - [Security and privacy](docs/SECURITY_AND_PRIVACY.md) — personal data, imports, storage, and public-release risks.
+- [Vercel deployment guide](docs/VERCEL_DEPLOYMENT.md) — web project settings, environment-variable checklist, and pre-release verification steps.
 
 ## Workspace and development commands
 
