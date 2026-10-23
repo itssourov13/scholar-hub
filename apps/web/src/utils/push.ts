@@ -5,9 +5,9 @@ import { isPermanentFcmTokenError, isTransientFcmError } from "@/utils/fcm-error
 /**
  * Push delivery over FCM HTTP v1.
  *
- * We talk to FCM directly rather than going through Expo's push service: the
- * app is built locally (no EAS project), so there is nowhere to upload Expo
- * credentials, and this keeps delivery a single hop we control.
+ * We talk to FCM directly rather than going through Expo's push service. The
+ * backend uses a project-scoped service-account credential and the FCM HTTP v1
+ * endpoint, keeping sender authorization and delivery behavior explicit.
  *
  * Auth is a service-account JWT exchanged for an OAuth access token. That is
  * ~30 lines with node:crypto, which is cheaper than pulling googleapis into a

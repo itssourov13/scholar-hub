@@ -62,6 +62,12 @@
     "experiments": {
       "typedRoutes": true
     },
-    "extra": {}
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "698f4a91-f440-4caa-9a03-26cb04b8dfa0"
+      }
+    },
+    "owner": "skking13s-team"
   }
 }
