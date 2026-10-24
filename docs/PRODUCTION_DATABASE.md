@@ -13,7 +13,7 @@ Use Neon **AWS Asia Pacific 1 (Singapore), `aws-ap-southeast-1`** for the Bangla
 - Staging branch: `br-nameless-fog-a10fo0rl`
 - Isolated preflight branch: `br-holy-cell-a1qlrlmy` (kept as migration test evidence for now)
 
-**Connection safety:** both local `.env.local` files currently use the staging branch. Do not copy either local `DATABASE_URL` into Vercel Production. Never print or store database URLs/passwords in docs, Git, logs or chat. The connected Vercel workspace currently exposes no ScholarHub project; no Vercel env variables have been changed and no deploy was triggered.
+**Connection safety:** both local `.env.local` files currently use the staging branch. Do not copy either local `DATABASE_URL` into Vercel Production. Never print or store database URLs/passwords in docs, Git, logs or chat. The existing Vercel project is confirmed by the user-provided dashboard/build log, but the connected Vercel tool scope cannot inspect its settings. No environment variables have been changed by this assistant. The existing Production deployment is live; the current PR Preview build failed because Preview `DATABASE_URL` is not configured.
 
 ## Production migration result — 2026-10-23
 
@@ -38,6 +38,17 @@ The 14 application tables are `profiles`, `scholarships`, `ScholarshipDoc`, `cha
 | Singapore Staging `br-nameless-fog-a10fo0rl` | 14 tables; 94 scholarships, all `draft`/`unverified`; 0 published, 0 live, 0 RAG docs, 0 guides; profile/CV/chat/roadmap/bookmark/task records checked were 0 | Testing only. Local environment files currently target this branch. |
 | Isolated preflight `br-holy-cell-a1qlrlmy` | Baseline `018`–`028` tested before production change; 14 tables, pgvector and RAG function worked; 0 scholarship/RAG data | Keep temporarily as migration evidence. Do not use it as app runtime. |
 | Separate US-East project `calm-poetry-87067538` | Empty production branch in `aws-us-east-2` | Not selected. |
+
+## Vercel environment mapping (2026-10-24)
+
+Keep the Vercel environment and Neon branch aligned:
+
+| Vercel environment scope | `DATABASE_URL` target | Neon branch / database | Status |
+|---|---|---|---|
+| Preview only | Staging `neondb` | `br-nameless-fog-a10fo0rl` | **Pending.** User-provided PR #6 build log shows `DATABASE_URL is not configured` during page-data collection for `/api/admin/guides/[id]/cover`. Add the Staging connection string to Vercel Preview scope and redeploy. |
+| Production only | Production `neondb` | `br-divine-grass-a16og13f` | Existing public APIs return the populated Production content; the exact Vercel variable value is not visible to the connected tool scope. |
+
+Set each value as a Sensitive environment variable. Do not select both Preview and Production for one database URL value. Never put the literal connection string in Git-tracked docs, logs, chat, or source files. Preview uses Staging for isolation; Production must never point at `br-nameless-fog-a10fo0rl`. Staging has 94 draft/unverified scholarship rows and no published guides, so its content differs from Production by design.
 
 Historical migrations `001`–`017` include duplicate `004`/`007` prefixes and Supabase-specific assumptions. Do **not** replay them blindly against Neon. The tested fresh-Neon baseline is `018_neon_migration.sql`, followed by additive migrations `019`–`028`.
 
