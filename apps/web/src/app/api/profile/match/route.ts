@@ -88,7 +88,7 @@ export async function GET() {
     const scholarships = await sql`
       SELECT id, title, country, degree_level, funding_type, deadline, tags, competitiveness, thumbnail_url
       FROM scholarships
-      WHERE id = ANY(${scholarshipIds}::uuid[]) AND status = 'published'
+      WHERE id = ANY(${scholarshipIds}::uuid[]) AND status = 'published' AND source_verification_status = 'verified'
     `;
 
     const ordered = scholarshipIds

@@ -14,7 +14,7 @@ export const revalidate = false;
 export const metadata: Metadata = {
   title: "International Scholarships for Bangladeshi Students",
   description:
-    "Browse 300+ international scholarships for students from Bangladesh. Filter by country, degree level, funding type, and deadline. Includes fully funded, no-IELTS, Masters, PhD, and Bachelors opportunities.",
+    "Browse curated international scholarships for students from Bangladesh. Compare country, degree level, funding type, deadlines, and official application sources.",
   alternates: {
     canonical: `${BASE_URL}/scholarships`,
   },
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "International Scholarships for Bangladeshi Students",
     description:
-      "Browse 300+ international scholarships with AI-powered eligibility summaries. Built for students from Bangladesh.",
+      "Browse curated international scholarships with source-linked eligibility and funding details. Built for students from Bangladesh.",
     images: ["/og-image.png"],
   },
 };

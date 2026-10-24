@@ -12,6 +12,7 @@ type Scholarship = {
   title: string;
   country: string;
   status: "draft" | "published" | "archived";
+  source_verification_status: "unverified" | "verified" | "rejected" | "needs_update";
   degree_level: string;
   funding_type: string;
   deadline: string | null;
@@ -55,11 +56,29 @@ export default function AdminScholarshipsPage() {
   useEffect(() => { void load(); }, [load]);
 
   const publish = async (id: string) => {
-    await fetch(`/api/admin/scholarships/${id}`, {
+    const scholarship = items.find((item) => item.id === id);
+    if (!scholarship) return;
+    const confirmed = window.confirm(
+      `Before publishing “${scholarship.title}”, open Edit and review its official provider page. Confirm the current cycle, Bangladesh/nationality eligibility, degree requirements, deadline, funding conditions, and application URL. Have you verified these against the official source?`,
+    );
+    if (!confirmed) return;
+
+    const checkedAt = new Date().toISOString();
+    const response = await fetch(`/api/admin/scholarships/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "published" }),
+      body: JSON.stringify({
+        status: "published",
+        source_verification_status: "verified",
+        source_verified_at: checkedAt,
+        source_last_checked_at: checkedAt,
+      }),
     });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      await dialog.alert({ title: "Cannot publish scholarship", description: result.error ?? "Source verification failed." });
+      return;
+    }
     load();
   };
 
@@ -261,7 +280,10 @@ export default function AdminScholarshipsPage() {
                     🚫 Not BD
                   </span>
                 )}
-                {s.title}
+                <span>{s.title}</span>
+                <small style={{ display: "block", color: s.source_verification_status === "verified" ? "#0f766e" : "var(--ink-500)", fontSize: 11 }}>
+                  Source: {s.source_verification_status ?? "unverified"}
+                </small>
               </span>
               <span>{s.country}</span>
               <span>{s.degree_level ?? "—"}</span>
@@ -311,7 +333,7 @@ export default function AdminScholarshipsPage() {
                     <>✈️ Telegram</>
                   )}
                 </button>
-                {s.status !== "published" && (
+                {(s.status !== "published" || s.source_verification_status !== "verified") && (
                   <button
                     className={`${styles.actionBtn} ${styles.publishBtn}`}
                     onClick={() => publish(s.id)}

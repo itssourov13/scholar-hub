@@ -21,7 +21,7 @@ export async function POST(
     SELECT id, title, country, degree_level, funding_type, deadline, is_live, opening_note,
            official_url, competitiveness, eligibility_summary, slug, raw_description,
            ai_summary, tips, tags, required_documents
-    FROM scholarships WHERE id = ${id} LIMIT 1
+    FROM scholarships WHERE id = ${id} AND status = 'published' AND source_verification_status = 'verified' LIMIT 1
   `;
   const scholarship = rows[0] as ScholarshipIngestRecord | undefined;
   if (!scholarship) return NextResponse.json({ error: "Scholarship not found" }, { status: 404 });

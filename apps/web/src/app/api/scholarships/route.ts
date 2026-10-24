@@ -31,7 +31,7 @@ export async function GET(_req: NextRequest) {
            LEFT(ai_summary, 900) AS ai_summary,
            LEFT(eligibility_summary, 300) AS eligibility_summary
     FROM scholarships
-    WHERE status = 'published'
+    WHERE status = 'published' AND source_verification_status = 'verified'
     ORDER BY is_flagship DESC, created_at DESC
   `;
 

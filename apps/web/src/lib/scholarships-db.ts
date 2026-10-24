@@ -34,6 +34,7 @@ export type ScholarshipDetail = {
   thumbnail_url: string | null;
   slug: string | null;
   updated_at: string | null;
+  source_last_checked_at: string | null;
   required_documents: RequiredDocuments | null;
 };
 
@@ -55,10 +56,11 @@ export const getScholarshipByIdOrSlug = cache(
         SELECT
           id, title, country, degree_level, funding_type, deadline,
           official_url, eligibility_summary, competitiveness, tips,
-          tags, ai_summary, thumbnail_url, slug, updated_at, required_documents
+          tags, ai_summary, thumbnail_url, slug, updated_at, source_last_checked_at, required_documents
         FROM scholarships
         WHERE (slug = ${idOrSlug} OR id::text = ${idOrSlug})
           AND status = 'published'
+          AND source_verification_status = 'verified'
         LIMIT 1
       `;
       return (rows[0] as ScholarshipDetail | undefined) ?? null;
@@ -72,7 +74,7 @@ export const getScholarshipByIdOrSlug = cache(
 export const getPublishedScholarshipParams = cache(async (): Promise<{ id: string }[]> => {
   try {
     const rows = await sql`
-      SELECT slug, id::text AS id FROM scholarships WHERE status = 'published'
+      SELECT slug, id::text AS id FROM scholarships WHERE status = 'published' AND source_verification_status = 'verified'
     `;
     return rows.map((r) => ({
       id: (r.slug as string | null) ?? (r.id as string),
@@ -90,7 +92,7 @@ export const getAllPublishedScholarshipCards = cache(async (): Promise<Scholarsh
     const rows = await sql`
       SELECT id::text AS id, slug, title, country, degree_level, funding_type, deadline
       FROM scholarships
-      WHERE status = 'published'
+      WHERE status = 'published' AND source_verification_status = 'verified'
       ORDER BY country ASC, title ASC
     `;
     return rows as ScholarshipCardRow[];
@@ -114,7 +116,7 @@ export const getRelatedScholarships = cache(
       const rows = await sql`
         SELECT id::text AS id, slug, title, country, degree_level, funding_type, deadline
         FROM scholarships
-        WHERE status = 'published'
+        WHERE status = 'published' AND source_verification_status = 'verified'
           AND id::text <> ${excludeId}
           AND (country = ${country} OR degree_level = ${degreeLevel})
         ORDER BY (country = ${country}) DESC, is_flagship DESC, created_at DESC

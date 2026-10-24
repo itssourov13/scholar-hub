@@ -8,7 +8,7 @@ export async function GET() {
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const rows = await sql`
-    SELECT id, title, country, status, created_at, updated_at,
+    SELECT id, title, country, status, source_verification_status, created_at, updated_at,
            thumbnail_url, degree_level, funding_type, deadline, is_flagship,
            bangladeshi_eligible
     FROM scholarships

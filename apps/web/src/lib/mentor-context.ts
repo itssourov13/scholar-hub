@@ -124,6 +124,7 @@ export const loadScholarshipFacts = async (ids: string[]): Promise<ScholarshipFa
            official_url, competitiveness, eligibility_summary, slug
     FROM scholarships
     WHERE id = ANY(${ids}::uuid[])
+      AND status = 'published' AND source_verification_status = 'verified'
   `) as ScholarshipFactRow[];
 };
 
@@ -144,7 +145,7 @@ const searchTitles = async (query: string): Promise<string[]> => {
   const rows = (await sql`
     SELECT id
     FROM scholarships
-    WHERE status = 'published'
+    WHERE status = 'published' AND source_verification_status = 'verified'
       AND EXISTS (
         SELECT 1 FROM unnest(${terms}::text[]) AS term
         WHERE lower(title) LIKE '%' || term || '%'

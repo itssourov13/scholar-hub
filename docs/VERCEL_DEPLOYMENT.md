@@ -1,10 +1,10 @@
 # Vercel Deployment Guide
 
-_Status (2026-10-23): Singapore Function region is configured in source and Production schema is ready, but content data and Vercel configuration remain incomplete. No ScholarHub project is visible in the connected workspace, and no deployment has been triggered._
+_Status (2026-10-24): the existing Production URL is live and public APIs read 5 scholarships + 5 guides from Singapore Production. PR #6 Preview build currently fails during page-data collection for `/api/admin/guides/[id]/cover` because Preview `DATABASE_URL` is not configured (per the user-provided Vercel build log). The connected Vercel tool scope lacks permission to inspect project settings directly. The branch's verification-gate/metadata changes are not in Production; the visible index HTML still has stale content._
 
 ## Vercel project settings
 
-Import `itssourov13/scholar-hub` in the intended Vercel account and configure these values before the first production deploy:
+In the existing Vercel project connected to `itssourov13/scholar-hub`, confirm these project settings:
 
 - **Root Directory:** `apps/web`.
 - **Framework:** Next.js (also declared in `apps/web/vercel.json`).
@@ -19,7 +19,18 @@ The Vercel configuration uses a frozen lockfile install and the existing web `bu
 
 ## Environment variables
 
-Add the values in Vercel **Settings → Environment Variables**. Keep private credentials as Sensitive/Encrypted values where available, never in source files, client-side variables, or Git. The production DB target and preflight evidence are recorded in [Production Database Target](PRODUCTION_DATABASE.md). The database URL must resolve to production branch `br-divine-grass-a16og13f`, not the staging branch currently used by local `.env.local` files. The Production schema exists, but scholarship/guide content has not been populated yet; complete the data/content and release checklist before the first deployment.
+Add the values in Vercel **Settings → Environment Variables**. Keep private credentials as Sensitive/Encrypted values where available, never in source files, client-side variables, or Git. The database targets and preflight evidence are recorded in [Production Database Target](PRODUCTION_DATABASE.md).
+
+### `DATABASE_URL` environment mapping (required)
+
+Use a distinct environment-scoped value for each deployment type; never share one `DATABASE_URL` across Preview and Production:
+
+| Vercel environment scope | Database target | Neon branch | Setup status (2026-10-24) |
+|---|---|---|---|
+| **Preview only** | Staging `neondb` | `br-nameless-fog-a10fo0rl` | **Not configured / redeploy pending.** The user-provided PR #6 build log reports `DATABASE_URL is not configured` while collecting configuration for `/api/admin/guides/[id]/cover`. |
+| **Production only** | Production `neondb` | `br-divine-grass-a16og13f` | The existing live public APIs return the 5 scholarships and 5 guides in Production. The variable value itself has not been independently inspected through the connected Vercel tool scope. |
+
+For Preview, copy the connection string from the Neon Staging branch and select **Preview** only in Vercel. For Production, use the Production branch connection string and select **Production** only. Do not store the literal connection strings in this guide or any Git-tracked file. After adding the Preview variable, redeploy the failed Preview deployment; deployments created before a variable change do not receive the new value. Staging currently has 94 draft/unverified scholarships and no guides, so a successful Preview may show no published scholarship/Guide content until reviewed test records are intentionally seeded there. The existing Production database contains five published verified scholarships and five published guides.
 
 ### Required for a functioning web application
 
@@ -45,11 +56,11 @@ Other model labels, fallback models, redirect paths, support/contact links, and 
 
 ## Deployment sequence
 
-1. Import the repository and set the project settings above.
-2. Add/validate environment variables before deploying. Do not deploy with a placeholder or dummy `DATABASE_URL`.
-3. Build from a preview branch first if one is available. Review build logs and smoke-test public pages, database-backed APIs, Clerk authentication, AI, admin storage, and notification configuration.
-4. Before the first deployment, confirm the Production database is the intended populated database (current verified scholarship rows and guide content), that RAG gates/embeddings behave as intended, and that authorization checks have been exercised with separate users. Schema existence alone is not a populated/ready database.
-5. Promote/deploy Production, confirm the generated HTTPS URL, then update `NEXT_PUBLIC_SITE_URL` and redeploy if the URL changed.
+1. In the existing Vercel project, confirm the settings above (`apps/web` root, Node 22.x, outside-root source access, Corepack, and Singapore Function Region).
+2. Configure environment variables using the mapping above. In particular, add `DATABASE_URL` for **Preview only** using Neon Staging `br-nameless-fog-a10fo0rl`; do not use the Production connection string in Preview. Keep the Production `DATABASE_URL` scoped to Production and pointing to `br-divine-grass-a16og13f`.
+3. Redeploy PR #6 Preview after saving the missing variable. Confirm the build passes page-data collection and then smoke-test public pages, database-backed APIs, Clerk authentication, AI, admin storage, and notification configuration. Distinguish expected empty Staging listings from build/runtime failures.
+4. Before merging/deploying this branch, confirm the Production database is still the intended populated database (five verified scholarships, five guides), that RAG gates/embeddings behave as intended, and that authorization checks have been exercised with separate users. Schema existence alone is not a release check.
+5. Merge/promote/deploy Production only after explicit approval. Confirm the HTTPS URL, then update `NEXT_PUBLIC_SITE_URL` and redeploy if the URL changed. Revalidate `/guide`, `/scholarships`, and changed detail pages after deploy; cached HTML may remain stale until a new build or authenticated revalidation.
 6. Verify Vercel Cron registration and run an approved, non-broadcast smoke test. Do not test broadcasts against real users without explicit approval.
 
 ## Local verification completed
@@ -57,4 +68,8 @@ Other model labels, fallback models, redirect paths, support/contact links, and 
 - On `audit/production-neon-target`, Node 22.23.1 / pnpm 11.1.3 verification passed lint, typecheck, all 388 tests across 21 files, and the Next.js Webpack production build (56 static pages/routes). Build warning: custom Cache-Control for `/_next/static/:path*` may affect development caching; this is a pre-existing non-blocking warning. `git diff --check`, `vercel.json` JSON validation and Markdown local-link checks also passed. No hosted Vercel deployment was run.
 - `apps/web/vercel.json` is valid JSON and preserves the daily push-digest schedule.
 - The local FCM service-account is stored outside Git, and its Base64 environment value is round-trip validated without exposing its contents.
-- The Production migration was separately verified on 2026-10-23 (14 tables, 31 indexes, pgvector/RAG match function; 0 scholarship rows, 0 RAG docs, 0 guide rows). Local build checks do not establish a successful Vercel build, valid production credentials, a populated catalogue/guides, or real device push delivery. Those require the intended Vercel account, provider values and deployment/runtime verification.
+- The Production migration was verified on 2026-10-23 (14 tables, 31 indexes, pgvector/RAG match function; at that checkpoint there were 0 scholarship rows, 0 RAG docs and 0 guides). A separate Phase 1 write on 2026-10-24 populated 5 verified scholarships and 5 guides, with 0 embeddings. Local build checks do not establish a successful new Vercel build, full credential validity or real-device push delivery.
+
+## Post-deployment content smoke test — 2026-10-24
+
+Against `https://scholarhub-itssourov13.vercel.app`, `/api/scholarships` and `/api/guides` returned HTTP 200 with five rows each; all ten detail URLs returned HTTP 200 with expected H1s. The static `/scholarships` and `/guide` index HTML returned HTTP 200 but still does not contain the new item titles. It also retains the old `300+` metadata; the cached KAIST detail page still says `Full funding` while the database/API says `partial`. Read-only Neon checks independently confirmed the populated Singapore `production` branch `br-divine-grass-a16og13f` in `neondb`. Connected Vercel scope still has no project settings entry, so env vars were not directly inspected. A new Production build/deploy or authenticated revalidation is required before marking the visible collection pages current. No deploy/revalidation endpoint was called.

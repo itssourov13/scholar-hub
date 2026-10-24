@@ -47,7 +47,7 @@ export async function POST(
     SELECT id, slug, title, country, degree_level, funding_type,
            eligibility_summary, official_url, required_documents
     FROM scholarships
-    WHERE (slug = ${id} OR id::text = ${id}) AND status = 'published'
+    WHERE (slug = ${id} OR id::text = ${id}) AND status = 'published' AND source_verification_status = 'verified'
     LIMIT 1
   `;
   const s = rows[0];

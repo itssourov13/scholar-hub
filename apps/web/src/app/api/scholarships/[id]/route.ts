@@ -9,7 +9,7 @@ export async function GET(
 
   const rows = await sql`
     SELECT * FROM scholarships
-    WHERE id = ${id} AND status = 'published'
+    WHERE id = ${id} AND status = 'published' AND source_verification_status = 'verified'
     LIMIT 1
   `;
 

@@ -38,6 +38,7 @@ describe("GET /api/scholarships public visibility", () => {
       opening_note: null,
       ai_summary: "A published scholarship.",
       eligibility_summary: null,
+      source_verification_status: "verified",
     }];
   });
 
@@ -49,7 +50,7 @@ describe("GET /api/scholarships public visibility", () => {
     expect(response.status).toBe(200);
     expect(payload.scholarships.map((row) => row.id)).toEqual(["published-1"]);
     expect(state.queries).toHaveLength(1);
-    expect(state.queries[0].text).toContain("WHERE status = 'published'");
+    expect(state.queries[0].text).toContain("WHERE status = 'published' AND source_verification_status = 'verified'");
     expect(state.queries[0].text).not.toContain("status = $1");
     expect(state.queries[0].values).toEqual([]);
   });
