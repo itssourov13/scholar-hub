@@ -44,6 +44,7 @@ export async function PATCH(
     "tags", "thumbnail_url", "thumbnail_prompt",
     "is_live", "opening_note",
     "bangladeshi_eligible", "bangladeshi_eligibility_note",
+    "source_verification_status", "source_verified_at", "source_last_checked_at",
   ];
 
   const updates = Object.fromEntries(
@@ -52,6 +53,67 @@ export async function PATCH(
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
+  }
+
+  if (updates.source_verification_status !== undefined &&
+      !["unverified", "verified", "rejected", "needs_update"].includes(String(updates.source_verification_status))) {
+    return NextResponse.json({ error: "Invalid source verification status" }, { status: 400 });
+  }
+
+  // Any material edit invalidates the prior verification unless the admin
+  // explicitly re-attests to the updated source in this same request. The
+  // public catalogue and RAG read only verified rows, so changed facts become
+  // hidden until reviewed again.
+  const materialFields = new Set([
+    "title", "country", "degree_level", "funding_type", "deadline", "official_url",
+    "raw_description", "ai_summary", "eligibility_summary", "tips", "is_live", "opening_note",
+    "bangladeshi_eligible", "bangladeshi_eligibility_note",
+  ]);
+  if (Object.keys(updates).some((key) => materialFields.has(key)) && updates.source_verification_status !== "verified") {
+    updates.source_verification_status = "needs_update";
+    updates.source_verified_at = null;
+  }
+
+  // A verification mark is an admin attestation, not AI output. Require an
+  // HTTPS provider URL, retained evidence/description, and explicit timestamps.
+  if (updates.source_verification_status === "verified") {
+    const existing = await sql`
+      SELECT official_url, raw_description, source_verified_at, source_last_checked_at
+      FROM scholarships WHERE id = ${id} LIMIT 1
+    `;
+    const row = existing[0];
+    if (!row) return NextResponse.json({ error: "Scholarship not found" }, { status: 404 });
+    const urlValue = (updates.official_url ?? row.official_url) as string | null;
+    const descriptionValue = (updates.raw_description ?? row.raw_description) as string | null;
+    const verifiedAt = updates.source_verified_at ?? row.source_verified_at;
+    const checkedAt = updates.source_last_checked_at ?? row.source_last_checked_at;
+    let validHttps = false;
+    try { validHttps = new URL(urlValue ?? "").protocol === "https:"; } catch { /* invalid source URL */ }
+    if (!validHttps || !descriptionValue?.trim() || !verifiedAt || !checkedAt) {
+      return NextResponse.json({
+        error: "Verification requires an HTTPS official source URL, source notes/evidence, source_verified_at, and source_last_checked_at.",
+      }, { status: 400 });
+    }
+  }
+
+  if (updates.status === "published") {
+    const existing = await sql`
+      SELECT source_verification_status, official_url, source_verified_at, source_last_checked_at
+      FROM scholarships WHERE id = ${id} LIMIT 1
+    `;
+    const row = existing[0];
+    if (!row) return NextResponse.json({ error: "Scholarship not found" }, { status: 404 });
+    const verification = updates.source_verification_status ?? row.source_verification_status;
+    const urlValue = (updates.official_url ?? row.official_url) as string | null;
+    const verifiedAt = updates.source_verified_at ?? row.source_verified_at;
+    const checkedAt = updates.source_last_checked_at ?? row.source_last_checked_at;
+    let validHttps = false;
+    try { validHttps = new URL(urlValue ?? "").protocol === "https:"; } catch { /* invalid source URL */ }
+    if (verification !== "verified" || !validHttps || !verifiedAt || !checkedAt) {
+      return NextResponse.json({
+        error: "Cannot publish an unverified scholarship. Review the official source, save verification evidence and timestamps, then publish.",
+      }, { status: 409 });
+    }
   }
 
   // Pre-process values that need special handling for Neon's HTTP driver:
@@ -94,7 +156,7 @@ export async function PATCH(
 
   // Fan out after the admin gets their response — the send is claimed inside,
   // so re-saving an already-announced scholarship is a no-op.
-  if (rows[0].status === "published") {
+  if (rows[0].status === "published" && rows[0].source_verification_status === "verified") {
     after(() => pushNewScholarship(id));
   }
 

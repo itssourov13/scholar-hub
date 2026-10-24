@@ -1,6 +1,6 @@
 # Vercel Deployment Guide
 
-_Status (2026-10-23): Singapore Function region is configured in source and Production schema is ready, but content data and Vercel configuration remain incomplete. No ScholarHub project is visible in the connected workspace, and no deployment has been triggered._
+_Status (2026-10-24): the user-provided live URL is deployed and public APIs read 5 scholarships + 5 guides from Singapore Production. The connected Vercel scope still exposes no ScholarHub project settings, so variables/build linkage cannot be independently inspected. Local verification-gate/metadata updates are not yet deployed; the index HTML still has stale “300+” copy._
 
 ## Vercel project settings
 
@@ -57,4 +57,8 @@ Other model labels, fallback models, redirect paths, support/contact links, and 
 - On `audit/production-neon-target`, Node 22.23.1 / pnpm 11.1.3 verification passed lint, typecheck, all 388 tests across 21 files, and the Next.js Webpack production build (56 static pages/routes). Build warning: custom Cache-Control for `/_next/static/:path*` may affect development caching; this is a pre-existing non-blocking warning. `git diff --check`, `vercel.json` JSON validation and Markdown local-link checks also passed. No hosted Vercel deployment was run.
 - `apps/web/vercel.json` is valid JSON and preserves the daily push-digest schedule.
 - The local FCM service-account is stored outside Git, and its Base64 environment value is round-trip validated without exposing its contents.
-- The Production migration was separately verified on 2026-10-23 (14 tables, 31 indexes, pgvector/RAG match function; 0 scholarship rows, 0 RAG docs, 0 guide rows). Local build checks do not establish a successful Vercel build, valid production credentials, a populated catalogue/guides, or real device push delivery. Those require the intended Vercel account, provider values and deployment/runtime verification.
+- The Production migration was verified on 2026-10-23 (14 tables, 31 indexes, pgvector/RAG match function; at that checkpoint there were 0 scholarship rows, 0 RAG docs and 0 guides). A separate Phase 1 write on 2026-10-24 populated 5 verified scholarships and 5 guides, with 0 embeddings. Local build checks do not establish a successful new Vercel build, full credential validity or real-device push delivery.
+
+## Post-deployment content smoke test — 2026-10-24
+
+Against `https://scholarhub-itssourov13.vercel.app`, `/api/scholarships` and `/api/guides` returned HTTP 200 with five rows each; all ten detail URLs returned HTTP 200 with expected H1s. The static `/scholarships` and `/guide` index HTML returned HTTP 200 but still does not contain the new item titles. It also retains the old `300+` metadata; the cached KAIST detail page still says `Full funding` while the database/API says `partial`. Read-only Neon checks independently confirmed the populated Singapore `production` branch `br-divine-grass-a16og13f` in `neondb`. Connected Vercel scope still has no project settings entry, so env vars were not directly inspected. A new Production build/deploy or authenticated revalidation is required before marking the visible collection pages current. No deploy/revalidation endpoint was called.

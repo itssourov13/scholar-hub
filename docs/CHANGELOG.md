@@ -4,6 +4,13 @@ Meaningful product and engineering changes are recorded here. Dates use YYYY-MM-
 
 ## Unreleased
 
+### 2026-10-24 — Populate first verified Production content and add local source gates
+- Added five current-cycle/source-reviewed scholarship records and five editorial guides to Neon Singapore Production branch `br-divine-grass-a16og13f` (`neondb`). The 10 SQL statements ran in one transaction with stable source identities/upsert handling. Records include official HTTPS links, verification timestamps, evidence notes, eligibility caveats and required-document checklists; guides include source links and FAQs.
+- Verified Production counts: 5 scholarships total, 5 published, 5 verified; 5 guides total, 5 published; 0 `ScholarshipDoc` rows. `push_sent_at` is set for all seeded rows to prevent unintended notification fan-out. No staging or user-owned data was copied and no embeddings were generated.
+- Live smoke results: public scholarship/guide APIs return HTTP 200 and five records each; both index pages and all ten direct detail URLs return HTTP 200. Cached list HTML still contains the old `300+` copy; local metadata fixes need deployment/revalidation.
+- On local branch `feat/phase1-curated-content`, added server-side source verification gates, invalidation after material edits, verified-only public/AI/RAG reads and indexing, publish UI confirmation, a last-checked label, and accurate catalogue-size metadata. Added four verification/publish regression cases and updated the public API tests. These code changes have not been deployed.
+- No commit, push or deployment. Final local verification after the last code edits must be completed/reported in `report.md`.
+
 ### 2026-10-23 — Apply and verify Singapore Production schema; refresh release plan
 - With explicit user approval, applied the Clerk/Neon baseline `018` and additive migrations `019`–`028` to Production branch `br-divine-grass-a16og13f` in one transaction. Post-checks confirmed 14 public application tables, 31 indexes, expected scholarship/provenance/profile columns, pgvector and `match_scholarship_docs`; `prompt_cache` is absent as intended.
 - Confirmed schema-only scope: Production still has zero scholarship records, zero `ScholarshipDoc` rows and zero Guide rows. No staging scholarship or private user rows were copied; no records were published.

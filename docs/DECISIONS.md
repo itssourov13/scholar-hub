@@ -130,3 +130,11 @@ For a new durable decision, add:
 - Date and status.
 
 Superseded decisions remain in this log with their status changed; do not silently rewrite history.
+
+## ADR-017 — Verification is required for public scholarship facts and AI retrieval
+
+**Status:** Accepted/implemented locally on `feat/phase1-curated-content`; requires deployment before hosted enforcement — 2026-10-24
+
+Scholarship records can be published only when an admin attests that an official HTTPS provider page and retained source notes were reviewed and both verification/last-checked timestamps are saved. Material changes invalidate the prior verification unless the admin explicitly re-attests in the same publish request. Public scholarship APIs/details/document checklists, profile-match hydration, Mentor fact hydration/title search, and admin RAG ingestion query only records with both `status='published'` and `source_verification_status='verified'`. Creating/publishing a scholarship does not run RAG ingestion before it is published and verified; indexing remains a deliberate post-publication action. Initial seed rows set `push_sent_at` to avoid bulk-seed notification fan-out.
+
+**Reason:** Draft/social-source data or AI extraction must not be represented as an authoritative scholarship fact. This is a small targeted safeguard for Phase 1, not a wider architecture rewrite. The source change is local-only until pushed/deployed.

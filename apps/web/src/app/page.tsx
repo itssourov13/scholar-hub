@@ -8,13 +8,13 @@ const BASE_URL = SITE_URL;
 export const metadata: Metadata = {
   title: "Find International Scholarships for Bangladeshi Students",
   description:
-    "Discover 300+ fully funded and partial scholarships for students from Bangladesh. Browse Masters, PhD, and Bachelors opportunities in the UK, USA, Germany, Canada, and more — with AI-powered eligibility summaries.",
+    "Discover curated international scholarship opportunities for students from Bangladesh. Compare official-source-linked eligibility, funding, and application timelines.",
   // Self-canonical (English, unprefixed) + reciprocal hreflang to /bn + x-default.
   alternates: alternatesFor("/", "en"),
   openGraph: {
     title: "Find International Scholarships for Bangladeshi Students | ScholarHub",
     description:
-      "AI-powered scholarship discovery for students from Bangladesh. Browse 300+ opportunities across 30+ countries with eligibility breakdowns and application timelines.",
+      "Explore curated international scholarship opportunities with source-linked eligibility, funding details, and application timelines for students from Bangladesh.",
     url: BASE_URL,
     type: "website",
     images: [
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Find International Scholarships for Bangladeshi Students",
     description:
-      "AI-powered scholarship discovery for students from Bangladesh. Browse 300+ opportunities with eligibility breakdowns.",
+      "Explore curated scholarship opportunities with source-linked eligibility and funding details for students from Bangladesh.",
     images: ["/og-image.png"],
   },
 };

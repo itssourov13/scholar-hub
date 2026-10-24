@@ -1,6 +1,6 @@
 # Handoff
 
-_Last updated: 2026-10-23 — Singapore Production schema migration completed and verified; first deployment intentionally remains pending content/config readiness._
+_Last updated: 2026-10-24 — Phase 1 has five published verified scholarships and five published guides in Singapore Production; local code safeguards still need release deployment._
 
 ## Current objective
 
@@ -11,14 +11,14 @@ Prepare a single, coherent first Production release for the Bangladesh-first Sch
 - Workspace: `/home/kali/gpt-workspace/BairePorbo`
 - GitHub: `https://github.com/itssourov13/scholar-hub`
 - PR #4 catalogue import merged into `main` at `33e88e0a46ad22d84053cc91a382c910b6df1341`.
-- Working branch: `audit/production-neon-target`. Do not push/deploy without explicit instruction.
+- Working branch: `feat/phase1-curated-content` (local only). An existing uncommitted user edit in `docs/PRODUCTION_ROADMAP.md` was preserved. Do not push/deploy without explicit instruction.
 - Web/API: `apps/web` (Next.js, Clerk, Neon/PostgreSQL/pgvector, R2, OpenRouter). Mobile: `apps/mobile` (Expo/React Native).
 - Start with `docs/CURRENT_STATE.md`, `docs/PRODUCTION_ROADMAP.md`, `docs/PRODUCTION_DATABASE.md`, `docs/SCHOLARSHIP_DATA_IMPORT.md`, and `docs/VERCEL_DEPLOYMENT.md`.
 
 ## Database state (verified 2026-10-23)
 
 - Selected Neon project: **ScholarHub Production Singapore**, `shy-darkness-67521294`, `aws-ap-southeast-1`.
-- Production: branch `br-divine-grass-a16og13f`, database `neondb`. Migrations `018`–`028` were applied in one transaction after explicit approval. Verification: PostgreSQL 18.6; 14 public tables; 31 indexes; expected import/profile columns; pgvector and `match_scholarship_docs` present; `prompt_cache` absent; 0 scholarship rows, 0 RAG docs, 0 guides.
+- Production: branch `br-divine-grass-a16og13f`, database `neondb`. Migrations `018`–`028` were applied in one transaction on 2026-10-23. On 2026-10-24, read-only checks confirmed 5 published verified scholarships, 5 published guides, and 0 RAG documents. The connected Vercel scope does not show project settings, but the user-provided live URL returns these database-backed records from its public APIs.
 - Staging: branch `br-nameless-fog-a10fo0rl`. 94 scholarship rows, all draft/unverified; 0 published/live; 0 RAG docs; 0 guides; checked user-owned tables are empty. 58 of the 94 rows have past ISO-format deadlines; 36 have no deadline.
 - Source dataset: `apps/web/cleaned_scholarships.json`, 309 candidates; 94 passed the initial minimum-field import check and 215 were held for review. Full-source diagnostic counts overlap: 166 missing official URLs; 81 missing countries; 14 rows within duplicate-URL groups; 183 past ISO-format dates; 125 missing deadlines. Official current-cycle review has not been done.
 - The isolated preflight branch `br-holy-cell-a1qlrlmy` is retained temporarily as test evidence; not an app runtime.
@@ -26,12 +26,12 @@ Prepare a single, coherent first Production release for the Bangladesh-first Sch
 
 ## Content and code findings
 
-- Public scholarship API filters to `status='published'`. Production contains no content yet, so this endpoint cannot provide real scholarship rows until reviewed content is imported and published.
-- Guides are fetched from published rows in `guides`; no static/demo fallback exists. Staging and Production currently have zero guides. Identify/confirm the trusted source content and import/create reviewed guide rows.
+- Production has five published and source-reviewed scholarship records. The live public API returned those five rows after the Phase 1 write. The local feature branch additionally filters on `source_verification_status='verified'`; that new guard is not hosted yet.
+- Guides are fetched from published rows in `guides`; no static/demo fallback exists. Production now contains five published guides; Staging remains empty. All five direct guide detail URLs return HTTP 200 with expected H1s, but the `/guide` index HTML remains stale/empty until revalidation or a new build/deploy.
 - CVs/analyses, profiles, Mentor chats, bookmarks, tasks and roadmaps are user-generated records; staging currently has no rows in the checked tables. Do not fabricate seed user data. Any real private data in a separate legacy source requires a separate authorised migration.
-- RAG is not populated. Before creating embeddings, address source-level safety gaps: single-record ingest fetches by ID without published/verified checks; batch ingest checks published status but not source verification; mentor retrieval must not treat draft/unverified vectors as authoritative. Add code/tests before ingestion.
-- The current `scripts/import-scholarships.ts` is staging-only by design. Production content needs a separate reviewed, repeatable production import/seed workflow; never change its target guard casually or pass Production as the staging host.
-- Connected Vercel tools show no ScholarHub project in scope. Environment variables and deployments are not configured. `apps/web/vercel.json` declares Function region `sin1`.
+- RAG is not populated. The local source branch adds published+verified filters to single/batch ingestion and Mentor fact hydration/title search. Final local tests/build pass, but those guards are not hosted yet; add focused vector-retrieval tests and deploy/verify before generating embeddings.
+- The current `scripts/import-scholarships.ts` is staging-only by design. The initial five scholarship + five guide batch was inserted to Production via a separate reviewed transaction. For future larger batches, create/review a repeatable Production import workflow; never weaken the staging guard or pass Production as the staging host.
+- Connected Vercel tools still show no ScholarHub project in scope, so its environment settings cannot be inspected through this connection. The user-provided live URL serves the populated content APIs, but cached index metadata and KAIST funding label remain stale. `apps/web/vercel.json` declares Function region `sin1`; user-authorised deploy/revalidation of the local branch remains open.
 
 ## Ordered next steps
 
@@ -50,3 +50,11 @@ Prepare a single, coherent first Production release for the Bangladesh-first Sch
 - Do not claim guides, RAG, or the production catalogue are ready just because tables/migrations exist.
 - Do not use `SCHOLARHUB_LOCAL_PREVIEW=1` in Vercel/production.
 - Do not push, merge, deploy or perform additional Production data writes without the appropriate explicit instruction.
+
+## Phase 1 work completed (2026-10-24)
+
+- Added five scholarship records and five guide records directly to the selected Singapore Production branch in one transaction. Details/source status, official links, dates, funding and eligibility uncertainties are documented in `SCHOLARSHIP_DATA_IMPORT.md` and the local-only `report.md`.
+- The public APIs and all ten direct content routes returned HTTP 200 after the write. The cached index HTML still shows stale `300+` copy; local metadata changes need deployment.
+- Added local server-side verification/publish enforcement and verified-only public/RAG filters on `feat/phase1-curated-content`. This branch is not pushed or deployed. Final local lint/typecheck/full test/build results must be read from the Phase 1 report before handoff.
+- RAG remains empty; no notifications or private data were seeded. Do not publish further rows or ingest embeddings without fresh source review and verification.
+- User-facing follow-up needed: decide when to push this branch and then authorize hosted deployment/revalidation. The assistant did not commit, push or deploy.

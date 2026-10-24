@@ -25,14 +25,14 @@ export async function POST(req: NextRequest) {
                official_url, competitiveness, eligibility_summary, slug, raw_description,
                ai_summary, tips, tags, required_documents
         FROM scholarships
-        WHERE status = 'published' AND id = ANY(${ids}::uuid[])
+        WHERE status = 'published' AND source_verification_status = 'verified' AND id = ANY(${ids}::uuid[])
       `
     : await sql`
         SELECT id, title, country, degree_level, funding_type, deadline, is_live, opening_note,
                official_url, competitiveness, eligibility_summary, slug, raw_description,
                ai_summary, tips, tags, required_documents
         FROM scholarships
-        WHERE status = 'published'
+        WHERE status = 'published' AND source_verification_status = 'verified'
       `;
 
   if (!scholarships.length) {

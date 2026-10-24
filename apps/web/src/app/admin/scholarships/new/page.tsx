@@ -227,22 +227,33 @@ export default function NewScholarshipPage() {
           throw new Error(d?.error ?? "Upload failed");
         }
       }
+      let verification: Record<string, unknown> = { status: "draft" };
       if (!asDraft) {
-        const ingestRes = await fetch(`/api/admin/scholarships/${scholarshipId}/ingest`, {
-          method: "POST",
-        });
-        if (!ingestRes.ok) {
-          const d = await safeJson(ingestRes);
-          throw new Error(
-            `Search indexing failed (thumbnail was saved). ${d?.error ?? "RAG ingest failed"}`
-          );
+        if (!form.official_url.trim() || !form.raw_description.trim()) {
+          throw new Error("Before publishing, add the official provider URL and notes/evidence from its current scholarship page. Save as draft if your review is not finished.");
         }
+        let officialHttps = false;
+        try { officialHttps = new URL(form.official_url).protocol === "https:"; } catch { /* invalid URL */ }
+        if (!officialHttps) {
+          throw new Error("Publishing requires an HTTPS official provider URL.");
+        }
+        const confirmed = window.confirm(
+          `Before publishing “${form.title}”, confirm that you personally checked the official provider page for the current intake, Bangladesh/nationality eligibility, degree requirements, deadline and time zone, funding conditions, and application URL. AI-extracted fields alone are not verification. Continue?`,
+        );
+        if (!confirmed) return;
+        const checkedAt = new Date().toISOString();
+        verification = {
+          status: "published",
+          source_verification_status: "verified",
+          source_verified_at: checkedAt,
+          source_last_checked_at: checkedAt,
+        };
       }
 
       const pubRes = await fetch(`/api/admin/scholarships/${scholarshipId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: asDraft ? "draft" : "published" }),
+        body: JSON.stringify(verification),
       });
       if (!pubRes.ok) {
         const d = await safeJson(pubRes);

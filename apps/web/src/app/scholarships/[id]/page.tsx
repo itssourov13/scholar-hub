@@ -288,9 +288,13 @@ export default async function ScholarshipDetailPage({ params }: Props) {
           <section className={styles.officialLinkCard}>
             <p>
               Applications for the <strong>{s.title}</strong> are handled on the
-              official {s.country} scholarship website. Always verify eligibility
-              and deadlines there before applying.
+              official provider page. Always verify eligibility and deadlines there before applying.
             </p>
+            {s.source_last_checked_at && (
+              <p style={{ fontSize: 12, color: "var(--ink-500)", marginTop: 8 }}>
+                Official source last checked {new Date(s.source_last_checked_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}.
+              </p>
+            )}
             <a
               className={styles.officialLinkBtn}
               href={s.official_url}

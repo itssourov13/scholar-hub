@@ -1,10 +1,10 @@
 # Task State
 
-_Last reviewed: 2026-10-23 — PR #4 merged; Singapore Production migrations `018`–`028` applied and verified; current focus is catalogue/Guide content readiness before first deployment._
+_Last reviewed: 2026-10-24 — Phase 1 populated Singapore Production with 5 verified scholarships and 5 guides; verification gate changes are local on `feat/phase1-curated-content`._
 
 ## Current phase
 
-The ScholarHub foundation, local preview fix, Firebase/EAS/Vercel preparation and PR #4 catalogue importer are in the repository; PR #4 merged as `33e88e0`. The Singapore Production schema migration `018`–`028` has since been explicitly approved, applied and verified (14 tables, 31 indexes, pgvector/RAG function); Production has 0 scholarship, 0 RAG and 0 Guide rows. Staging has 94 draft/unverified scholarship candidates (58 old ISO deadlines, 36 missing deadlines), and 215 of 309 source candidates remain held for data-quality review. Current priority: official source review, trusted Guide content, server-enforced publish/RAG safety, a reviewed Production import workflow, and full Vercel configuration before the first deployment. No Vercel project is visible in the connected account scope, so env vars/deployment remain untouched.
+The ScholarHub foundation, local preview fix, EAS/Vercel preparation and PR #4 catalogue importer are in the repository. Singapore Production schema migrations `018`–`028` are applied (14 tables, 31 indexes, pgvector/RAG function). Phase 1 now has 5 published and verified scholarships, 5 published guides, and 0 RAG documents on Production. Staging remains separate with 94 draft/unverified scholarship candidates and 215 of the original 309 candidates held for review. The connected Vercel tool scope still cannot inspect the project/environment settings; the public URL is smoke-tested and its content APIs read the populated data. Local verification/publish and verified-only RAG/public-read guards need deployment before they apply to hosted code.
 
 The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the planning source of truth. Legacy brand artwork, legal/operator details, real service configuration, verified scholarship data, security testing, and release configuration still require work. Policy pages remain pre-release drafts.
 
@@ -32,7 +32,7 @@ The editable [Production Roadmap (Draft)](PRODUCTION_ROADMAP.md) remains the pla
 - [x] Re-ran web TypeScript and tests (375/375 pass) and rebuilt with Webpack (56 static pages generated). This used a dummy `DATABASE_URL` and is not a real database/production integration test.
 - [x] Stopped the local preview server after the user requested shutdown. The preview fix was pushed and merged through PR #1; it has not been verified in a production deployment.
 
-**Still outstanding for real content:** Production schema is now ready, but Production `scholarships`, `guides` and `ScholarshipDoc` are empty. Verify/import current-cycle scholarships and trusted Guide content, enforce source-review/publish rules, address RAG ingest/retrieval verification before embeddings, and test the real Web/Mobile journeys. Ordinary published scholarship rows do not require RAG embeddings; AI semantic retrieval does. Do not use the local/staging DB URL as a production target.
+**Current remaining content/release work:** the initial five scholarships and five guides are live through public APIs. Final local quality gates and user-authorised deployment of source-gate/metadata changes remain. Keep RAG empty until verified/public records are intentionally indexed. Re-check scholarship facts as application cycles approach. Ordinary published rows do not require RAG embeddings; AI semantic retrieval does. Never use local/staging configuration as Production.
 
 ## Previously identified brand/repository and product tasks
 
@@ -167,3 +167,15 @@ This section preserves the earlier mobile/role-state verification snapshot. Its 
 - [ ] Create a separately reviewed, idempotent production import/seed path for approved scholarship and Guide data; the existing catalogue importer is staging-only.
 - [ ] Complete environment-variable/service review, credentials-backed auth/API/E2E tests and mobile release checks. No connected Vercel ScholarHub project is currently visible; no env vars/deployment have been changed.
 - [x] Cross-checked canonical docs against the completed migration and current staging/source audits; refreshed the roadmap and status references. This update changes documentation only; no app/runtime code files are changed.
+
+## Phase 1 — Production content and source-verification gate (2026-10-24)
+
+- [x] Created local branch `feat/phase1-curated-content` without disturbing the existing local roadmap edit.
+- [x] Researched current official sources and inserted five scholarship records and five guides to Singapore Production (`br-divine-grass-a16og13f` / `neondb`) via one upsert-safe transaction.
+- [x] Read back counts/statuses: 5 published + verified scholarships; 5 published guides; 0 RAG docs; no notification fan-out (`push_sent_at` set on the ten seeded records); no private user rows copied.
+- [x] Smoke-tested live `/api/scholarships`, `/api/guides`, `/scholarships`, `/guide` and the ten detail URLs: all returned HTTP 200; API payloads contain five entries of each type.
+- [x] Implemented local admin publish validation, invalidation on material edits, verified-only public scholarship/detail/documents/profile-match/Mentor paths, verified-only RAG ingestion, last-checked display, and correct non-`300+` metadata copy. Added regression tests for publish enforcement and public output.
+- [x] Final local quality gates after final edits: lint/typecheck PASS; 392 tests across 22 files PASS; Webpack production build PASS (56 routes); `git diff --check` PASS. Updated local-only `report.md` with the cached-content limitation.
+- [ ] Push/deploy the branch only after the user authorises it; then re-check that the hosted metadata/list pages are refreshed and the new server guards are active. No commit, push or deployment has been made in this pass.
+
+Source uncertainty is explicit: Brunei Bangladesh eligibility remains unconfirmed until current-cycle terms are published/checked, GKS deadlines vary by track, and Türkiye 2027 dates are not yet confirmed. These records must be refreshed against their provider pages before deadlines approach.
